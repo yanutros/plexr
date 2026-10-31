@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { device } from "./device";
 import { nav } from "./nav.svelte";
+import { t } from "./i18n";
 
 export interface Session {
   loggedIn: boolean;
@@ -102,6 +103,8 @@ export interface UpdateInfo {
 
 export interface Hub {
   title: string;
+  /** Identifiant Plex de la rangée, indépendant de la langue (« movie.inprogress.1 »…). */
+  identifier: string;
   items: Item[];
 }
 
@@ -385,12 +388,12 @@ export async function tracearrLogin(onAuthUrl?: (url: string) => void): Promise<
   try {
     for (let i = 0; i < 150; i++) {
       await new Promise((r) => setTimeout(r, 2000));
-      if (show && !onAuthUrl && !nav.authUrl) throw new Error("Connexion annulée.");
+      if (show && !onAuthUrl && !nav.authUrl) throw new Error(t("errors.loginCancelled"));
       const state = await api.tracearrPollLogin(handle);
       if (state === "done") return;
       if (state === "expired") break;
     }
-    throw new Error("La connexion n'a pas été validée à temps : réessaie.");
+    throw new Error(t("errors.loginTimeout"));
   } finally {
     if (!onAuthUrl) nav.authUrl = null;
   }
@@ -401,22 +404,22 @@ export function formatLongDuration(ms: number): string {
   const min = Math.round(ms / 60000);
   const days = Math.floor(min / 1440);
   const hours = Math.floor((min % 1440) / 60);
-  if (days) return `${days} j ${hours} h`;
-  if (hours) return `${hours} h ${String(min % 60).padStart(2, "0")}`;
-  return `${min} min`;
+  if (days) return t("format.daysHours", { days, hours });
+  if (hours) return t("format.hoursMinutes", { hours, minutes: String(min % 60).padStart(2, "0") });
+  return t("format.minutes", { minutes: min });
 }
 
 /** Libellés des statuts Seerr. */
 export function seerrStatusLabel(status: number): string | null {
   switch (status) {
     case 2:
-      return "Demandé";
+      return t("common.c2.seerrStatus.requested");
     case 3:
-      return "En cours";
+      return t("common.c2.seerrStatus.processing");
     case 4:
-      return "Partiellement disponible";
+      return t("common.c2.seerrStatus.partial");
     case 5:
-      return "Disponible";
+      return t("common.c2.seerrStatus.available");
     default:
       return null;
   }
@@ -425,7 +428,9 @@ export function seerrStatusLabel(status: number): string | null {
 export function formatDuration(ms: number | null): string {
   if (!ms) return "";
   const min = Math.round(ms / 60000);
-  return min >= 60 ? `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, "0")}` : `${min} min`;
+  return min >= 60
+    ? t("format.hoursMinutes", { hours: Math.floor(min / 60), minutes: String(min % 60).padStart(2, "0") })
+    : t("format.minutes", { minutes: min });
 }
 
 export const MUSIC_KINDS = ["artist", "album", "track", "playlist"];

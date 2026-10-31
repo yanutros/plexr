@@ -6,6 +6,7 @@
   import SeerrCard from "../components/SeerrCard.svelte";
   import Row from "../components/Row.svelte";
   import Icon from "../components/Icon.svelte";
+  import { locale, t } from "../lib/i18n";
 
   let { mediaType, tmdbId }: { mediaType: "movie" | "tv"; tmdbId: number } = $props();
 
@@ -15,18 +16,18 @@
   let error = $state<string | null>(null);
 
   const STATUS: Record<string, string> = {
-    Released: "Sorti",
-    "Post Production": "Post-production",
-    "In Production": "En production",
-    Planned: "Prévu",
-    Rumored: "Annoncé",
-    Canceled: "Annulé",
-    Ended: "Terminée",
-    "Returning Series": "En cours",
-    Pilot: "Pilote",
+    Released: t("seerr.productionStatus.released"),
+    "Post Production": t("seerr.productionStatus.postProduction"),
+    "In Production": t("seerr.productionStatus.inProduction"),
+    Planned: t("seerr.productionStatus.planned"),
+    Rumored: t("seerr.productionStatus.rumored"),
+    Canceled: t("seerr.productionStatus.canceled"),
+    Ended: t("seerr.productionStatus.ended"),
+    "Returning Series": t("seerr.productionStatus.returningSeries"),
+    Pilot: t("seerr.productionStatus.pilot"),
   };
-  const languages = new Intl.DisplayNames(["fr"], { type: "language" });
-  const money = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  const languages = new Intl.DisplayNames([locale], { type: "language" });
+  const money = new Intl.NumberFormat(locale, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
   const label = $derived(item ? seerrStatusLabel(item.status) : null);
   const requestable = $derived(
@@ -34,7 +35,7 @@
   );
   const releaseDate = $derived(
     item?.releaseDate
-      ? new Date(item.releaseDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+      ? new Date(item.releaseDate).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })
       : null,
   );
 
@@ -94,26 +95,26 @@
         <h1>{item.title} {#if item.year}<span class="year">({item.year})</span>{/if}</h1>
         <div class="meta">
           {#if item.certification}<span class="badge outline">{item.certification}</span>{/if}
-          {#if item.runtime}<span>{item.runtime} minutes</span>{/if}
+          {#if item.runtime}<span>{t("seerr.detail.runtime", { minutes: item.runtime })}</span>{/if}
           {#if item.mediaType === "tv" && item.seasons}
-            <span>{item.seasons} saison{item.seasons > 1 ? "s" : ""}</span>
+            <span>{t("seerr.detail.seasons", { count: item.seasons })}</span>
           {/if}
           {#if item.genres.length}<span>{item.genres.join(", ")}</span>{/if}
         </div>
         <div class="actions">
           {#if item.plexRatingKey && item.status >= 4}
             <button class="btn primary big" onclick={() => go({ name: "item", ratingKey: item!.plexRatingKey! })}>
-              <Icon name="play" size={18} filled /> Voir dans Plexr
+              <Icon name="play" size={18} filled /> {t("seerr.detail.watchInPlexr")}
             </button>
           {/if}
           {#if requestable}
             <button class="btn big" class:primary={!item.plexRatingKey} onclick={() => (nav.requesting = item)}>
-              <Icon name="plus" size={18} /> {item.status === 4 ? "Demander d'autres saisons" : "Demander"}
+              <Icon name="plus" size={18} /> {item.status === 4 ? t("seerr.detail.requestMoreSeasons") : t("seerr.detail.request")}
             </button>
           {/if}
           {#if item.trailer}
             <button class="btn big" onclick={() => openLink(item!.trailer!)}>
-              <Icon name="film" size={18} /> Bande-annonce
+              <Icon name="film" size={18} /> {t("seerr.detail.trailer")}
             </button>
           {/if}
         </div>
@@ -123,8 +124,8 @@
     <div class="body">
       <div class="main">
         {#if item.tagline}<p class="tagline">{item.tagline}</p>{/if}
-        <h2 class="section-title">Résumé</h2>
-        <p class="overview">{item.overview ?? "Aucun résumé disponible."}</p>
+        <h2 class="section-title">{t("seerr.detail.overview")}</h2>
+        <p class="overview">{item.overview ?? t("seerr.detail.noOverview")}</p>
 
         {#if item.crew.length}
           <div class="crew">
@@ -144,13 +145,13 @@
         {#if item.ratings.rtCritics !== null || item.ratings.imdb !== null || item.ratings.tmdb}
           <div class="ratings">
             {#if item.ratings.rtCritics !== null}
-              <button class="rating" title="Rotten Tomatoes (critiques)" onclick={() => item!.ratings.rtUrl && openLink(item!.ratings.rtUrl)}>
-                <span class="logo rt">RT</span>{item.ratings.rtCritics} %
+              <button class="rating" title={t("seerr.detail.rtCritics")} onclick={() => item!.ratings.rtUrl && openLink(item!.ratings.rtUrl)}>
+                <span class="logo rt">RT</span>{t("seerr.detail.percent", { value: item.ratings.rtCritics })}
               </button>
             {/if}
             {#if item.ratings.rtAudience !== null}
-              <button class="rating" title="Rotten Tomatoes (public)" onclick={() => item!.ratings.rtUrl && openLink(item!.ratings.rtUrl)}>
-                <span class="logo pop">🍿</span>{item.ratings.rtAudience} %
+              <button class="rating" title={t("seerr.detail.rtAudience")} onclick={() => item!.ratings.rtUrl && openLink(item!.ratings.rtUrl)}>
+                <span class="logo pop">🍿</span>{t("seerr.detail.percent", { value: item.ratings.rtAudience })}
               </button>
             {/if}
             {#if item.ratings.imdb !== null}
@@ -160,28 +161,28 @@
             {/if}
             {#if item.ratings.tmdb}
               <button class="rating" title="TMDB" onclick={() => openLink(item!.tmdbUrl)}>
-                <span class="logo tmdb">TMDB</span>{Math.round(item.ratings.tmdb * 10)} %
+                <span class="logo tmdb">TMDB</span>{t("seerr.detail.percent", { value: Math.round(item.ratings.tmdb * 10) })}
               </button>
             {/if}
           </div>
         {/if}
         <dl>
-          {#if item.originalTitle && item.originalTitle !== item.title}<dt>Titre original</dt><dd>{item.originalTitle}</dd>{/if}
-          {#if item.productionStatus}<dt>Statut</dt><dd>{STATUS[item.productionStatus] ?? item.productionStatus}</dd>{/if}
-          {#if releaseDate}<dt>{item.mediaType === "tv" ? "Première diffusion" : "Date de sortie"}</dt><dd>{releaseDate}</dd>{/if}
-          {#if item.mediaType === "tv" && item.episodes}<dt>Épisodes</dt><dd>{item.episodes}</dd>{/if}
-          {#if item.revenue}<dt>Recettes</dt><dd>{money.format(item.revenue)}</dd>{/if}
-          {#if item.budget}<dt>Budget</dt><dd>{money.format(item.budget)}</dd>{/if}
-          {#if item.originalLanguage}<dt>Langue originale</dt><dd>{language(item.originalLanguage)}</dd>{/if}
-          {#if item.countries.length}<dt>Pays de production</dt><dd>{item.countries.join(", ")}</dd>{/if}
+          {#if item.originalTitle && item.originalTitle !== item.title}<dt>{t("seerr.facts.originalTitle")}</dt><dd>{item.originalTitle}</dd>{/if}
+          {#if item.productionStatus}<dt>{t("seerr.facts.status")}</dt><dd>{STATUS[item.productionStatus] ?? item.productionStatus}</dd>{/if}
+          {#if releaseDate}<dt>{item.mediaType === "tv" ? t("seerr.facts.firstAired") : t("seerr.facts.releaseDate")}</dt><dd>{releaseDate}</dd>{/if}
+          {#if item.mediaType === "tv" && item.episodes}<dt>{t("seerr.facts.episodes")}</dt><dd>{item.episodes}</dd>{/if}
+          {#if item.revenue}<dt>{t("seerr.facts.revenue")}</dt><dd>{money.format(item.revenue)}</dd>{/if}
+          {#if item.budget}<dt>{t("seerr.facts.budget")}</dt><dd>{money.format(item.budget)}</dd>{/if}
+          {#if item.originalLanguage}<dt>{t("seerr.facts.originalLanguage")}</dt><dd>{language(item.originalLanguage)}</dd>{/if}
+          {#if item.countries.length}<dt>{t("seerr.facts.countries")}</dt><dd>{item.countries.join(", ")}</dd>{/if}
           {#if item.studios.length}
-            <dt>{item.mediaType === "tv" ? "Chaînes" : "Studios"}</dt>
+            <dt>{item.mediaType === "tv" ? t("seerr.facts.networks") : t("seerr.facts.studios")}</dt>
             <dd>{#each item.studios.slice(0, 5) as s (s)}<div>{s}</div>{/each}</dd>
           {/if}
         </dl>
         {#if item.providers.length}
           <div class="providers">
-            <div class="providers-title">Disponible en streaming sur</div>
+            <div class="providers-title">{t("seerr.facts.streamingOn")}</div>
             <div class="logos">
               {#each item.providers as p (p.name)}<img src={p.logo} alt={p.name} title={p.name} />{/each}
             </div>
@@ -191,7 +192,7 @@
     </div>
 
     {#if item.cast.length}
-      <Row title="Casting">
+      <Row title={t("seerr.detail.cast")}>
         {#each item.cast as p, i (i)}
           <div class="person">
             <div class="avatar">{#if p.photo}<img src={p.photo} alt="" loading="lazy" />{:else}{p.name[0]}{/if}</div>
@@ -203,13 +204,13 @@
     {/if}
 
     {#if recommendations.length}
-      <Row title="Recommandations">
+      <Row title={t("seerr.detail.recommendations")}>
         {#each recommendations as m (m.mediaType + m.tmdbId)}<SeerrCard media={m} />{/each}
       </Row>
     {/if}
 
     {#if similar.length}
-      <Row title="Titres similaires">
+      <Row title={t("seerr.detail.similar")}>
         {#each similar as m (m.mediaType + m.tmdbId)}<SeerrCard media={m} />{/each}
       </Row>
     {/if}

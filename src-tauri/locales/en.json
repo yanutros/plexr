@@ -1,0 +1,113 @@
+{
+  "app": {
+    "noServer": "No Plex server selected",
+    "seerrNotConfigured": "Seerr isn't set up (see Settings)",
+    "tracearrNotConfigured": "Tracearr isn't set up (see Settings)",
+    "urlRefused": "Address not allowed: {{url}}",
+    "notLoggedIn": "Not signed in to Plex",
+    "serverNotFound": "Server not found",
+    "mainWindowNotFound": "Main window not found",
+    "nothingToPlay": "Nothing to play",
+    "noPlayback": "Nothing is playing"
+  },
+  "player": {
+    "noPlayback": "Nothing is playing",
+    "mpvNotAtPath": "mpv not found at the location set in Settings: {{path}}",
+    "mpvNotFound": "mpv not found: install it (https://mpv.io) or set its path in Settings",
+    "ipcUnavailable": "mpv IPC unavailable",
+    "queueWriteFailed": "Couldn't write the play queue",
+    "launchFailed": "Couldn't start mpv ({{path}})"
+  },
+  "plex": {
+    "noReachableAddress": "No reachable address for server “{{name}}”",
+    "trackCount_one": "{{count}} track",
+    "trackCount_other": "{{count}} tracks",
+    "playlists": "Playlists",
+    "notFound": "Item {{id}} not found",
+    "noMusic": "“{{title}}” contains no music",
+    "track": "Track {{id}}",
+    "noPlayableFile": "No playable file for “{{title}}”",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}"
+  },
+  "admin": {
+    "adminOnly": "Only the Plex server admin can do this",
+    "serverReplied": "The Plex server responded {{status}}",
+    "notFound": "Item {{id}} not found",
+    "notEditable": "This type of item can't be edited",
+    "libraryNotFound": "Library not found for this item",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
+    "fields": {
+      "title": "Title",
+      "titleSort": "Sort title",
+      "originalTitle": "Original title",
+      "releaseDate": "Release date",
+      "contentRating": "Content rating",
+      "studio": "Studio",
+      "tagline": "Tagline",
+      "summary": "Summary",
+      "firstAired": "First aired",
+      "network": "Network or studio",
+      "airDate": "Air date",
+      "artist": "Artist",
+      "artistSort": "Sort artist",
+      "biography": "Biography",
+      "album": "Album",
+      "albumSort": "Sort album",
+      "label": "Record label",
+      "albumSummary": "Description",
+      "trackArtist": "Track artist",
+      "trackNumber": "Track number"
+    }
+  },
+  "seerr": {
+    "plexRequired": "A Plex sign-in is required to connect to Seerr",
+    "unreachable": "Can't reach Seerr: {{error}}",
+    "loginRefused": "Seerr refused to sign in with your Plex account ({{status}}). The admin must import your account into Seerr.",
+    "replied": "Seerr responded {{status}}: {{message}}",
+    "season": "Season {{number}}",
+    "chooseSeason": "Choose at least one season",
+    "creator": "Creator",
+    "jobs": {
+      "director": "Director",
+      "screenplay": "Screenplay",
+      "novel": "Novel",
+      "producer": "Producer"
+    }
+  },
+  "tracearr": {
+    "invalidUrl": "Invalid Tracearr address: {{url}}",
+    "unreachable": "Can't reach Tracearr: {{error}}",
+    "loginRefused": "Tracearr refused the connection ({{status}})",
+    "refused": "connection refused",
+    "error": "Tracearr: {{message}}",
+    "notSetUp": "This Tracearr isn't set up yet: its admin must sign in to it first",
+    "replied": "Tracearr responded {{status}} for {{path}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}"
+  },
+  "update": {
+    "invalidName": "invalid package name",
+    "emptyDownload": "the download is empty",
+    "unsupported": "automatic updates aren't available on {{os}}"
+  },
+  "relay": {
+    "noNetwork": "This device isn't connected to any network",
+    "notFound": "Not found",
+    "title": "Set up Plexr",
+    "intro": "The server admin sent you the invitation QR code.",
+    "scan": "Scan the QR code",
+    "gallery": "Choose a picture of the QR code",
+    "or": "or paste the code you received",
+    "send": "Send",
+    "seerr": "Requests (Seerr)",
+    "tracearr": "Stats (Tracearr)",
+    "authorize": "Authorize Tracearr with Plex",
+    "done": "All set! You can put your phone down.",
+    "noQr": "No QR code found in the picture: try again with it well framed.",
+    "notInvite": "This isn't a Plexr invitation code.",
+    "tvGone": "The TV isn't responding: reopen the setup screen.",
+    "watchTv": "Look at your TV: Plexr is setting up.",
+    "connected": "Connected",
+    "connecting": "Connecting…",
+    "failed": "Setup failed."
+  }
+}

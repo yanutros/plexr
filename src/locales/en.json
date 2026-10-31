@@ -1,0 +1,615 @@
+{
+  "settings": {
+    "groups": {
+      "general": "General",
+      "library": "Library",
+      "network": "Network",
+      "transcoder": "Transcoder",
+      "dlna": "DLNA",
+      "extras": "Extras",
+      "butler": "Scheduled tasks"
+    },
+    "menu": {
+      "account": "Account",
+      "services": "Seerr and Tracearr",
+      "player": "Player",
+      "interface": "Interface",
+      "server": "Server {{name}}",
+      "dashboard": "Dashboard",
+      "advanced": "Show advanced settings",
+      "locked": "Server settings are reserved for its administrator."
+    },
+    "account": {
+      "admin": "Server administrator",
+      "shared": "Shared access",
+      "server": "Server:",
+      "changeServer": "Change server",
+      "logout": "Sign out"
+    },
+    "services": {
+      "seerrConnected": "Connected to Seerr with your Plex account",
+      "seerrDisabled": "Seerr disabled",
+      "tracearrDisabled": "Tracearr disabled",
+      "tracearrConnected": "Connected to Tracearr",
+      "tracearrDisconnected": "Disconnected from Tracearr",
+      "seerrIntro": "Requests are made with your Plex account, in your name: nothing else to enter. Your account just needs to have been imported into Seerr by the administrator.",
+      "seerrAddress": "Seerr address",
+      "tracearrAddress": "Tracearr address",
+      "connecting": "Connecting…",
+      "connectWithPlex": "Sign in with Plex",
+      "tracearrIntro": "Your personal viewing statistics. Sign-in goes through your Plex account: your browser opens once to authorise Tracearr, then the session lasts 30 days.",
+      "waitingBrowser": "Waiting for confirmation in the browser…",
+      "logout": "Sign out",
+      "connected": "Connected"
+    },
+    "invite": {
+      "invalid": "This invite code is not valid.",
+      "configured": "Seerr and Tracearr are set up",
+      "noQr": "No QR code found in this image.",
+      "codeCopied": "Invite code copied",
+      "imageCopied": "QR code image copied",
+      "steps": {
+        "run": "Connecting…",
+        "ok": "Connected",
+        "err": "Failed"
+      },
+      "quickSetup": "Quick setup",
+      "phoneHint": "Scan this code with your phone, connected to the same Wi-Fi, then show it the server administrator's invite.",
+      "pasteHint": "Paste the server administrator's invite code, or import the image of their QR code.",
+      "apply": "Apply",
+      "importImage": "Import image",
+      "stepSeerr": "Requests (Seerr): {{status}}",
+      "stepTracearr": "Statistics (Tracearr): {{status}}",
+      "authorizeOnPhone": "to be authorised on the phone",
+      "title": "Invite users",
+      "intro": "Share this QR code or this code: Plexr will find these addresses in it and connect to them with each person's Plex account.",
+      "copyCode": "Copy code",
+      "copyImage": "Copy image"
+    },
+    "player": {
+      "saved": "mpv path saved",
+      "intro": "Playback uses mpv. Leave empty to find it automatically.",
+      "mpvPath": "mpv path",
+      "save": "Save"
+    },
+    "interface": {
+      "menuReset": "Menu reset",
+      "themes": {
+        "jaune": "Yellow",
+        "rouge": "Red",
+        "vert": "Green",
+        "violet": "Purple"
+      },
+      "color": "Colour",
+      "libraries": "Menu libraries",
+      "moveUp": "Move {{title}} up",
+      "moveDown": "Move {{title}} down",
+      "show": "Show {{title}}",
+      "hide": "Hide {{title}}",
+      "resetMenu": "Reset menu",
+      "collapsed": "Collapsed menu",
+      "collapsedHint": "Shows only the icons, to leave all the room for content.",
+      "reorderHint": "To reorder or hide libraries, click the pencil next to “Libraries” in the menu.",
+      "language": "Language",
+      "languageAuto": "Automatic"
+    }
+  },
+  "login": {
+    "tagline": "Your Plex client, with Seerr requests built in.",
+    "goTo": "On your phone or computer, go to",
+    "enterCode": "and enter this code:",
+    "autoConnect": "You'll be signed in automatically as soon as the code is confirmed.",
+    "newCode": "New code",
+    "useBrowser": "Use the browser",
+    "validateInBrowser": "Confirm the sign-in in the browser that just opened…",
+    "restart": "Start over",
+    "useCode": "Use a code",
+    "signIn": "Sign in with Plex",
+    "withCode": "With a code ({{site}})"
+  },
+  "servers": {
+    "title": "Choose a server",
+    "searching": "Looking for servers…",
+    "none": "No Plex server available with this account.",
+    "connecting": "Connecting…",
+    "mine": "My server",
+    "sharedBy": "Shared by {{owner}}",
+    "shared": "Shared",
+    "switchAccount": "Switch account"
+  },
+  "search": {
+    "hint": "Type the title of a movie, a show or an artist.",
+    "inLibrary": "In your library",
+    "searching": "Searching…",
+    "noResults": "No results for “{{query}}”.",
+    "notInLibrary": "Not in the library? Request it",
+    "seerrUnavailable": "Seerr unavailable: {{error}}",
+    "settings": "Settings",
+    "searchingSeerr": "Searching Seerr…",
+    "nothingElse": "Nothing else to request."
+  },
+  "discover": {
+    "title": "Discover",
+    "configureSeerr": "Set up Seerr",
+    "rows": {
+      "requests": "Recent requests",
+      "watchlist": "Your watchlist",
+      "trending": "Trending",
+      "popularMovies": "Popular movies",
+      "upcomingMovies": "Upcoming movies",
+      "popularTv": "Popular shows",
+      "upcomingTv": "Upcoming shows"
+    }
+  },
+  "seerr": {
+    "productionStatus": {
+      "released": "Released",
+      "postProduction": "Post-production",
+      "inProduction": "In production",
+      "planned": "Planned",
+      "rumored": "Announced",
+      "canceled": "Cancelled",
+      "ended": "Ended",
+      "returningSeries": "Ongoing",
+      "pilot": "Pilot"
+    },
+    "detail": {
+      "runtime": "{{minutes}} minutes",
+      "seasons_one": "{{count}} season",
+      "seasons_other": "{{count}} seasons",
+      "watchInPlexr": "Watch in Plexr",
+      "requestMoreSeasons": "Request more seasons",
+      "request": "Request",
+      "trailer": "Trailer",
+      "overview": "Overview",
+      "noOverview": "No overview available.",
+      "rtCritics": "Rotten Tomatoes (critics)",
+      "rtAudience": "Rotten Tomatoes (audience)",
+      "percent": "{{value}}%",
+      "cast": "Cast",
+      "recommendations": "Recommendations",
+      "similar": "Similar titles"
+    },
+    "facts": {
+      "originalTitle": "Original title",
+      "status": "Status",
+      "firstAired": "First aired",
+      "releaseDate": "Release date",
+      "episodes": "Episodes",
+      "revenue": "Revenue",
+      "budget": "Budget",
+      "originalLanguage": "Original language",
+      "countries": "Production countries",
+      "networks": "Networks",
+      "studios": "Studios",
+      "streamingOn": "Available to stream on"
+    }
+  },
+  "home": {
+    "upNext": "Up next",
+    "new": "New",
+    "continueWatching": "Continue watching",
+    "recentlyAdded": "Recently added",
+    "trendingToRequest": "Trending to request"
+  },
+  "library": {
+    "tabs": {
+      "recommended": "Recommended",
+      "library": "Library",
+      "categories": "Categories"
+    },
+    "resume": "Resume",
+    "category": "Category",
+    "titleCount_one": "{{count}} title",
+    "titleCount_other": "{{count}} titles",
+    "upNext": "Up next",
+    "discover": "Discover",
+    "featured": "Featured",
+    "genreFilter": "Genre:",
+    "removeFilter": "Remove filter",
+    "loading": "Loading…"
+  },
+  "music": {
+    "library": {
+      "tabs": {
+        "recommended": "Recommended",
+        "artists": "Artists",
+        "albums": "Albums",
+        "playlists": "Playlists"
+      },
+      "latestAddition": "Latest addition",
+      "newAlbum": "New album",
+      "playlist": "Playlist",
+      "hotTracks": "Trending tracks",
+      "hotTrack": "Trending track",
+      "newReleases": "New releases",
+      "nothingToRecommend": "Nothing to recommend yet: browse artists or albums.",
+      "loading": "Loading…"
+    },
+    "detail": {
+      "kind": {
+        "artist": "Artist",
+        "album": "Album",
+        "playlist": "Playlist",
+        "track": "Track"
+      },
+      "albumCount_one": "{{count}} album",
+      "albumCount_other": "{{count}} albums",
+      "trackCount_one": "{{count}} track",
+      "trackCount_other": "{{count}} tracks",
+      "play": "Play",
+      "shuffle": "Shuffle",
+      "editInfo": "Edit info",
+      "edit": "Edit",
+      "albums": "Albums",
+      "columns": {
+        "title": "Title",
+        "album": "Album"
+      }
+    }
+  },
+  "item": {
+    "remaining": "{{time}} left",
+    "seasonEpisode": "Season {{season}} · Episode {{episode}}",
+    "seasonCount_one": "{{count}} season",
+    "seasonCount_other": "{{count}} seasons",
+    "episodeCount_one": "{{count}} episode",
+    "episodeCount_other": "{{count}} episodes",
+    "watched": "Watched",
+    "resume": "Resume",
+    "play": "Play",
+    "playFromStart": "Play from the beginning",
+    "episodeNumber": "Episode {{number}}",
+    "markUnwatched": "Mark as unwatched",
+    "markWatched": "Mark as watched",
+    "editInfo": "Edit info",
+    "facts": {
+      "director": "Director",
+      "writer": "Writer",
+      "studio": "Studio",
+      "video": "Video",
+      "audio": "Audio",
+      "subtitles": "Subtitles",
+      "none": "None"
+    },
+    "seasons": "Seasons",
+    "episodes": "Episodes",
+    "playTitle": "Play {{title}}",
+    "cast": "Cast"
+  },
+  "stats": {
+    "title": "My stats",
+    "noUrl": "Enter your Tracearr address in Settings to see your stats.",
+    "openSettings": "Open Settings",
+    "loginPrompt": "Sign in to Tracearr with your Plex account. Your browser will open to approve access.",
+    "waitingBrowser": "Waiting for approval in the browser…",
+    "loginWithPlex": "Sign in with Plex",
+    "since": {
+      "years_one": "{{count}} year",
+      "years_other": "{{count}} years",
+      "months_one": "{{count}} month",
+      "months_other": "{{count}} months",
+      "yearsAndMonths": "{{years}} and {{months}}",
+      "ago": "{{time}} ago",
+      "thisMonth": "this month"
+    },
+    "kpi": {
+      "screenTime": "of screen time",
+      "musicPart": "including {{time}} of music",
+      "plays": "plays",
+      "titles": "different titles",
+      "percent": "{{value}}%"
+    },
+    "hero": {
+      "last30Days": "Your last 30 days",
+      "hello": "Hello {{name}}",
+      "lead_one": "{{time}} of screen time, {{count}} title discovered or rewatched.",
+      "lead_other": "{{time}} of screen time, {{count}} titles discovered or rewatched."
+    },
+    "now": {
+      "title": "Now playing",
+      "paused": "Paused",
+      "playing": "Playing",
+      "local": "Local network",
+      "remote": "Remote",
+      "transcode": "Transcoding",
+      "direct": "Direct"
+    },
+    "top": {
+      "title": "Your top 10",
+      "period": "Last 30 days",
+      "episodes_one": "{{count}} episode",
+      "episodes_other": "{{count}} episodes",
+      "plays_one": "{{count}} play",
+      "plays_other": "{{count}} plays"
+    },
+    "allTime": {
+      "title": "All time",
+      "watchTime": "Watch time",
+      "hours": "that's {{hours}} hours",
+      "spreadOver_one": "across {{count}} day",
+      "spreadOver_other": "across {{count}} days",
+      "longestStreak": "Longest streak",
+      "daysInARow": "days in a row",
+      "currentStreak_one": "Current: {{count}} day",
+      "currentStreak_other": "Current: {{count}} days",
+      "noStreak": "No streak in progress",
+      "favoriteGenres": "Favourite genres",
+      "biggestBinge": "Biggest binge",
+      "episodesInADay": "episodes in one day",
+      "firstPlay": "Your very first play"
+    }
+  },
+  "common": {
+    "c1": {
+      "loading": "Loading…",
+      "back": "Back",
+      "cancel": "Cancel",
+      "close": "Close",
+      "save": "Save",
+      "saving": "Saving…",
+      "play": "Play",
+      "playTitle": "Play {{title}}",
+      "resume": "Resume",
+      "shuffle": "Shuffle",
+      "previous": "Previous",
+      "next": "Next",
+      "moreInfo": "More info",
+      "moreActions": "More actions",
+      "movie": "Movie",
+      "show": "TV show",
+      "episodeCode": "S{{season}} E{{episode}}",
+      "remaining": "{{time}} left",
+      "nowPlaying": "Now playing",
+      "playback": "Play",
+      "pause": "Pause",
+      "stop": "Stop",
+      "position": "Position",
+      "queue": "Queue",
+      "mute": "Mute",
+      "volume": "Volume"
+    },
+    "c2": {
+      "seerrStatus": {
+        "requested": "Requested",
+        "processing": "Processing",
+        "partial": "Partially available",
+        "available": "Available"
+      }
+    }
+  },
+  "app": {
+    "searchPlaceholder": "Search for a movie, a show, an artist…",
+    "authTracearr": "Authorize Tracearr",
+    "authScan": "Scan this code with your phone and confirm with your Plex account."
+  },
+  "cardMenu": {
+    "markedWatched": "Marked as watched",
+    "markedUnwatched": "Marked as unwatched",
+    "markWatched": "Mark as watched",
+    "markUnwatched": "Mark as unwatched",
+    "openDetails": "Open details",
+    "edit": "Edit…",
+    "refreshMetadata": "Refresh metadata",
+    "refreshStarted": "Metadata refresh started",
+    "analyze": "Analyze",
+    "analyzeStarted": "Analysis started"
+  },
+  "editDialog": {
+    "tabs": {
+      "general": "General",
+      "genres": "Genres",
+      "cover": "Cover",
+      "poster": "Poster",
+      "background": "Background"
+    },
+    "title": "Edit {{title}}",
+    "posterUpdated": "Poster updated",
+    "backgroundUpdated": "Background updated",
+    "invalidImageUrl": "Enter an image web address (https://…)",
+    "saved": "Changes saved",
+    "lockedHint": "Locked: Plex won't replace this value",
+    "unlockedHint": "Unlocked: Plex can update this value",
+    "lock": "Lock",
+    "unlock": "Unlock",
+    "genresHint": "Genres are used for categories and “Best movies of…” rows.",
+    "removeGenre": "Remove {{genre}}",
+    "noGenres": "No genres.",
+    "addGenrePlaceholder": "Add a genre (e.g. Comedy, Drama, Science Fiction)",
+    "add": "Add",
+    "noImages": "No images available.",
+    "imageUrlPlaceholder": "Or paste an image address (https://…)",
+    "use": "Use",
+    "clickToApply": "Clicking an image applies it right away."
+  },
+  "genreTile": {
+    "ariaLabel": "{{genre}}, {{titles}}",
+    "titles_one": "{{count}} title",
+    "titles_other": "{{count}} titles"
+  },
+  "hero": {
+    "featured": "Featured",
+    "episodeLine": "Season {{season}} · Episode {{episode}} — {{title}}",
+    "view": "View",
+    "showSlide": "Show {{title}}"
+  },
+  "musicBar": {
+    "repeatQueue": "Repeat queue"
+  },
+  "nowPlaying": {
+    "collapse": "Collapse",
+    "upNext": "Up next"
+  },
+  "seerrCard": {
+    "viewTitle": "View {{title}}",
+    "request": "Request"
+  },
+  "posterCard": {
+    "episodeCode": "S{{season}} · E{{episode}}",
+    "openTitle": "Open {{title}}"
+  },
+  "format": {
+    "daysHours": "{{days}}d {{hours}}h",
+    "hoursMinutes": "{{hours}}h {{minutes}}m",
+    "minutes": "{{minutes}} min"
+  },
+  "errors": {
+    "loginCancelled": "Sign-in cancelled.",
+    "loginTimeout": "The sign-in wasn't confirmed in time. Please try again."
+  },
+  "invite": {
+    "partialFailure": "Part of the setup failed."
+  },
+  "tv": {
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
+    "remaining": "{{time}} left",
+    "toRequest": "To request",
+    "show": "TV show",
+    "movie": "Movie",
+    "continueWatching": "Continue watching",
+    "resume": "Resume",
+    "recentlyAdded": "Recently added",
+    "recentlyAddedOne": "Recently added",
+    "trendingToRequest": "Trending to request"
+  },
+  "player": {
+    "channels": "{{channels}} ch.",
+    "forced": "forced",
+    "trackNumber": "Track {{id}}",
+    "remoteNote": "The video plays in the mpv window.",
+    "remoteNote2": "This page controls it remotely.",
+    "close": "Close player",
+    "position": "Position",
+    "prevEpisode": "Previous episode",
+    "back10": "Back 10 s",
+    "play": "Play",
+    "pause": "Pause",
+    "forward10": "Forward 10 s",
+    "nextEpisode": "Next episode",
+    "mute": "Mute",
+    "volume": "Volume",
+    "audioTracks": "Audio tracks",
+    "audio": "Audio",
+    "subtitles": "Subtitles",
+    "none": "None",
+    "fullscreen": "Full screen"
+  },
+  "request": {
+    "sent": "Request sent: {{title}}",
+    "title": "Request “{{title}}”",
+    "loadingSeasons": "Loading seasons…",
+    "seasons": "Seasons",
+    "uncheckAll": "Deselect all",
+    "checkAll": "Select all",
+    "episodes_one": "{{count}} ep.",
+    "episodes_other": "{{count}} eps.",
+    "cancel": "Cancel",
+    "sending": "Sending…",
+    "submit": "Send request"
+  },
+  "dashboard": {
+    "nowPlaying": "Now playing",
+    "nobody": "Nobody is watching or listening to anything right now.",
+    "paused": "Paused",
+    "buffering": "Buffering",
+    "playing": "Playing",
+    "local": "Local network",
+    "remote": "Remote",
+    "transcode": "Transcoding",
+    "directPlay": "Direct play",
+    "bandwidth": "{{rate}} Mbps",
+    "libraries": "Libraries",
+    "scanStarted": "Scan of “{{title}}” started",
+    "scan": "Scan for new files",
+    "trashEmptied": "Trash of “{{title}}” emptied",
+    "emptyTrashHint": "Removes items whose file is gone",
+    "emptyTrash": "Empty trash"
+  },
+  "serverPrefs": {
+    "saved": "Server settings saved",
+    "advanced": "advanced",
+    "empty": "No settings in this section.",
+    "emptyTryAdvanced": "No settings in this section (try showing advanced settings).",
+    "changed_one": "{{count}} setting changed",
+    "changed_other": "{{count}} settings changed",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "save": "Save"
+  },
+  "sidebar": {
+    "expand": "Expand menu",
+    "collapse": "Collapse menu",
+    "search": "Search",
+    "home": "Home",
+    "libraries": "Libraries",
+    "done": "Done",
+    "reorder": "Reorder libraries",
+    "reorderHint": "Drag to reorder; the eye hides a library.",
+    "moveUp": "Move {{title}} up",
+    "toggleHidden": "Show or hide {{title}}",
+    "more": "More",
+    "moreCount": "More ({{n}})",
+    "requests": "Requests",
+    "discover": "Discover",
+    "stats": "My stats",
+    "settings": "Settings"
+  },
+  "trackGrid": {
+    "previous": "Previous",
+    "next": "Next",
+    "play": "Play {{title}}",
+    "moreActions": "More actions",
+    "openAlbum": "Open album"
+  },
+  "update": {
+    "allowInstall": "Allow Plexr to install apps, then restart the update.",
+    "confirmInstall": "Confirm the installation: Plexr will restart in its new version.",
+    "installStarted": "Installation started.",
+    "title": "New version available",
+    "current": "you have {{version}}",
+    "close": "Close",
+    "defaultNotes": "Fixes and improvements.",
+    "allReleases": "All releases",
+    "later": "Later",
+    "downloading": "Downloading… {{percent}}%",
+    "update": "Update"
+  },
+  "genres": {
+    "actionAdventure": "Action & Adventure",
+    "adventure": "Adventure",
+    "anime": "Anime",
+    "biography": "Biography",
+    "children": "Children",
+    "kids": "Kids",
+    "comedy": "Comedy",
+    "crime": "Crime",
+    "documentary": "Documentary",
+    "drama": "Drama",
+    "family": "Family",
+    "fantasy": "Fantasy",
+    "filmNoir": "Film-Noir",
+    "food": "Food",
+    "gameShow": "Game Show",
+    "history": "History",
+    "homeAndGarden": "Home and Garden",
+    "horror": "Horror",
+    "martialArts": "Martial Arts",
+    "miniSeries": "Mini-Series",
+    "music": "Music",
+    "musical": "Musical",
+    "mystery": "Mystery",
+    "news": "News",
+    "reality": "Reality",
+    "sciFiFantasy": "Sci-Fi & Fantasy",
+    "scienceFiction": "Science Fiction",
+    "scienceFictionAlt": "Science-Fiction",
+    "short": "Short",
+    "soap": "Soap",
+    "suspense": "Suspense",
+    "talk": "Talk",
+    "travel": "Travel",
+    "tvMovie": "TV Movie",
+    "war": "War",
+    "warPolitics": "War & Politics"
+  }
+}

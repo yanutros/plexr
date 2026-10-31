@@ -3,6 +3,7 @@
   import { go } from "../lib/nav.svelte";
   import { current, mpv, next, player, previous, stop } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   let showQueue = $state(false);
   let bar = $state<HTMLElement>();
@@ -92,12 +93,12 @@
     {#if track?.cover}<div class="ambient" style:background-image={`url("${track.cover}")`}></div>{/if}
 
     <div class="now">
-      <button class="cover" onclick={() => (player.expanded = !player.expanded)} aria-label="En cours de lecture" title="En cours de lecture">
+      <button class="cover" onclick={() => (player.expanded = !player.expanded)} aria-label={t("common.c1.nowPlaying")} title={t("common.c1.nowPlaying")}>
         {#if track?.cover}<img src={track.cover} alt="" />{:else}<Icon name="music" size={24} />{/if}
         <span class="expand"><Icon name={player.expanded ? "chevronDown" : "expand"} size={18} /></span>
       </button>
       <div class="meta">
-        <div class="title">{track?.title ?? "Chargement…"}</div>
+        <div class="title">{track?.title ?? t("common.c1.loading")}</div>
         <div class="sub">
           {#if track?.artist}<button class="link" onclick={openArtist}>{track.artist}</button>{/if}
           {#if track?.album}<span class="dot">·</span><button class="link" onclick={openAlbum}>{track.album}</button>{/if}
@@ -111,27 +112,27 @@
           class="ctl small"
           class:on={player.repeat}
           onclick={() => mpv("set_property", "loop-playlist", player.repeat ? "no" : "inf")}
-          aria-label="Répéter la file"
-          title="Répéter la file"
+          aria-label={t("musicBar.repeatQueue")}
+          title={t("musicBar.repeatQueue")}
         >
           <Icon name="repeat" size={17} />
         </button>
-        <button class="ctl" onclick={previous} aria-label="Précédent" title="Précédent">
+        <button class="ctl" onclick={previous} aria-label={t("common.c1.previous")} title={t("common.c1.previous")}>
           <Icon name="backward" size={26} filled />
         </button>
-        <button class="play" class:paused={player.paused} onclick={() => mpv("cycle", "pause")} aria-label={player.paused ? "Lecture" : "Pause"}>
+        <button class="play" class:paused={player.paused} onclick={() => mpv("cycle", "pause")} aria-label={player.paused ? t("common.c1.playback") : t("common.c1.pause")}>
           <Icon name={player.paused ? "play" : "pause"} size={24} filled />
         </button>
         <button
           class="ctl"
           onclick={next}
           disabled={player.index >= player.queue.length - 1 && !player.repeat}
-          aria-label="Suivant"
-          title="Suivant"
+          aria-label={t("common.c1.next")}
+          title={t("common.c1.next")}
         >
           <Icon name="forward" size={26} filled />
         </button>
-        <button class="ctl small" onclick={stop} aria-label="Arrêter" title="Arrêter"><Icon name="stop" size={13} filled /></button>
+        <button class="ctl small" onclick={stop} aria-label={t("common.c1.stop")} title={t("common.c1.stop")}><Icon name="stop" size={13} filled /></button>
       </div>
 
       <div class="scrub">
@@ -146,7 +147,7 @@
           onpointerleave={() => (hoverTime = null)}
           role="slider"
           tabindex="-1"
-          aria-label="Position"
+          aria-label={t("common.c1.position")}
           aria-valuemin={0}
           aria-valuemax={player.duration}
           aria-valuenow={player.position}
@@ -160,11 +161,11 @@
     </div>
 
     <div class="extras">
-      <button class="ctl small" class:on={showQueue} onclick={() => (showQueue = !showQueue)} aria-label="File d'attente" title="File d'attente">
+      <button class="ctl small" class:on={showQueue} onclick={() => (showQueue = !showQueue)} aria-label={t("common.c1.queue")} title={t("common.c1.queue")}>
         <Icon name="queue" size={19} />
       </button>
       <div class="volume">
-        <button class="ctl small" onclick={() => mpv("cycle", "mute")} aria-label="Couper le son" title="Couper le son">
+        <button class="ctl small" onclick={() => mpv("cycle", "mute")} aria-label={t("common.c1.mute")} title={t("common.c1.mute")}>
           <Icon name={player.muted || player.volume === 0 ? "mute" : "volume"} size={19} />
         </button>
         <input
@@ -174,10 +175,10 @@
           value={player.muted ? 0 : player.volume}
           style:--v="{((player.muted ? 0 : player.volume) / 130) * 100}%"
           oninput={setVolume}
-          aria-label="Volume"
+          aria-label={t("common.c1.volume")}
         />
       </div>
-      <button class="ctl small" onclick={() => (player.expanded = !player.expanded)} aria-label="En cours de lecture" title="En cours de lecture">
+      <button class="ctl small" onclick={() => (player.expanded = !player.expanded)} aria-label={t("common.c1.nowPlaying")} title={t("common.c1.nowPlaying")}>
         <Icon name={player.expanded ? "chevronDown" : "expand"} size={17} />
       </button>
     </div>
@@ -186,17 +187,17 @@
   {#if showQueue}
     <div class="queue">
       <div class="queue-head">
-        File d'attente <span class="muted">{player.index + 1} / {player.queue.length}</span>
+        {t("common.c1.queue")} <span class="muted">{player.index + 1} / {player.queue.length}</span>
       </div>
       <div class="queue-list">
-        {#each player.queue as t, i (t.ratingKey + i)}
+        {#each player.queue as qt, i (qt.ratingKey + i)}
           <button class="q" class:current={i === player.index} class:past={i < player.index} onclick={() => mpv("set_property", "playlist-pos", i)}>
-            {#if t.cover}<img src={t.cover} alt="" loading="lazy" />{:else}<span class="ph"></span>{/if}
+            {#if qt.cover}<img src={qt.cover} alt="" loading="lazy" />{:else}<span class="ph"></span>{/if}
             <span class="q-text">
-              <span class="q-title">{t.title}</span>
-              <span class="q-sub">{t.artist ?? ""}</span>
+              <span class="q-title">{qt.title}</span>
+              <span class="q-sub">{qt.artist ?? ""}</span>
             </span>
-            <span class="q-dur">{formatClock(t.durationMs / 1000)}</span>
+            <span class="q-dur">{formatClock(qt.durationMs / 1000)}</span>
           </button>
         {/each}
       </div>

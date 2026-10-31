@@ -3,6 +3,7 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { current, player, playMusic } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   // « Titres du moment » : quatre titres par colonne, les colonnes défilent ; un clic lance la
   // sélection entière à partir du titre choisi.
@@ -44,30 +45,30 @@
     <div class="head">
       <h2>{title}</h2>
       <div class="arrows">
-        <button class="btn round" disabled={atStart} onclick={() => scrollBy(-1)} aria-label="Précédent"><Icon name="chevronLeft" size={18} /></button>
-        <button class="btn round" disabled={atEnd} onclick={() => scrollBy(1)} aria-label="Suivant"><Icon name="chevronRight" size={18} /></button>
+        <button class="btn round" disabled={atStart} onclick={() => scrollBy(-1)} aria-label={t("trackGrid.previous")}><Icon name="chevronLeft" size={18} /></button>
+        <button class="btn round" disabled={atEnd} onclick={() => scrollBy(1)} aria-label={t("trackGrid.next")}><Icon name="chevronRight" size={18} /></button>
       </div>
     </div>
     <div class="columns" bind:this={scroller} onscroll={update}>
-      {#each tracks as t (t.ratingKey)}
-        <div class="track" class:playing={playingKey === t.ratingKey} oncontextmenu={(e) => openMenu(e, t)} role="group">
-          <button class="cover" onclick={() => start(t)} aria-label="Lire {t.title}">
-            {#if t.poster}<img src={t.poster} alt="" loading="lazy" />{/if}
+      {#each tracks as track (track.ratingKey)}
+        <div class="track" class:playing={playingKey === track.ratingKey} oncontextmenu={(e) => openMenu(e, track)} role="group">
+          <button class="cover" onclick={() => start(track)} aria-label={t("trackGrid.play", { title: track.title })}>
+            {#if track.poster}<img src={track.poster} alt="" loading="lazy" />{/if}
             <span class="hover">
-              {#if playingKey === t.ratingKey && !player.paused}
+              {#if playingKey === track.ratingKey && !player.paused}
                 <span class="eq"><i></i><i></i><i></i></span>
               {:else}
                 <Icon name="play" size={16} filled />
               {/if}
             </span>
           </button>
-          <button class="text" onclick={() => start(t)}>
-            <span class="t">{t.title}</span>
-            <span class="a">{t.subtitle ?? ""}</span>
+          <button class="text" onclick={() => start(track)}>
+            <span class="t">{track.title}</span>
+            <span class="a">{track.subtitle ?? ""}</span>
           </button>
-          <button class="dots" onclick={(e) => openMenu(e, t)} aria-label="Plus d'actions"><Icon name="more" size={18} /></button>
-          {#if t.albumKey}
-            <button class="album" onclick={() => go({ name: "item", ratingKey: t.albumKey! })} title={t.albumTitle ?? ""} aria-label="Ouvrir l'album">
+          <button class="dots" onclick={(e) => openMenu(e, track)} aria-label={t("trackGrid.moreActions")}><Icon name="more" size={18} /></button>
+          {#if track.albumKey}
+            <button class="album" onclick={() => go({ name: "item", ratingKey: track.albumKey! })} title={track.albumTitle ?? ""} aria-label={t("trackGrid.openAlbum")}>
               <Icon name="chevronRight" size={16} />
             </button>
           {/if}

@@ -3,6 +3,7 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   /**
    * « Continuer à regarder » façon plateforme de streaming : de grandes affiches, et celle
@@ -57,8 +58,8 @@
   <div class="head">
     <h2>{title}</h2>
     <div class="arrows">
-      <button class="btn round" disabled={atStart} onclick={() => scrollBy(-1)} aria-label="Précédent"><Icon name="chevronLeft" size={18} /></button>
-      <button class="btn round" disabled={atEnd} onclick={() => scrollBy(1)} aria-label="Suivant"><Icon name="chevronRight" size={18} /></button>
+      <button class="btn round" disabled={atStart} onclick={() => scrollBy(-1)} aria-label={t("common.c1.previous")}><Icon name="chevronLeft" size={18} /></button>
+      <button class="btn round" disabled={atEnd} onclick={() => scrollBy(1)} aria-label={t("common.c1.next")}><Icon name="chevronRight" size={18} /></button>
     </div>
   </div>
 
@@ -83,11 +84,11 @@
           {#if scene(item)}<img class="scene" src={scene(item)} alt="" loading="lazy" />{/if}
           <div class="shade"></div>
           <div class="info">
-            {#if item.kind === "episode"}<div class="eyebrow">Série</div>{:else}<div class="eyebrow">Film</div>{/if}
+            {#if item.kind === "episode"}<div class="eyebrow">{t("common.c1.show")}</div>{:else}<div class="eyebrow">{t("common.c1.movie")}</div>{/if}
             <h3>{item.showTitle ?? item.title}</h3>
             <div class="sub">
               {#if item.kind === "episode"}
-                <span class="ep">S{item.parentIndex} É{item.index}</span> · {item.title}
+                <span class="ep">{t("common.c1.episodeCode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</span> · {item.title}
               {:else if item.year}
                 {item.year}{#if item.genres.length} · {item.genres.slice(0, 2).join(" · ")}{/if}
               {/if}
@@ -95,15 +96,15 @@
             <div class="actions">
               <button class="resume" onclick={() => resume(item)} tabindex={open ? 0 : -1}>
                 <Icon name="play" size={20} filled />
-                {item.viewOffsetMs ? "Reprendre" : "Lire"}
+                {item.viewOffsetMs ? t("common.c1.resume") : t("common.c1.play")}
               </button>
-              <button class="ghost" onclick={() => go({ name: "item", ratingKey: item.ratingKey })} tabindex={open ? 0 : -1} aria-label="Plus d'infos" title="Plus d'infos">
+              <button class="ghost" onclick={() => go({ name: "item", ratingKey: item.ratingKey })} tabindex={open ? 0 : -1} aria-label={t("common.c1.moreInfo")} title={t("common.c1.moreInfo")}>
                 <Icon name="chevronDown" size={20} />
               </button>
-              <button class="ghost" onclick={(e) => openMenu(e, item)} tabindex={open ? 0 : -1} aria-label="Plus d'actions" title="Plus d'actions">
+              <button class="ghost" onclick={(e) => openMenu(e, item)} tabindex={open ? 0 : -1} aria-label={t("common.c1.moreActions")} title={t("common.c1.moreActions")}>
                 <Icon name="more" size={20} />
               </button>
-              {#if remaining(item)}<span class="left">{remaining(item)} restantes</span>{/if}
+              {#if remaining(item)}<span class="left">{t("common.c1.remaining", { time: remaining(item) ?? "" })}</span>{/if}
             </div>
           </div>
         </div>

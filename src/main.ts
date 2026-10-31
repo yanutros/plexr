@@ -14,6 +14,10 @@ async function start() {
       import("./lib/spatial"),
     ]);
   await detectDevice();
+  (await import("./lib/i18n")).initLanguage();
+  // Couleur choisie, avant le premier affichage (sinon un éclair de jaune).
+  const { applyTheme, savedTheme } = await import("./lib/theme");
+  applyTheme(savedTheme());
   setupBackButton();
   // Sur téléviseur, les flèches de la télécommande déplacent le focus d'un élément à l'autre.
   if (device.tv) {

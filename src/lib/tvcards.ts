@@ -3,6 +3,7 @@
 import { errorText, formatDuration, type Item, type SeerrMedia } from "./api";
 import { go, toast } from "./nav.svelte";
 import { play, playMusic } from "./player.svelte";
+import { t } from "./i18n";
 
 export type Shape = "poster" | "square" | "round" | "wide";
 
@@ -34,12 +35,12 @@ const fail = (e: unknown) => toast(errorText(e), true);
 export function fromItem(item: Item, eyebrow: string, resume = false): TvCard {
   const music = MUSIC.has(item.kind);
   const parts: string[] = [];
-  if (item.kind === "episode") parts.push(`S${item.parentIndex} · É${item.index} — ${item.title}`);
+  if (item.kind === "episode") parts.push(t("tv.episodeLine", { season: item.parentIndex ?? "", episode: item.index ?? "", title: item.title }));
   else if (music && item.subtitle) parts.push(item.subtitle);
   if (item.kind !== "episode" && item.year) parts.push(String(item.year));
   if (item.kind !== "episode" && item.genres.length) parts.push(item.genres.slice(0, 2).join(", "));
   if (item.rating) parts.push(`★ ${item.rating.toFixed(1)}`);
-  if (item.viewOffsetMs && item.durationMs) parts.push(`${formatDuration(item.durationMs - item.viewOffsetMs)} restantes`);
+  if (item.viewOffsetMs && item.durationMs) parts.push(t("tv.remaining", { time: formatDuration(item.durationMs - item.viewOffsetMs) }));
   else if (item.durationMs && !music) parts.push(formatDuration(item.durationMs));
 
   let open: () => void;
@@ -69,9 +70,9 @@ export function fromSeerr(m: SeerrMedia): TvCard {
     shape: "poster",
     label: m.title,
     progress: 0,
-    eyebrow: "À demander",
+    eyebrow: t("tv.toRequest"),
     title: m.title,
-    line: [m.year, m.mediaType === "tv" ? "Série" : "Film", m.rating ? `★ ${m.rating.toFixed(1)}` : null]
+    line: [m.year, m.mediaType === "tv" ? t("tv.show") : t("tv.movie"), m.rating ? `★ ${m.rating.toFixed(1)}` : null]
       .filter(Boolean)
       .join("  ·  "),
     summary: m.overview,

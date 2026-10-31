@@ -4,6 +4,7 @@
   import { genreLabel } from "../lib/genres";
   import { go } from "../lib/nav.svelte";
   import Icon from "../components/Icon.svelte";
+  import { t, locale } from "../lib/i18n";
 
   let { session, onChange }: { session: Session; onChange: () => void } = $props();
 
@@ -50,7 +51,7 @@
   }
 
   function longDate(iso: string): string {
-    return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    return new Date(iso).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
   }
 
   // « il y a 1 an et 10 mois ».
@@ -58,33 +59,35 @@
     const months = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / (30.44 * 86_400_000)));
     const y = Math.floor(months / 12);
     const m = months % 12;
-    const parts = [y ? `${y} an${y > 1 ? "s" : ""}` : "", m ? `${m} mois` : ""].filter(Boolean);
-    return parts.length ? `il y a ${parts.join(" et ")}` : "ce mois-ci";
+    const yPart = y ? t("stats.since.years", { count: y }) : "";
+    const mPart = m ? t("stats.since.months", { count: m }) : "";
+    const time = yPart && mPart ? t("stats.since.yearsAndMonths", { years: yPart, months: mPart }) : yPart || mPart;
+    return time ? t("stats.since.ago", { time }) : t("stats.since.thisMonth");
   }
 
-  const hours = (ms: number) => Math.round(ms / 3_600_000).toLocaleString("fr-FR");
+  const hours = (ms: number) => Math.round(ms / 3_600_000).toLocaleString(locale);
 
   const kpis = $derived(
     data
       ? [
           {
             icon: "clock" as const,
-            label: "devant l'écran",
+            label: t("stats.kpi.screenTime"),
             value: formatLongDuration(data.month.watchMs),
-            hint: data.month.listenMs ? `dont ${formatLongDuration(data.month.listenMs)} de musique` : null,
+            hint: data.month.listenMs ? t("stats.kpi.musicPart", { time: formatLongDuration(data.month.listenMs) }) : null,
             delta: delta(data.month.watchMs, data.previous.watchMs),
           },
           {
             icon: "play" as const,
-            label: "lectures",
-            value: data.month.plays.toLocaleString("fr-FR"),
+            label: t("stats.kpi.plays"),
+            value: data.month.plays.toLocaleString(locale),
             hint: null,
             delta: delta(data.month.plays, data.previous.plays),
           },
           {
             icon: "film" as const,
-            label: "titres différents",
-            value: data.month.titles.toLocaleString("fr-FR"),
+            label: t("stats.kpi.titles"),
+            value: data.month.titles.toLocaleString(locale),
             hint: null,
             delta: delta(data.month.titles, data.previous.titles),
           },
@@ -112,17 +115,17 @@
 
 {#if !session.tracearrUrl || needsLogin || (error && !data) || !data}
   <div class="page">
-    <h1 class="row-title page-title">Mes statistiques</h1>
+    <h1 class="row-title page-title">{t("stats.title")}</h1>
     {#if !session.tracearrUrl}
       <div class="empty">
-        <p>Indique l'adresse de ton Tracearr dans les Réglages pour voir tes statistiques.</p>
-        <button class="btn primary" onclick={() => go({ name: "settings" })}>Ouvrir les Réglages</button>
+        <p>{t("stats.noUrl")}</p>
+        <button class="btn primary" onclick={() => go({ name: "settings" })}>{t("stats.openSettings")}</button>
       </div>
     {:else if needsLogin}
       <div class="empty">
-        <p>Connecte-toi à Tracearr avec ton compte Plex. Ton navigateur va s'ouvrir pour valider l'accès.</p>
+        <p>{t("stats.loginPrompt")}</p>
         <button class="btn primary" disabled={connecting} onclick={connect}>
-          {connecting ? "En attente de validation dans le navigateur…" : "Se connecter avec Plex"}
+          {connecting ? t("stats.waitingBrowser") : t("stats.loginWithPlex")}
         </button>
         {#if error}<p class="error">{error}</p>{/if}
       </div>
@@ -138,10 +141,10 @@
     {#if ambient}<div class="ambient" style:background-image={`url("${ambient}")`}></div>{/if}
     <div class="hero-shade"></div>
     <div class="hero-body">
-      <div class="eyebrow">Tes 30 derniers jours</div>
-      <h1>Bonjour {data.username ?? ""}</h1>
+      <div class="eyebrow">{t("stats.hero.last30Days")}</div>
+      <h1>{t("stats.hero.hello", { name: data.username ?? "" })}</h1>
       <p class="lead">
-        {formatLongDuration(data.month.watchMs)} devant l'écran, {data.month.titles} titres découverts ou revus.
+        {t("stats.hero.lead", { time: formatLongDuration(data.month.watchMs), count: data.month.titles })}
       </p>
       <div class="kpis">
         {#each kpis as k (k.label)}
@@ -150,7 +153,7 @@
               <span class="kpi-icon"><Icon name={k.icon} size={16} /></span>
               {#if k.delta !== null}
                 <span class="pill" class:up={k.delta >= 0}>
-                  {k.delta >= 0 ? "▲" : "▼"} {Math.abs(k.delta)} %
+                  {k.delta >= 0 ? "▲" : "▼"} {t("stats.kpi.percent", { value: Math.abs(k.delta) })}
                 </span>
               {/if}
             </div>
@@ -164,7 +167,7 @@
 
   <div class="page content">
     {#if data.nowPlaying.length}
-      <h2 class="section"><span class="live"></span>En ce moment</h2>
+      <h2 class="section"><span class="live"></span>{t("stats.now.title")}</h2>
       <div class="now">
         {#each data.nowPlaying as s, i (i)}
           <div class="session">
@@ -175,8 +178,8 @@
               {#if s.subtitle}<div class="s-sub">{s.subtitle}</div>{/if}
               <div class="bar"><div style:width="{s.durationMs ? (s.progressMs / s.durationMs) * 100 : 0}%"></div></div>
               <div class="s-meta">
-                <span>{s.paused ? "En pause" : "En lecture"} · {formatClock(s.progressMs / 1000)} / {formatClock(s.durationMs / 1000)}</span>
-                <span>{[s.player, s.local ? "Réseau local" : "À distance", s.decision === "transcode" ? "Transcodage" : "Direct"].filter(Boolean).join(" · ")}</span>
+                <span>{s.paused ? t("stats.now.paused") : t("stats.now.playing")} · {formatClock(s.progressMs / 1000)} / {formatClock(s.durationMs / 1000)}</span>
+                <span>{[s.player, s.local ? t("stats.now.local") : t("stats.now.remote"), s.decision === "transcode" ? t("stats.now.transcode") : t("stats.now.direct")].filter(Boolean).join(" · ")}</span>
               </div>
             </div>
           </div>
@@ -185,48 +188,48 @@
     {/if}
 
     {#if data.topTitles.length}
-      <h2 class="section">Ton top 10 <span class="muted">30 derniers jours</span></h2>
+      <h2 class="section">{t("stats.top.title")} <span class="muted">{t("stats.top.period")}</span></h2>
       <div class="top">
-        {#each data.topTitles as t (t.rank + t.title)}
+        {#each data.topTitles as top (top.rank + top.title)}
           <button
             class="chart"
-            disabled={!t.ratingKey}
-            onclick={() => t.ratingKey && go({ name: "item", ratingKey: t.ratingKey })}
+            disabled={!top.ratingKey}
+            onclick={() => top.ratingKey && go({ name: "item", ratingKey: top.ratingKey })}
           >
-            <span class="rank">{t.rank}</span>
-            <span class="chart-poster">{#if t.poster}<img src={t.poster} alt="" loading="lazy" />{/if}</span>
-            <span class="chart-name">{t.title}</span>
+            <span class="rank">{top.rank}</span>
+            <span class="chart-poster">{#if top.poster}<img src={top.poster} alt="" loading="lazy" />{/if}</span>
+            <span class="chart-name">{top.title}</span>
             <span class="chart-sub">
-              {t.episodes ? `${t.episodes} épisode${t.episodes > 1 ? "s" : ""}` : `${t.plays} lecture${t.plays > 1 ? "s" : ""}`}
-              · {formatLongDuration(t.watchMs)}
+              {top.episodes ? t("stats.top.episodes", { count: top.episodes }) : t("stats.top.plays", { count: top.plays })}
+              · {formatLongDuration(top.watchMs)}
             </span>
           </button>
         {/each}
       </div>
     {/if}
 
-    <h2 class="section">Depuis toujours</h2>
+    <h2 class="section">{t("stats.allTime.title")}</h2>
     <div class="bento">
       {#if data.allTime.totalWatchTimeMs}
         <div class="tile total">
-          <div class="tile-label"><Icon name="clock" size={16} /> Temps de visionnage</div>
+          <div class="tile-label"><Icon name="clock" size={16} /> {t("stats.allTime.watchTime")}</div>
           <div class="huge">{formatLongDuration(data.allTime.totalWatchTimeMs)}</div>
           <div class="tile-foot">
-            soit {hours(data.allTime.totalWatchTimeMs)} heures
-            {#if data.allTime.daysWatched}· réparties sur {data.allTime.daysWatched} jours{/if}
+            {t("stats.allTime.hours", { hours: hours(data.allTime.totalWatchTimeMs) })}
+            {#if data.allTime.daysWatched}· {t("stats.allTime.spreadOver", { count: data.allTime.daysWatched })}{/if}
           </div>
         </div>
       {/if}
 
       {#if data.allTime.longestStreak}
         <div class="tile streak">
-          <div class="tile-label"><span class="flame">🔥</span> Plus longue série</div>
-          <div class="big">{data.allTime.longestStreak} <small>jours d'affilée</small></div>
+          <div class="tile-label"><span class="flame">🔥</span> {t("stats.allTime.longestStreak")}</div>
+          <div class="big">{data.allTime.longestStreak} <small>{t("stats.allTime.daysInARow")}</small></div>
           <div class="tile-foot">
             {#if data.allTime.currentStreak}
-              <span class="pill up">En cours : {data.allTime.currentStreak} jour{data.allTime.currentStreak > 1 ? "s" : ""}</span>
+              <span class="pill up">{t("stats.allTime.currentStreak", { count: data.allTime.currentStreak })}</span>
             {:else}
-              Aucune série en cours
+              {t("stats.allTime.noStreak")}
             {/if}
           </div>
         </div>
@@ -234,7 +237,7 @@
 
       {#if genres.length}
         <div class="tile genres">
-          <div class="tile-label"><Icon name="stats" size={16} /> Genres préférés</div>
+          <div class="tile-label"><Icon name="stats" size={16} /> {t("stats.allTime.favoriteGenres")}</div>
           <div class="bars">
             {#each genres as g, i (g.genre)}
               <div class="bar-row">
@@ -255,8 +258,8 @@
           {#if data.bingeArt?.backdrop}<span class="art-bg" style:background-image={`url("${data.bingeArt.backdrop}")`}></span>{/if}
           <span class="art-shade"></span>
           <span class="art-body">
-            <span class="tile-label">Plus gros marathon</span>
-            <span class="big">{data.allTime.biggestBinge.episodes} <small>épisodes en une journée</small></span>
+            <span class="tile-label">{t("stats.allTime.biggestBinge")}</span>
+            <span class="big">{data.allTime.biggestBinge.episodes} <small>{t("stats.allTime.episodesInADay")}</small></span>
             <span class="art-title">{data.allTime.biggestBinge.showTitle}</span>
             <span class="tile-foot">{longDate(data.allTime.biggestBinge.day)}</span>
           </span>
@@ -272,7 +275,7 @@
           {#if data.firstPlayArt?.backdrop}<span class="art-bg" style:background-image={`url("${data.firstPlayArt.backdrop}")`}></span>{/if}
           <span class="art-shade"></span>
           <span class="art-body">
-            <span class="tile-label">Ta toute première lecture</span>
+            <span class="tile-label">{t("stats.allTime.firstPlay")}</span>
             <span class="art-title">{data.allTime.firstPlay.grandparentTitle ?? data.allTime.firstPlay.mediaTitle}</span>
             <span class="tile-foot">{longDate(data.allTime.firstPlay.startedAt)} · {since(data.allTime.firstPlay.startedAt)}</span>
           </span>
@@ -672,7 +675,7 @@
   .total {
     grid-column: span 2;
     background:
-      radial-gradient(120% 140% at 100% 0%, #e5a00d55 0%, transparent 55%),
+      radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--accent) 33%, transparent) 0%, transparent 55%),
       linear-gradient(135deg, #2a2216, #1a1b1f);
   }
 

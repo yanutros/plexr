@@ -5,6 +5,7 @@
   import { toast } from "../lib/nav.svelte";
   import { attachVideo, detachVideo, mpv, play, player, stop, trackLabel } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   const appWindow = getCurrentWindow();
 
@@ -197,7 +198,7 @@
   {#if !player.embedded}
     <div class="center remote-note">
       <Icon name="fullscreen" size={40} />
-      <p>La vidéo s'affiche dans la fenêtre mpv.<br />Cette page la pilote à distance.</p>
+      <p>{t("player.remoteNote")}<br />{t("player.remoteNote2")}</p>
     </div>
   {:else if player.buffering}
     <div class="center"><div class="spinner"></div></div>
@@ -206,7 +207,7 @@
   {/if}
 
   <div class="top">
-    <button class="icon-btn" onclick={close} aria-label="Fermer le lecteur">
+    <button class="icon-btn" onclick={close} aria-label={t("player.close")}>
       <Icon name="arrowLeft" size={24} />
     </button>
     <div class="titles">
@@ -225,7 +226,7 @@
       onpointerleave={() => (hoverTime = null)}
       role="slider"
       tabindex="-1"
-      aria-label="Position"
+      aria-label={t("player.position")}
       aria-valuemin={0}
       aria-valuemax={player.duration}
       aria-valuenow={player.position}
@@ -243,29 +244,29 @@
     <div class="controls">
       <div class="group">
         {#if player.prevKey || player.nextKey}
-          <button class="icon-btn" disabled={!player.prevKey} onclick={() => goTo(player.prevKey)} aria-label="Épisode précédent" title="Épisode précédent">
+          <button class="icon-btn" disabled={!player.prevKey} onclick={() => goTo(player.prevKey)} aria-label={t("player.prevEpisode")} title={t("player.prevEpisode")}>
             <Icon name="skipPrev" size={20} filled />
           </button>
         {/if}
-        <button class="icon-btn" onclick={() => mpv("seek", -10, "relative")} aria-label="Reculer de 10 s" title="Reculer de 10 s">
+        <button class="icon-btn" onclick={() => mpv("seek", -10, "relative")} aria-label={t("player.back10")} title={t("player.back10")}>
           <Icon name="replay10" size={24} />
         </button>
-        <button class="icon-btn main" class:paused={player.paused} onclick={() => mpv("cycle", "pause")} aria-label={player.paused ? "Lecture" : "Pause"}>
+        <button class="icon-btn main" class:paused={player.paused} onclick={() => mpv("cycle", "pause")} aria-label={player.paused ? t("player.play") : t("player.pause")}>
           <Icon name={player.paused ? "play" : "pause"} size={26} filled />
         </button>
-        <button class="icon-btn" onclick={() => mpv("seek", 10, "relative")} aria-label="Avancer de 10 s" title="Avancer de 10 s">
+        <button class="icon-btn" onclick={() => mpv("seek", 10, "relative")} aria-label={t("player.forward10")} title={t("player.forward10")}>
           <Icon name="forward10" size={24} />
         </button>
         {#if player.prevKey || player.nextKey}
-          <button class="icon-btn" disabled={!player.nextKey} onclick={() => goTo(player.nextKey)} aria-label="Épisode suivant" title="Épisode suivant">
+          <button class="icon-btn" disabled={!player.nextKey} onclick={() => goTo(player.nextKey)} aria-label={t("player.nextEpisode")} title={t("player.nextEpisode")}>
             <Icon name="skipNext" size={20} filled />
           </button>
         {/if}
-        <button class="icon-btn" onclick={close} aria-label="Fermer le lecteur" title="Fermer le lecteur">
+        <button class="icon-btn" onclick={close} aria-label={t("player.close")} title={t("player.close")}>
           <Icon name="stop" size={16} filled />
         </button>
         <div class="volume">
-          <button class="icon-btn" onclick={() => mpv("cycle", "mute")} aria-label="Couper le son">
+          <button class="icon-btn" onclick={() => mpv("cycle", "mute")} aria-label={t("player.mute")}>
             <Icon name={player.muted || player.volume === 0 ? "mute" : "volume"} size={22} />
           </button>
           <input
@@ -274,7 +275,7 @@
             max="130"
             value={player.muted ? 0 : player.volume}
             oninput={setVolume}
-            aria-label="Volume"
+            aria-label={t("player.volume")}
           />
         </div>
         <span class="time">{fmt(player.position)} <span class="dim">/ {fmt(player.duration)}</span></span>
@@ -288,17 +289,17 @@
             class="icon-btn"
             class:on={menu === "audio"}
             onclick={() => (menu = menu === "audio" ? null : "audio")}
-            aria-label="Pistes audio"
+            aria-label={t("player.audioTracks")}
           >
             <Icon name="audio" size={22} />
           </button>
           {#if menu === "audio"}
             <div class="menu">
-              <div class="menu-title">Audio</div>
-              {#each audioTracks as t (t.id)}
-                <button class:selected={player.aid === t.id} onclick={() => selectTrack("aid", t.id)}>
-                  <span class="tick">{#if player.aid === t.id}<Icon name="check" size={16} />{/if}</span>
-                  {trackLabel(t)}
+              <div class="menu-title">{t("player.audio")}</div>
+              {#each audioTracks as track (track.id)}
+                <button class:selected={player.aid === track.id} onclick={() => selectTrack("aid", track.id)}>
+                  <span class="tick">{#if player.aid === track.id}<Icon name="check" size={16} />{/if}</span>
+                  {trackLabel(track)}
                 </button>
               {/each}
             </div>
@@ -309,28 +310,28 @@
             class="icon-btn"
             class:on={menu === "sub"}
             onclick={() => (menu = menu === "sub" ? null : "sub")}
-            aria-label="Sous-titres"
+            aria-label={t("player.subtitles")}
           >
             <Icon name="subtitles" size={22} />
           </button>
           {#if menu === "sub"}
             <div class="menu">
-              <div class="menu-title">Sous-titres</div>
+              <div class="menu-title">{t("player.subtitles")}</div>
               <button class:selected={player.sid === null} onclick={() => selectTrack("sid", "no")}>
                 <span class="tick">{#if player.sid === null}<Icon name="check" size={16} />{/if}</span>
-                Aucun
+                {t("player.none")}
               </button>
-              {#each subTracks as t (t.id)}
-                <button class:selected={player.sid === t.id} onclick={() => selectTrack("sid", t.id)}>
-                  <span class="tick">{#if player.sid === t.id}<Icon name="check" size={16} />{/if}</span>
-                  {trackLabel(t)}
+              {#each subTracks as track (track.id)}
+                <button class:selected={player.sid === track.id} onclick={() => selectTrack("sid", track.id)}>
+                  <span class="tick">{#if player.sid === track.id}<Icon name="check" size={16} />{/if}</span>
+                  {trackLabel(track)}
                 </button>
               {/each}
             </div>
           {/if}
         </div>
         {/if}
-        <button class="icon-btn" onclick={toggleFullscreen} aria-label="Plein écran">
+        <button class="icon-btn" onclick={toggleFullscreen} aria-label={t("player.fullscreen")}>
           <Icon name={fullscreen ? "exitFullscreen" : "fullscreen"} size={22} />
         </button>
       </div>
@@ -350,7 +351,7 @@
   /* Fenêtre mpv séparée : fond opaque, la page sert de télécommande. */
   .overlay.remote {
     background:
-      radial-gradient(60% 60% at 50% 40%, #e5a00d1a, transparent 70%),
+      radial-gradient(60% 60% at 50% 40%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 70%),
       var(--bg);
   }
 
@@ -478,7 +479,7 @@
     margin-left: -7px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 0 4px #e5a00d33;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
     transform: scale(0);
     transition: transform 0.15s;
   }

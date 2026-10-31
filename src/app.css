@@ -7,9 +7,13 @@
   --text: #f1f1f3;
   --text-dim: #a0a3ab;
   --text-faint: #6c7079;
+  /* Couleur du thème (Jaune par défaut ; les autres plus bas) : teinte, survol, texte posé
+     dessus, et les deux extrémités du dégradé des logos. */
   --accent: #e5a00d;
   --accent-hover: #f5b52a;
   --accent-text: #1a1300;
+  --accent-light: #f7bd3a;
+  --accent-dark: #c98400;
   --ok: #46c08a;
   --info: #6b9bff;
   --danger: #ef5d55;
@@ -17,6 +21,30 @@
   --radius-lg: 14px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   color-scheme: dark;
+}
+
+[data-theme="rouge"] {
+  --accent: #e50914;
+  --accent-hover: #f6343e;
+  --accent-text: #ffffff;
+  --accent-light: #ff4b52;
+  --accent-dark: #b0060f;
+}
+
+[data-theme="vert"] {
+  --accent: #1db954;
+  --accent-hover: #1ed760;
+  --accent-text: #04140a;
+  --accent-light: #3ee07a;
+  --accent-dark: #148a3e;
+}
+
+[data-theme="violet"] {
+  --accent: #aa5cc3;
+  --accent-hover: #bb74d3;
+  --accent-text: #ffffff;
+  --accent-light: #c98be0;
+  --accent-dark: #823f9b;
 }
 
 * {

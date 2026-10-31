@@ -1,6 +1,7 @@
 <script lang="ts">
   import { seerrStatusLabel, type SeerrMedia } from "../lib/api";
   import { go, nav } from "../lib/nav.svelte";
+  import { t } from "../lib/i18n";
 
   let { media }: { media: SeerrMedia } = $props();
 
@@ -16,12 +17,12 @@
 <div class="card">
   <div class="img">
     {#if media.poster}<img src={media.poster} alt="" loading="lazy" />{/if}
-    <span class="type">{media.mediaType === "movie" ? "Film" : "Série"}</span>
+    <span class="type">{media.mediaType === "movie" ? t("common.c1.movie") : t("common.c1.show")}</span>
     {#if label}
       <span class="badge status" class:ok={media.status === 5} class:info={media.status !== 5}>{label}</span>
     {/if}
     <!-- Au survol, comme sur Seerr : année, titre et début du synopsis. -->
-    <button class="open" onclick={open} aria-label="Voir {media.title}">
+    <button class="open" onclick={open} aria-label={t("seerrCard.viewTitle", { title: media.title })}>
       <span class="hover-info" class:pad={requestable}>
         {#if media.year}<span class="year">{media.year}</span>{/if}
         <span class="name">{media.title}</span>
@@ -29,7 +30,7 @@
       </span>
     </button>
     {#if requestable}
-      <button class="btn primary request" onclick={() => (nav.requesting = media)}>Demander</button>
+      <button class="btn primary request" onclick={() => (nav.requesting = media)}>{t("seerrCard.request")}</button>
     {/if}
   </div>
   <button class="meta" onclick={open} tabindex="-1">

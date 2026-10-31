@@ -1,0 +1,113 @@
+{
+  "app": {
+    "noServer": "Kein Plex-Server ausgewählt",
+    "seerrNotConfigured": "Seerr ist nicht eingerichtet (siehe Einstellungen)",
+    "tracearrNotConfigured": "Tracearr ist nicht eingerichtet (siehe Einstellungen)",
+    "urlRefused": "Adresse nicht erlaubt: {{url}}",
+    "notLoggedIn": "Nicht bei Plex angemeldet",
+    "serverNotFound": "Server nicht gefunden",
+    "mainWindowNotFound": "Hauptfenster nicht gefunden",
+    "nothingToPlay": "Nichts zum Abspielen",
+    "noPlayback": "Es wird nichts abgespielt"
+  },
+  "player": {
+    "noPlayback": "Es wird nichts abgespielt",
+    "mpvNotAtPath": "mpv nicht am in den Einstellungen angegebenen Ort gefunden: {{path}}",
+    "mpvNotFound": "mpv nicht gefunden: Installiere es (https://mpv.io) oder gib den Pfad in den Einstellungen an",
+    "ipcUnavailable": "mpv-IPC nicht verfügbar",
+    "queueWriteFailed": "Die Wiedergabeliste konnte nicht geschrieben werden",
+    "launchFailed": "mpv konnte nicht gestartet werden ({{path}})"
+  },
+  "plex": {
+    "noReachableAddress": "Keine erreichbare Adresse für den Server „{{name}}“",
+    "trackCount_one": "{{count}} Titel",
+    "trackCount_other": "{{count}} Titel",
+    "playlists": "Playlists",
+    "notFound": "Element {{id}} nicht gefunden",
+    "noMusic": "„{{title}}“ enthält keine Musik",
+    "track": "Titel {{id}}",
+    "noPlayableFile": "Keine abspielbare Datei für „{{title}}“",
+    "episodeLine": "S{{season}} · F{{episode}} – {{title}}"
+  },
+  "admin": {
+    "adminOnly": "Das kann nur der Admin des Plex-Servers",
+    "serverReplied": "Der Plex-Server hat mit {{status}} geantwortet",
+    "notFound": "Element {{id}} nicht gefunden",
+    "notEditable": "Diese Art von Element kann nicht bearbeitet werden",
+    "libraryNotFound": "Mediathek für dieses Element nicht gefunden",
+    "episodeLine": "S{{season}} · F{{episode}} – {{title}}",
+    "fields": {
+      "title": "Titel",
+      "titleSort": "Sortiertitel",
+      "originalTitle": "Originaltitel",
+      "releaseDate": "Erscheinungsdatum",
+      "contentRating": "Altersfreigabe",
+      "studio": "Studio",
+      "tagline": "Slogan",
+      "summary": "Zusammenfassung",
+      "firstAired": "Erstausstrahlung",
+      "network": "Sender oder Studio",
+      "airDate": "Ausstrahlungsdatum",
+      "artist": "Künstler",
+      "artistSort": "Künstler (Sortierung)",
+      "biography": "Biografie",
+      "album": "Album",
+      "albumSort": "Album (Sortierung)",
+      "label": "Plattenlabel",
+      "albumSummary": "Beschreibung",
+      "trackArtist": "Titelkünstler",
+      "trackNumber": "Titelnummer"
+    }
+  },
+  "seerr": {
+    "plexRequired": "Für die Verbindung mit Seerr ist eine Plex-Anmeldung nötig",
+    "unreachable": "Seerr nicht erreichbar: {{error}}",
+    "loginRefused": "Seerr hat die Anmeldung mit deinem Plex-Konto abgelehnt ({{status}}). Der Admin muss dein Konto in Seerr importieren.",
+    "replied": "Seerr hat mit {{status}} geantwortet: {{message}}",
+    "season": "Staffel {{number}}",
+    "chooseSeason": "Wähle mindestens eine Staffel",
+    "creator": "Idee",
+    "jobs": {
+      "director": "Regie",
+      "screenplay": "Drehbuch",
+      "novel": "Romanvorlage",
+      "producer": "Produktion"
+    }
+  },
+  "tracearr": {
+    "invalidUrl": "Ungültige Tracearr-Adresse: {{url}}",
+    "unreachable": "Tracearr nicht erreichbar: {{error}}",
+    "loginRefused": "Tracearr hat die Verbindung abgelehnt ({{status}})",
+    "refused": "Verbindung abgelehnt",
+    "error": "Tracearr: {{message}}",
+    "notSetUp": "Dieses Tracearr ist noch nicht eingerichtet: Sein Admin muss sich zuerst dort anmelden",
+    "replied": "Tracearr hat mit {{status}} für {{path}} geantwortet",
+    "episodeLine": "S{{season}} · F{{episode}} – {{title}}"
+  },
+  "update": {
+    "invalidName": "ungültiger Paketname",
+    "emptyDownload": "der Download ist leer",
+    "unsupported": "automatische Updates sind unter {{os}} nicht verfügbar"
+  },
+  "relay": {
+    "noNetwork": "Dieses Gerät ist mit keinem Netzwerk verbunden",
+    "notFound": "Nicht gefunden",
+    "title": "Plexr einrichten",
+    "intro": "Der Server-Admin hat dir den Einladungs-QR-Code geschickt.",
+    "scan": "QR-Code scannen",
+    "gallery": "Bild des QR-Codes auswählen",
+    "or": "oder füge den erhaltenen Code ein",
+    "send": "Senden",
+    "seerr": "Anfragen (Seerr)",
+    "tracearr": "Statistiken (Tracearr)",
+    "authorize": "Tracearr mit Plex autorisieren",
+    "done": "Fertig! Du kannst dein Handy weglegen.",
+    "noQr": "Kein QR-Code im Bild gefunden: Versuch es noch mal und richte ihn gut aus.",
+    "notInvite": "Das ist kein Plexr-Einladungscode.",
+    "tvGone": "Der Fernseher antwortet nicht: Öffne den Einrichtungsbildschirm erneut.",
+    "watchTv": "Schau auf deinen Fernseher: Plexr wird eingerichtet.",
+    "connected": "Verbunden",
+    "connecting": "Verbinden…",
+    "failed": "Einrichtung fehlgeschlagen."
+  }
+}

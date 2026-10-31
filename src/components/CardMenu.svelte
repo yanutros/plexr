@@ -3,6 +3,7 @@
   import { go, nav, reload, toast } from "../lib/nav.svelte";
   import { play, playMusic } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   // Menu « ⋮ » d'une jaquette : actions de lecture, puis gestion (administrateur seulement).
   const menu = $derived(nav.menu!);
@@ -43,7 +44,7 @@
     run(async () => {
       await api.setWatched(item.ratingKey, !item.watched);
       reload();
-    }, item.watched ? "Marqué comme non vu" : "Marqué comme vu");
+    }, item.watched ? t("cardMenu.markedUnwatched") : t("cardMenu.markedWatched"));
   }
 
   function edit() {
@@ -59,27 +60,27 @@
 <div class="menu" bind:this={el} style:left="{pos.left}px" style:top="{pos.top}px" role="menu">
   <div class="head">{item.showTitle && item.kind === "episode" ? item.showTitle : item.title}</div>
   {#if item.playable || music}
-    <button role="menuitem" onclick={() => start()}><Icon name="play" size={16} filled /> Lire</button>
+    <button role="menuitem" onclick={() => start()}><Icon name="play" size={16} filled /> {t("common.c1.play")}</button>
   {/if}
   {#if music && item.kind !== "track"}
-    <button role="menuitem" onclick={() => start(true)}><Icon name="shuffle" size={16} /> Lecture aléatoire</button>
+    <button role="menuitem" onclick={() => start(true)}><Icon name="shuffle" size={16} /> {t("common.c1.shuffle")}</button>
   {/if}
   {#if !music}
     <button role="menuitem" onclick={toggleWatched}>
-      <Icon name="checkCircle" size={16} /> {item.watched ? "Marquer comme non vu" : "Marquer comme vu"}
+      <Icon name="checkCircle" size={16} /> {item.watched ? t("cardMenu.markUnwatched") : t("cardMenu.markWatched")}
     </button>
   {/if}
   <button role="menuitem" onclick={() => (close(), go({ name: "item", ratingKey: item.ratingKey }))}>
-    <Icon name="chevronRight" size={16} /> Ouvrir la fiche
+    <Icon name="chevronRight" size={16} /> {t("cardMenu.openDetails")}
   </button>
   {#if nav.admin && editable}
     <div class="sep"></div>
-    <button role="menuitem" onclick={edit}><Icon name="edit" size={16} /> Modifier…</button>
-    <button role="menuitem" onclick={() => run(() => api.refreshMetadata(item.ratingKey), "Actualisation des métadonnées lancée")}>
-      <Icon name="restart" size={16} /> Actualiser les métadonnées
+    <button role="menuitem" onclick={edit}><Icon name="edit" size={16} /> {t("cardMenu.edit")}</button>
+    <button role="menuitem" onclick={() => run(() => api.refreshMetadata(item.ratingKey), t("cardMenu.refreshStarted"))}>
+      <Icon name="restart" size={16} /> {t("cardMenu.refreshMetadata")}
     </button>
-    <button role="menuitem" onclick={() => run(() => api.analyze(item.ratingKey), "Analyse lancée")}>
-      <Icon name="search" size={16} /> Analyser
+    <button role="menuitem" onclick={() => run(() => api.analyze(item.ratingKey), t("cardMenu.analyzeStarted"))}>
+      <Icon name="search" size={16} /> {t("cardMenu.analyze")}
     </button>
   {/if}
 </div>

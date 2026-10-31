@@ -9,6 +9,7 @@
   import ContinueRow from "../components/ContinueRow.svelte";
   import TvHome from "../components/TvHome.svelte";
   import { device } from "../lib/device";
+  import { t } from "../lib/i18n";
 
   let home = $state<Home | null>(null);
   let trending = $state<SeerrMedia[]>([]);
@@ -43,17 +44,17 @@
 {:else if device.tv}
   <TvHome onDeck={home.onDeck} recent={home.recentlyAdded} {trending} />
 {:else}
-  <HeroCarousel items={slides} bleed eyebrow={() => (home?.onDeck.length ? "À suivre" : "Nouveauté")} />
+  <HeroCarousel items={slides} bleed eyebrow={() => (home?.onDeck.length ? t("home.upNext") : t("home.new"))} />
 
   <div class="page rows">
     {#if home.onDeck.length}
-      <ContinueRow title="Continuer à regarder" items={home.onDeck} />
+      <ContinueRow title={t("home.continueWatching")} items={home.onDeck} />
     {/if}
-    <Row title="Ajouts récents">
+    <Row title={t("home.recentlyAdded")}>
       {#each home.recentlyAdded as item (item.ratingKey)}<PosterCard {item} />{/each}
     </Row>
     {#if trending.length}
-      <Row title="Tendances à demander">
+      <Row title={t("home.trendingToRequest")}>
         {#each trending as media (media.mediaType + media.tmdbId)}<SeerrCard {media} />{/each}
       </Row>
     {/if}

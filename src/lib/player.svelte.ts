@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { QueueTrack } from "./api";
+import { t } from "./i18n";
 
 export interface MpvTrack {
   id: number;
@@ -187,11 +188,12 @@ export function next() {
   mpv("playlist-next");
 }
 
-export function trackLabel(t: MpvTrack): string {
-  const parts = [t.title, t.lang?.toUpperCase()].filter(Boolean);
-  if (t.type === "audio" && t["demux-channel-count"]) parts.push(`${t["demux-channel-count"]} can.`);
-  if (t.forced) parts.push("forcés");
-  return parts.length ? parts.join(" · ") : `Piste ${t.id}`;
+export function trackLabel(track: MpvTrack): string {
+  const parts = [track.title, track.lang?.toUpperCase()].filter(Boolean);
+  if (track.type === "audio" && track["demux-channel-count"])
+    parts.push(t("player.channels", { channels: track["demux-channel-count"] }));
+  if (track.forced) parts.push(t("player.forced"));
+  return parts.length ? parts.join(" · ") : t("player.trackNumber", { id: track.id });
 }
 
 // ---------- Lecteur intégré du système (mobile, TV) ----------

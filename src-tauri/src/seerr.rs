@@ -112,7 +112,7 @@ pub struct SeerrSeason {
 
 impl Seerr {
     pub async fn connect(base: &str, plex_token: Option<String>) -> Result<Self> {
-        let plex_token = plex_token.ok_or_else(|| anyhow!("Connexion Plex requise pour se connecter à Seerr"))?;
+        let plex_token = plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("seerr.plexRequired")))?;
         let cookies = Arc::new(Jar::default());
         let http = Client::builder()
             .cookie_provider(cookies.clone())
@@ -128,17 +128,14 @@ impl Seerr {
         self.builder(Method::GET, "/settings/public")
             .send()
             .await
-            .map_err(|e| anyhow!("Seerr injoignable : {e}"))?;
+            .map_err(|e| anyhow!(crate::i18n::tr_with("seerr.unreachable", &[("error", &e.to_string())])))?;
         let resp = self
             .builder(Method::POST, "/auth/plex")
             .json(&json!({ "authToken": self.plex_token }))
             .send()
             .await?;
         if !resp.status().is_success() {
-            bail!(
-                "Seerr a refusé la connexion avec ton compte Plex ({}). Ton compte doit être importé dans Seerr par l'administrateur.",
-                resp.status()
-            );
+            bail!(crate::i18n::tr_with("seerr.loginRefused", &[("status", &resp.status().to_string())]));
         }
         Ok(())
     }
@@ -188,7 +185,7 @@ impl Seerr {
                     .ok()
                     .and_then(|v| v["message"].as_str().map(str::to_owned))
                     .unwrap_or(text);
-                bail!("Seerr a répondu {status} : {message}");
+                bail!(crate::i18n::tr_with("seerr.replied", &[("status", &status.to_string()), ("message", &message)]));
             }
             return Ok(resp);
         }
@@ -222,19 +219,20 @@ impl Seerr {
     pub async fn search(&self, query: &str, page: u32) -> Result<Vec<SeerrMedia>> {
         // Seerr exige des espaces encodés en %20 (et non « + »).
         self.media_list(&format!(
-            "/search?query={}&page={page}&language=fr",
-            urlencoding::encode(query)
+            "/search?query={}&page={page}&language={}",
+            urlencoding::encode(query),
+            crate::i18n::language()
         ))
         .await
     }
 
     pub async fn trending(&self, page: u32) -> Result<Vec<SeerrMedia>> {
-        self.media_list(&format!("/discover/trending?page={page}&language=fr")).await
+        self.media_list(&format!("/discover/trending?page={page}&language={}", crate::i18n::language())).await
     }
 
     pub async fn tv_seasons(&self, tmdb_id: u64) -> Result<Vec<SeerrSeason>> {
         let tv: RawTv = self
-            .request(Method::GET, &format!("/tv/{tmdb_id}?language=fr"), None)
+            .request(Method::GET, &format!("/tv/{tmdb_id}?language={}", crate::i18n::language()), None)
             .await?
             .json()
             .await?;
@@ -259,7 +257,7 @@ impl Seerr {
             .into_iter()
             .map(|s| SeerrSeason {
                 status: season_status(s.season_number),
-                name: s.name.unwrap_or_else(|| format!("Saison {}", s.season_number)),
+                name: s.name.unwrap_or_else(|| crate::i18n::tr_with("seerr.season", &[("number", &s.season_number.to_string())])),
                 episode_count: s.episode_count.unwrap_or(0),
                 season_number: s.season_number,
             })
@@ -269,7 +267,7 @@ impl Seerr {
     pub async fn create_request(&self, media_type: &str, tmdb_id: u64, seasons: Option<Vec<u32>>) -> Result<()> {
         let mut body = json!({ "mediaType": media_type, "mediaId": tmdb_id });
         if media_type == "tv" {
-            let seasons = seasons.filter(|s| !s.is_empty()).ok_or_else(|| anyhow!("Choisis au moins une saison"))?;
+            let seasons = seasons.filter(|s| !s.is_empty()).ok_or_else(|| anyhow!(crate::i18n::tr("seerr.chooseSeason")))?;
             body["seasons"] = json!(seasons);
         }
         self.request(Method::POST, "/request", Some(&body)).await?;
@@ -406,7 +404,7 @@ impl Seerr {
     /// Fiche complète d'un film ou d'une série, avec les notes Rotten Tomatoes / IMDb.
     pub async fn details(&self, media_type: &str, tmdb_id: u64) -> Result<SeerrDetail> {
         let kind = if media_type == "tv" { "tv" } else { "movie" };
-        let detail_path = format!("/{kind}/{tmdb_id}?language=fr");
+        let detail_path = format!("/{kind}/{tmdb_id}?language={}", crate::i18n::language());
         let ratings_path = if kind == "tv" {
             format!("/tv/{tmdb_id}/ratings")
         } else {
@@ -421,18 +419,18 @@ impl Seerr {
         let movie = kind == "movie";
         let crew: Vec<Person> = if movie {
             const JOBS: &[(&str, &str)] = &[
-                ("Director", "Réalisation"),
-                ("Screenplay", "Scénario"),
-                ("Writer", "Scénario"),
-                ("Novel", "Roman"),
-                ("Producer", "Production"),
+                ("Director", "seerr.jobs.director"),
+                ("Screenplay", "seerr.jobs.screenplay"),
+                ("Writer", "seerr.jobs.screenplay"),
+                ("Novel", "seerr.jobs.novel"),
+                ("Producer", "seerr.jobs.producer"),
             ];
             let all = d["credits"]["crew"].as_array().cloned().unwrap_or_default();
             JOBS.iter()
                 .flat_map(|(job, label)| {
                     all.iter().filter(move |c| c["job"] == *job).map(move |c| Person {
                         name: c["name"].as_str().unwrap_or_default().to_owned(),
-                        role: Some((*label).to_owned()),
+                        role: Some(crate::i18n::tr(label)),
                         photo: None,
                     })
                 })
@@ -445,7 +443,7 @@ impl Seerr {
                 .flatten()
                 .map(|c| Person {
                     name: c["name"].as_str().unwrap_or_default().to_owned(),
-                    role: Some("Création".into()),
+                    role: Some(crate::i18n::tr("seerr.creator")),
                     photo: None,
                 })
                 .collect()
@@ -536,7 +534,7 @@ impl Seerr {
     pub async fn related(&self, media_type: &str, tmdb_id: u64, relation: &str) -> Result<Vec<SeerrMedia>> {
         let kind = if media_type == "tv" { "tv" } else { "movie" };
         let relation = if relation == "similar" { "similar" } else { "recommendations" };
-        let raw = self.json(&format!("/{kind}/{tmdb_id}/{relation}?page=1&language=fr")).await?;
+        let raw = self.json(&format!("/{kind}/{tmdb_id}/{relation}?page=1&language={}", crate::i18n::language())).await?;
         Ok(with_kind(&raw["results"], Some(kind)).into_iter().map(Self::to_media).collect())
     }
 
@@ -548,13 +546,13 @@ impl Seerr {
             Slider::PopularTv => ("/discover/tv", Some("tv")),
             Slider::UpcomingTv => ("/discover/tv/upcoming", Some("tv")),
         };
-        let raw = self.json(&format!("{path}?page={page}&language=fr")).await?;
+        let raw = self.json(&format!("{path}?page={page}&language={}", crate::i18n::language())).await?;
         Ok(with_kind(&raw["results"], kind).into_iter().map(Self::to_media).collect())
     }
 
     /// Carte d'un titre connu seulement par son identifiant TMDB.
     async fn card(&self, kind: &str, tmdb_id: u64) -> Option<SeerrMedia> {
-        let mut d = self.json(&format!("/{kind}/{tmdb_id}?language=fr")).await.ok()?;
+        let mut d = self.json(&format!("/{kind}/{tmdb_id}?language={}", crate::i18n::language())).await.ok()?;
         d["mediaType"] = json!(kind);
         serde_json::from_value::<RawResult>(d).ok().map(Self::to_media)
     }

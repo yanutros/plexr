@@ -1,0 +1,615 @@
+{
+  "settings": {
+    "groups": {
+      "general": "Général",
+      "library": "Bibliothèque",
+      "network": "Réseau",
+      "transcoder": "Transcodeur",
+      "dlna": "DLNA",
+      "extras": "Bonus",
+      "butler": "Tâches planifiées"
+    },
+    "menu": {
+      "account": "Compte",
+      "services": "Seerr et Tracearr",
+      "player": "Lecteur",
+      "interface": "Interface",
+      "server": "Serveur {{name}}",
+      "dashboard": "Tableau de bord",
+      "advanced": "Afficher les réglages avancés",
+      "locked": "Les réglages du serveur sont réservés à son administrateur."
+    },
+    "account": {
+      "admin": "Administrateur du serveur",
+      "shared": "Accès partagé",
+      "server": "Serveur :",
+      "changeServer": "Changer de serveur",
+      "logout": "Se déconnecter"
+    },
+    "services": {
+      "seerrConnected": "Connecté à Seerr avec ton compte Plex",
+      "seerrDisabled": "Seerr désactivé",
+      "tracearrDisabled": "Tracearr désactivé",
+      "tracearrConnected": "Connecté à Tracearr",
+      "tracearrDisconnected": "Déconnecté de Tracearr",
+      "seerrIntro": "Les demandes se font avec ton compte Plex, à ton nom : rien d'autre à saisir. Ton compte doit simplement avoir été importé dans Seerr par l'administrateur.",
+      "seerrAddress": "Adresse de Seerr",
+      "tracearrAddress": "Adresse de Tracearr",
+      "connecting": "Connexion…",
+      "connectWithPlex": "Se connecter avec Plex",
+      "tracearrIntro": "Tes statistiques de visionnage personnelles. La connexion passe par ton compte Plex : ton navigateur s'ouvre une fois pour autoriser Tracearr, puis la session dure 30 jours.",
+      "waitingBrowser": "En attente de validation dans le navigateur…",
+      "logout": "Se déconnecter",
+      "connected": "Connecté"
+    },
+    "invite": {
+      "invalid": "Ce code d'invitation n'est pas valide.",
+      "configured": "Seerr et Tracearr sont configurés",
+      "noQr": "Aucun QR code trouvé dans cette image.",
+      "codeCopied": "Code d'invitation copié",
+      "imageCopied": "Image du QR code copiée",
+      "steps": {
+        "run": "Connexion…",
+        "ok": "Connecté",
+        "err": "Échec"
+      },
+      "quickSetup": "Configuration rapide",
+      "phoneHint": "Scanne ce code avec ton téléphone, connecté au même Wi-Fi, puis montre-lui l'invitation de l'administrateur du serveur.",
+      "pasteHint": "Colle le code d'invitation de l'administrateur du serveur, ou importe l'image de son QR code.",
+      "apply": "Appliquer",
+      "importImage": "Importer l'image",
+      "stepSeerr": "Demandes (Seerr) : {{status}}",
+      "stepTracearr": "Statistiques (Tracearr) : {{status}}",
+      "authorizeOnPhone": "à autoriser sur le téléphone",
+      "title": "Inviter des utilisateurs",
+      "intro": "Partage ce QR code ou ce code : Plexr y trouvera ces adresses et s'y connectera avec le compte Plex de chacun.",
+      "copyCode": "Copier le code",
+      "copyImage": "Copier l'image"
+    },
+    "player": {
+      "saved": "Chemin de mpv enregistré",
+      "intro": "La lecture se fait avec mpv. Laisse vide pour le chercher automatiquement.",
+      "mpvPath": "Chemin de mpv",
+      "save": "Enregistrer"
+    },
+    "interface": {
+      "menuReset": "Menu réinitialisé",
+      "themes": {
+        "jaune": "Jaune",
+        "rouge": "Rouge",
+        "vert": "Vert",
+        "violet": "Violet"
+      },
+      "color": "Couleur",
+      "libraries": "Bibliothèques du menu",
+      "moveUp": "Monter {{title}}",
+      "moveDown": "Descendre {{title}}",
+      "show": "Afficher {{title}}",
+      "hide": "Masquer {{title}}",
+      "resetMenu": "Réinitialiser le menu",
+      "collapsed": "Menu replié",
+      "collapsedHint": "N'affiche que les icônes, pour laisser toute la place au contenu.",
+      "reorderHint": "Pour réordonner ou masquer des bibliothèques, clique sur le crayon à côté de « Bibliothèques » dans le menu.",
+      "language": "Langue",
+      "languageAuto": "Automatique"
+    }
+  },
+  "login": {
+    "tagline": "Ton client Plex, avec les demandes Seerr intégrées.",
+    "goTo": "Sur ton téléphone ou ton ordinateur, va sur",
+    "enterCode": "et saisis ce code :",
+    "autoConnect": "La connexion se fera toute seule dès que le code sera validé.",
+    "newCode": "Nouveau code",
+    "useBrowser": "Utiliser le navigateur",
+    "validateInBrowser": "Valide la connexion dans le navigateur qui vient de s'ouvrir…",
+    "restart": "Recommencer",
+    "useCode": "Utiliser un code",
+    "signIn": "Se connecter avec Plex",
+    "withCode": "Avec un code ({{site}})"
+  },
+  "servers": {
+    "title": "Choisis un serveur",
+    "searching": "Recherche des serveurs…",
+    "none": "Aucun serveur Plex accessible avec ce compte.",
+    "connecting": "Connexion…",
+    "mine": "Mon serveur",
+    "sharedBy": "Partagé par {{owner}}",
+    "shared": "Partagé",
+    "switchAccount": "Changer de compte"
+  },
+  "search": {
+    "hint": "Saisis le titre d'un film, d'une série ou un artiste.",
+    "inLibrary": "Dans ta bibliothèque",
+    "searching": "Recherche…",
+    "noResults": "Aucun résultat pour « {{query}} ».",
+    "notInLibrary": "Pas dans la bibliothèque ? Demande-le",
+    "seerrUnavailable": "Seerr indisponible : {{error}}",
+    "settings": "Réglages",
+    "searchingSeerr": "Recherche sur Seerr…",
+    "nothingElse": "Rien d'autre à demander."
+  },
+  "discover": {
+    "title": "Découvrir",
+    "configureSeerr": "Configurer Seerr",
+    "rows": {
+      "requests": "Demandes récentes",
+      "watchlist": "Ta liste de suivi",
+      "trending": "Tendances",
+      "popularMovies": "Films populaires",
+      "upcomingMovies": "Films à venir",
+      "popularTv": "Séries populaires",
+      "upcomingTv": "Séries à venir"
+    }
+  },
+  "seerr": {
+    "productionStatus": {
+      "released": "Sorti",
+      "postProduction": "Post-production",
+      "inProduction": "En production",
+      "planned": "Prévu",
+      "rumored": "Annoncé",
+      "canceled": "Annulé",
+      "ended": "Terminée",
+      "returningSeries": "En cours",
+      "pilot": "Pilote"
+    },
+    "detail": {
+      "runtime": "{{minutes}} minutes",
+      "seasons_one": "{{count}} saison",
+      "seasons_other": "{{count}} saisons",
+      "watchInPlexr": "Voir dans Plexr",
+      "requestMoreSeasons": "Demander d'autres saisons",
+      "request": "Demander",
+      "trailer": "Bande-annonce",
+      "overview": "Résumé",
+      "noOverview": "Aucun résumé disponible.",
+      "rtCritics": "Rotten Tomatoes (critiques)",
+      "rtAudience": "Rotten Tomatoes (public)",
+      "percent": "{{value}} %",
+      "cast": "Casting",
+      "recommendations": "Recommandations",
+      "similar": "Titres similaires"
+    },
+    "facts": {
+      "originalTitle": "Titre original",
+      "status": "Statut",
+      "firstAired": "Première diffusion",
+      "releaseDate": "Date de sortie",
+      "episodes": "Épisodes",
+      "revenue": "Recettes",
+      "budget": "Budget",
+      "originalLanguage": "Langue originale",
+      "countries": "Pays de production",
+      "networks": "Chaînes",
+      "studios": "Studios",
+      "streamingOn": "Disponible en streaming sur"
+    }
+  },
+  "home": {
+    "upNext": "À suivre",
+    "new": "Nouveauté",
+    "continueWatching": "Continuer à regarder",
+    "recentlyAdded": "Ajouts récents",
+    "trendingToRequest": "Tendances à demander"
+  },
+  "library": {
+    "tabs": {
+      "recommended": "Recommandé",
+      "library": "Bibliothèque",
+      "categories": "Catégories"
+    },
+    "resume": "Reprendre",
+    "category": "Catégorie",
+    "titleCount_one": "{{count}} titre",
+    "titleCount_other": "{{count}} titres",
+    "upNext": "À suivre",
+    "discover": "À découvrir",
+    "featured": "À la une",
+    "genreFilter": "Genre :",
+    "removeFilter": "Retirer le filtre",
+    "loading": "Chargement…"
+  },
+  "music": {
+    "library": {
+      "tabs": {
+        "recommended": "Recommandé",
+        "artists": "Artistes",
+        "albums": "Albums",
+        "playlists": "Listes de lecture"
+      },
+      "latestAddition": "Dernier ajout",
+      "newAlbum": "Nouvel album",
+      "playlist": "Liste de lecture",
+      "hotTracks": "Titres du moment",
+      "hotTrack": "Titre du moment",
+      "newReleases": "Nouveautés",
+      "nothingToRecommend": "Rien à recommander pour l'instant : parcours les artistes ou les albums.",
+      "loading": "Chargement…"
+    },
+    "detail": {
+      "kind": {
+        "artist": "Artiste",
+        "album": "Album",
+        "playlist": "Playlist",
+        "track": "Titre"
+      },
+      "albumCount_one": "{{count}} album",
+      "albumCount_other": "{{count}} albums",
+      "trackCount_one": "{{count}} titre",
+      "trackCount_other": "{{count}} titres",
+      "play": "Lire",
+      "shuffle": "Aléatoire",
+      "editInfo": "Modifier les informations",
+      "edit": "Modifier",
+      "albums": "Albums",
+      "columns": {
+        "title": "Titre",
+        "album": "Album"
+      }
+    }
+  },
+  "item": {
+    "remaining": "{{time}} restantes",
+    "seasonEpisode": "Saison {{season}} · Épisode {{episode}}",
+    "seasonCount_one": "{{count}} saison",
+    "seasonCount_other": "{{count}} saisons",
+    "episodeCount_one": "{{count}} épisode",
+    "episodeCount_other": "{{count}} épisodes",
+    "watched": "Vu",
+    "resume": "Reprendre",
+    "play": "Lire",
+    "playFromStart": "Lire depuis le début",
+    "episodeNumber": "Épisode {{number}}",
+    "markUnwatched": "Marquer comme non vu",
+    "markWatched": "Marquer comme vu",
+    "editInfo": "Modifier les informations",
+    "facts": {
+      "director": "Réalisation",
+      "writer": "Scénario",
+      "studio": "Studio",
+      "video": "Vidéo",
+      "audio": "Audio",
+      "subtitles": "Sous-titres",
+      "none": "Aucun"
+    },
+    "seasons": "Saisons",
+    "episodes": "Épisodes",
+    "playTitle": "Lire {{title}}",
+    "cast": "Distribution"
+  },
+  "stats": {
+    "title": "Mes statistiques",
+    "noUrl": "Indique l'adresse de ton Tracearr dans les Réglages pour voir tes statistiques.",
+    "openSettings": "Ouvrir les Réglages",
+    "loginPrompt": "Connecte-toi à Tracearr avec ton compte Plex. Ton navigateur va s'ouvrir pour valider l'accès.",
+    "waitingBrowser": "En attente de validation dans le navigateur…",
+    "loginWithPlex": "Se connecter avec Plex",
+    "since": {
+      "years_one": "{{count}} an",
+      "years_other": "{{count}} ans",
+      "months_one": "{{count}} mois",
+      "months_other": "{{count}} mois",
+      "yearsAndMonths": "{{years}} et {{months}}",
+      "ago": "il y a {{time}}",
+      "thisMonth": "ce mois-ci"
+    },
+    "kpi": {
+      "screenTime": "devant l'écran",
+      "musicPart": "dont {{time}} de musique",
+      "plays": "lectures",
+      "titles": "titres différents",
+      "percent": "{{value}} %"
+    },
+    "hero": {
+      "last30Days": "Tes 30 derniers jours",
+      "hello": "Bonjour {{name}}",
+      "lead_one": "{{time}} devant l'écran, {{count}} titre découvert ou revu.",
+      "lead_other": "{{time}} devant l'écran, {{count}} titres découverts ou revus."
+    },
+    "now": {
+      "title": "En ce moment",
+      "paused": "En pause",
+      "playing": "En lecture",
+      "local": "Réseau local",
+      "remote": "À distance",
+      "transcode": "Transcodage",
+      "direct": "Direct"
+    },
+    "top": {
+      "title": "Ton top 10",
+      "period": "30 derniers jours",
+      "episodes_one": "{{count}} épisode",
+      "episodes_other": "{{count}} épisodes",
+      "plays_one": "{{count}} lecture",
+      "plays_other": "{{count}} lectures"
+    },
+    "allTime": {
+      "title": "Depuis toujours",
+      "watchTime": "Temps de visionnage",
+      "hours": "soit {{hours}} heures",
+      "spreadOver_one": "réparties sur {{count}} jour",
+      "spreadOver_other": "réparties sur {{count}} jours",
+      "longestStreak": "Plus longue série",
+      "daysInARow": "jours d'affilée",
+      "currentStreak_one": "En cours : {{count}} jour",
+      "currentStreak_other": "En cours : {{count}} jours",
+      "noStreak": "Aucune série en cours",
+      "favoriteGenres": "Genres préférés",
+      "biggestBinge": "Plus gros marathon",
+      "episodesInADay": "épisodes en une journée",
+      "firstPlay": "Ta toute première lecture"
+    }
+  },
+  "common": {
+    "c1": {
+      "loading": "Chargement…",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "close": "Fermer",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "play": "Lire",
+      "playTitle": "Lire {{title}}",
+      "resume": "Reprendre",
+      "shuffle": "Lecture aléatoire",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "moreInfo": "Plus d'infos",
+      "moreActions": "Plus d'actions",
+      "movie": "Film",
+      "show": "Série",
+      "episodeCode": "S{{season}} É{{episode}}",
+      "remaining": "{{time}} restantes",
+      "nowPlaying": "En cours de lecture",
+      "playback": "Lecture",
+      "pause": "Pause",
+      "stop": "Arrêter",
+      "position": "Position",
+      "queue": "File d'attente",
+      "mute": "Couper le son",
+      "volume": "Volume"
+    },
+    "c2": {
+      "seerrStatus": {
+        "requested": "Demandé",
+        "processing": "En cours",
+        "partial": "Partiellement disponible",
+        "available": "Disponible"
+      }
+    }
+  },
+  "app": {
+    "searchPlaceholder": "Rechercher un film, une série, un artiste…",
+    "authTracearr": "Autoriser Tracearr",
+    "authScan": "Scanne ce code avec ton téléphone et valide avec ton compte Plex."
+  },
+  "cardMenu": {
+    "markedWatched": "Marqué comme vu",
+    "markedUnwatched": "Marqué comme non vu",
+    "markWatched": "Marquer comme vu",
+    "markUnwatched": "Marquer comme non vu",
+    "openDetails": "Ouvrir la fiche",
+    "edit": "Modifier…",
+    "refreshMetadata": "Actualiser les métadonnées",
+    "refreshStarted": "Actualisation des métadonnées lancée",
+    "analyze": "Analyser",
+    "analyzeStarted": "Analyse lancée"
+  },
+  "editDialog": {
+    "tabs": {
+      "general": "Général",
+      "genres": "Genres",
+      "cover": "Pochette",
+      "poster": "Affiche",
+      "background": "Fond d'écran"
+    },
+    "title": "Modifier {{title}}",
+    "posterUpdated": "Affiche mise à jour",
+    "backgroundUpdated": "Fond d'écran mis à jour",
+    "invalidImageUrl": "Indique une adresse web d'image (https://…)",
+    "saved": "Modifications enregistrées",
+    "lockedHint": "Verrouillé : Plex ne remplacera pas cette valeur",
+    "unlockedHint": "Déverrouillé : Plex peut mettre à jour cette valeur",
+    "lock": "Verrouiller",
+    "unlock": "Déverrouiller",
+    "genresHint": "Les genres servent aux catégories et aux rangées « Meilleurs films de… ».",
+    "removeGenre": "Retirer {{genre}}",
+    "noGenres": "Aucun genre.",
+    "addGenrePlaceholder": "Ajouter un genre (ex. Comedy, Drama, Science Fiction)",
+    "add": "Ajouter",
+    "noImages": "Aucune image proposée.",
+    "imageUrlPlaceholder": "Ou colle l'adresse d'une image (https://…)",
+    "use": "Utiliser",
+    "clickToApply": "Un clic sur une image l'applique tout de suite."
+  },
+  "genreTile": {
+    "ariaLabel": "{{genre}}, {{titles}}",
+    "titles_one": "{{count}} titre",
+    "titles_other": "{{count}} titres"
+  },
+  "hero": {
+    "featured": "À la une",
+    "episodeLine": "Saison {{season}} · Épisode {{episode}} — {{title}}",
+    "view": "Voir",
+    "showSlide": "Afficher {{title}}"
+  },
+  "musicBar": {
+    "repeatQueue": "Répéter la file"
+  },
+  "nowPlaying": {
+    "collapse": "Réduire",
+    "upNext": "À suivre"
+  },
+  "seerrCard": {
+    "viewTitle": "Voir {{title}}",
+    "request": "Demander"
+  },
+  "posterCard": {
+    "episodeCode": "S{{season}} · É{{episode}}",
+    "openTitle": "Ouvrir {{title}}"
+  },
+  "format": {
+    "daysHours": "{{days}} j {{hours}} h",
+    "hoursMinutes": "{{hours}} h {{minutes}}",
+    "minutes": "{{minutes}} min"
+  },
+  "errors": {
+    "loginCancelled": "Connexion annulée.",
+    "loginTimeout": "La connexion n'a pas été validée à temps : réessaie."
+  },
+  "invite": {
+    "partialFailure": "Une partie de la configuration a échoué."
+  },
+  "tv": {
+    "episodeLine": "S{{season}} · É{{episode}} — {{title}}",
+    "remaining": "{{time}} restantes",
+    "toRequest": "À demander",
+    "show": "Série",
+    "movie": "Film",
+    "continueWatching": "Continuer à regarder",
+    "resume": "Reprendre",
+    "recentlyAdded": "Ajouts récents",
+    "recentlyAddedOne": "Ajout récent",
+    "trendingToRequest": "Tendances à demander"
+  },
+  "player": {
+    "channels": "{{channels}} can.",
+    "forced": "forcés",
+    "trackNumber": "Piste {{id}}",
+    "remoteNote": "La vidéo s'affiche dans la fenêtre mpv.",
+    "remoteNote2": "Cette page la pilote à distance.",
+    "close": "Fermer le lecteur",
+    "position": "Position",
+    "prevEpisode": "Épisode précédent",
+    "back10": "Reculer de 10 s",
+    "play": "Lecture",
+    "pause": "Pause",
+    "forward10": "Avancer de 10 s",
+    "nextEpisode": "Épisode suivant",
+    "mute": "Couper le son",
+    "volume": "Volume",
+    "audioTracks": "Pistes audio",
+    "audio": "Audio",
+    "subtitles": "Sous-titres",
+    "none": "Aucun",
+    "fullscreen": "Plein écran"
+  },
+  "request": {
+    "sent": "Demande envoyée : {{title}}",
+    "title": "Demander « {{title}} »",
+    "loadingSeasons": "Chargement des saisons…",
+    "seasons": "Saisons",
+    "uncheckAll": "Tout décocher",
+    "checkAll": "Tout cocher",
+    "episodes_one": "{{count}} ép.",
+    "episodes_other": "{{count}} ép.",
+    "cancel": "Annuler",
+    "sending": "Envoi…",
+    "submit": "Envoyer la demande"
+  },
+  "dashboard": {
+    "nowPlaying": "Lectures en cours",
+    "nobody": "Personne ne regarde ou n'écoute quoi que ce soit en ce moment.",
+    "paused": "En pause",
+    "buffering": "Chargement",
+    "playing": "En lecture",
+    "local": "Réseau local",
+    "remote": "À distance",
+    "transcode": "Transcodage",
+    "directPlay": "Lecture directe",
+    "bandwidth": "{{rate}} Mb/s",
+    "libraries": "Bibliothèques",
+    "scanStarted": "Analyse de « {{title}} » lancée",
+    "scan": "Rechercher les nouveaux fichiers",
+    "trashEmptied": "Corbeille de « {{title}} » vidée",
+    "emptyTrashHint": "Retire les éléments dont le fichier a disparu",
+    "emptyTrash": "Vider la corbeille"
+  },
+  "serverPrefs": {
+    "saved": "Réglages du serveur enregistrés",
+    "advanced": "avancé",
+    "empty": "Aucun réglage dans cette rubrique.",
+    "emptyTryAdvanced": "Aucun réglage dans cette rubrique (essaie d'afficher les réglages avancés).",
+    "changed_one": "{{count}} réglage modifié",
+    "changed_other": "{{count}} réglages modifiés",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer"
+  },
+  "sidebar": {
+    "expand": "Déplier le menu",
+    "collapse": "Replier le menu",
+    "search": "Rechercher",
+    "home": "Accueil",
+    "libraries": "Bibliothèques",
+    "done": "Terminer",
+    "reorder": "Réorganiser les bibliothèques",
+    "reorderHint": "Glisse pour réordonner, l'œil masque une bibliothèque.",
+    "moveUp": "Monter {{title}}",
+    "toggleHidden": "Afficher ou masquer {{title}}",
+    "more": "Plus",
+    "moreCount": "Plus ({{n}})",
+    "requests": "Demandes",
+    "discover": "Découvrir",
+    "stats": "Mes statistiques",
+    "settings": "Réglages"
+  },
+  "trackGrid": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "play": "Lire {{title}}",
+    "moreActions": "Plus d'actions",
+    "openAlbum": "Ouvrir l'album"
+  },
+  "update": {
+    "allowInstall": "Autorise Plexr à installer des applications, puis relance la mise à jour.",
+    "confirmInstall": "Valide l'installation : Plexr redémarrera dans sa nouvelle version.",
+    "installStarted": "L'installation est lancée.",
+    "title": "Nouvelle version disponible",
+    "current": "tu as la {{version}}",
+    "close": "Fermer",
+    "defaultNotes": "Corrections et améliorations.",
+    "allReleases": "Toutes les versions",
+    "later": "Plus tard",
+    "downloading": "Téléchargement… {{percent}} %",
+    "update": "Mettre à jour"
+  },
+  "genres": {
+    "actionAdventure": "Action & Aventure",
+    "adventure": "Aventure",
+    "anime": "Animé",
+    "biography": "Biographie",
+    "children": "Enfants",
+    "kids": "Enfants",
+    "comedy": "Comédie",
+    "crime": "Policier",
+    "documentary": "Documentaire",
+    "drama": "Drame",
+    "family": "Famille",
+    "fantasy": "Fantastique",
+    "filmNoir": "Film noir",
+    "food": "Cuisine",
+    "gameShow": "Jeu télévisé",
+    "history": "Histoire",
+    "homeAndGarden": "Maison & jardin",
+    "horror": "Horreur",
+    "martialArts": "Arts martiaux",
+    "miniSeries": "Mini-série",
+    "music": "Musique",
+    "musical": "Comédie musicale",
+    "mystery": "Mystère",
+    "news": "Actualités",
+    "reality": "Téléréalité",
+    "sciFiFantasy": "SF & Fantastique",
+    "scienceFiction": "Science-fiction",
+    "scienceFictionAlt": "Science-fiction",
+    "short": "Court métrage",
+    "soap": "Feuilleton",
+    "suspense": "Suspense",
+    "talk": "Talk-show",
+    "travel": "Voyage",
+    "tvMovie": "Téléfilm",
+    "war": "Guerre",
+    "warPolitics": "Guerre & politique"
+  }
+}

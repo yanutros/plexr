@@ -4,6 +4,7 @@
   import { genreLabel } from "../lib/genres";
   import { nav, reload, toast } from "../lib/nav.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   // Fenêtre « Modifier » d'un film, d'une série, d'un épisode ou d'un élément musical.
   const item = nav.editing!;
@@ -23,10 +24,10 @@
   const isMusicItem = $derived(["artist", "album", "track"].includes(item.kind));
   const tabs = $derived(
     [
-      { id: "general" as Tab, label: "Général", icon: "edit" as const },
-      ...(info?.genres ? [{ id: "genres" as Tab, label: "Genres", icon: "tag" as const }] : []),
-      { id: "posters" as Tab, label: isMusicItem ? "Pochette" : "Affiche", icon: "image" as const },
-      ...(item.kind !== "track" ? [{ id: "arts" as Tab, label: "Fond d'écran", icon: "image" as const }] : []),
+      { id: "general" as Tab, label: t("editDialog.tabs.general"), icon: "edit" as const },
+      ...(info?.genres ? [{ id: "genres" as Tab, label: t("editDialog.tabs.genres"), icon: "tag" as const }] : []),
+      { id: "posters" as Tab, label: isMusicItem ? t("editDialog.tabs.cover") : t("editDialog.tabs.poster"), icon: "image" as const },
+      ...(item.kind !== "track" ? [{ id: "arts" as Tab, label: t("editDialog.tabs.background"), icon: "image" as const }] : []),
     ],
   );
 
@@ -60,7 +61,7 @@
     try {
       await api.setImage(item.ratingKey, kind, key);
       images[kind] = (images[kind] ?? []).map((i) => ({ ...i, selected: i.key === key }));
-      toast(kind === "posters" ? "Affiche mise à jour" : "Fond d'écran mis à jour");
+      toast(kind === "posters" ? t("editDialog.posterUpdated") : t("editDialog.backgroundUpdated"));
     } catch (e) {
       toast(errorText(e), true);
     }
@@ -69,7 +70,7 @@
   async function addImageFromUrl(kind: "posters" | "arts") {
     const url = imageUrl.trim();
     if (!/^https?:\/\//.test(url)) {
-      toast("Indique une adresse web d'image (https://…)", true);
+      toast(t("editDialog.invalidImageUrl"), true);
       return;
     }
     await chooseImage(kind, url);
@@ -88,7 +89,7 @@
         .map((f) => ({ name: f.name, value: values[f.name], locked: locks[f.name] }));
       const genresChanged = info.genres !== null && genres.join("\n") !== info.genres.join("\n");
       await api.edit(item.ratingKey, changes, genresChanged ? genres : null);
-      toast("Modifications enregistrées");
+      toast(t("editDialog.saved"));
       close();
       reload();
     } catch (e) {
@@ -119,17 +120,17 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 <div class="overlay" onclick={(e) => e.target === e.currentTarget && close()}>
-  <div class="dialog" role="dialog" aria-modal="true" aria-label="Modifier {item.title}">
+  <div class="dialog" role="dialog" aria-modal="true" aria-label={t("editDialog.title", { title: item.title })}>
     <header>
       <Icon name="edit" size={18} />
-      <h2>Modifier {info?.title ?? item.title}</h2>
-      <button class="x" onclick={close} aria-label="Fermer"><Icon name="x" size={18} /></button>
+      <h2>{t("editDialog.title", { title: info?.title ?? item.title })}</h2>
+      <button class="x" onclick={close} aria-label={t("common.c1.close")}><Icon name="x" size={18} /></button>
     </header>
 
     <div class="body">
       <nav class="tabs">
-        {#each tabs as t (t.id)}
-          <button class:active={tab === t.id} onclick={() => (tab = t.id)}><Icon name={t.icon} size={16} /> {t.label}</button>
+        {#each tabs as tb (tb.id)}
+          <button class:active={tab === tb.id} onclick={() => (tab = tb.id)}><Icon name={tb.icon} size={16} /> {tb.label}</button>
         {/each}
       </nav>
 
@@ -146,8 +147,8 @@
                   class="lock"
                   class:on={locks[f.name]}
                   onclick={() => (locks[f.name] = !locks[f.name])}
-                  title={locks[f.name] ? "Verrouillé : Plex ne remplacera pas cette valeur" : "Déverrouillé : Plex peut mettre à jour cette valeur"}
-                  aria-label={locks[f.name] ? "Déverrouiller" : "Verrouiller"}
+                  title={locks[f.name] ? t("editDialog.lockedHint") : t("editDialog.unlockedHint")}
+                  aria-label={locks[f.name] ? t("editDialog.unlock") : t("editDialog.lock")}
                 >
                   <Icon name={locks[f.name] ? "lock" : "unlock"} size={15} />
                 </button>
@@ -165,20 +166,20 @@
             </div>
           {/each}
         {:else if tab === "genres"}
-          <p class="hint">Les genres servent aux catégories et aux rangées « Meilleurs films de… ».</p>
+          <p class="hint">{t("editDialog.genresHint")}</p>
           <div class="chips">
             {#each genres as g (g)}
               <span class="chip">
                 {genreLabel(g)}
-                <button onclick={() => (genres = genres.filter((x) => x !== g))} aria-label="Retirer {g}"><Icon name="x" size={12} /></button>
+                <button onclick={() => (genres = genres.filter((x) => x !== g))} aria-label={t("editDialog.removeGenre", { genre: g })}><Icon name="x" size={12} /></button>
               </span>
             {:else}
-              <span class="hint">Aucun genre.</span>
+              <span class="hint">{t("editDialog.noGenres")}</span>
             {/each}
           </div>
           <form class="add" onsubmit={(e) => (e.preventDefault(), addGenre())}>
-            <input bind:value={newGenre} placeholder="Ajouter un genre (ex. Comedy, Drama, Science Fiction)" />
-            <button class="btn" type="submit"><Icon name="plus" size={16} /> Ajouter</button>
+            <input bind:value={newGenre} placeholder={t("editDialog.addGenrePlaceholder")} />
+            <button class="btn" type="submit"><Icon name="plus" size={16} /> {t("editDialog.add")}</button>
           </form>
         {:else}
           {@const kind = tab}
@@ -193,13 +194,13 @@
                   {#if img.provider}<span class="provider">{img.provider}</span>{/if}
                 </button>
               {:else}
-                <p class="hint">Aucune image proposée.</p>
+                <p class="hint">{t("editDialog.noImages")}</p>
               {/each}
             {/if}
           </div>
           <form class="add" onsubmit={(e) => (e.preventDefault(), addImageFromUrl(kind))}>
-            <input bind:value={imageUrl} placeholder="Ou colle l'adresse d'une image (https://…)" />
-            <button class="btn" type="submit"><Icon name="plus" size={16} /> Utiliser</button>
+            <input bind:value={imageUrl} placeholder={t("editDialog.imageUrlPlaceholder")} />
+            <button class="btn" type="submit"><Icon name="plus" size={16} /> {t("editDialog.use")}</button>
           </form>
         {/if}
       </div>
@@ -207,10 +208,10 @@
 
     <footer>
       {#if tab === "posters" || tab === "arts"}
-        <span class="hint">Un clic sur une image l'applique tout de suite.</span>
+        <span class="hint">{t("editDialog.clickToApply")}</span>
       {/if}
-      <button class="btn" onclick={close}>Annuler</button>
-      <button class="btn primary" disabled={saving || !info} onclick={save}>{saving ? "Enregistrement…" : "Enregistrer"}</button>
+      <button class="btn" onclick={close}>{t("common.c1.cancel")}</button>
+      <button class="btn primary" disabled={saving || !info} onclick={save}>{saving ? t("common.c1.saving") : t("common.c1.save")}</button>
     </footer>
   </div>
 </div>

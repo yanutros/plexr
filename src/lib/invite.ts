@@ -3,6 +3,7 @@
 // Le code ne contient que des adresses, aucun identifiant.
 import jsQR from "jsqr";
 import { api, errorText, tracearrLogin } from "./api";
+import { t } from "./i18n";
 
 const PREFIX = "PLEXR-INVITE:";
 
@@ -102,7 +103,7 @@ export async function applyInvite(
   }
   const failed = status.seerr === "err" || status.tracearr === "err";
   status.step = failed ? "error" : "done";
-  if (failed) status.error = "Une partie de la configuration a échoué.";
+  if (failed) status.error = t("invite.partialFailure");
   send();
   return status;
 }

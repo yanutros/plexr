@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   // `large` : grandes jaquettes qui grandissent avec la fenêtre (rangées de musique).
   let {
@@ -33,10 +34,10 @@
   <div class="head">
     <h2>{title}</h2>
     <div class="arrows">
-      <button class="btn round" disabled={atStart} onclick={() => scrollBy(-1)} aria-label="Précédent">
+      <button class="btn round" disabled={atStart} onclick={() => scrollBy(-1)} aria-label={t("common.c1.previous")}>
         <Icon name="chevronLeft" size={18} />
       </button>
-      <button class="btn round" disabled={atEnd} onclick={() => scrollBy(1)} aria-label="Suivant">
+      <button class="btn round" disabled={atEnd} onclick={() => scrollBy(1)} aria-label={t("common.c1.next")}>
         <Icon name="chevronRight" size={18} />
       </button>
     </div>

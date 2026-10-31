@@ -18,6 +18,7 @@
 
 <script lang="ts">
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   // Grands panneaux de mise en avant, à la manière d'Apple Music : titre au-dessus, visuel en grand
   // format, légende en bas et vignette de l'affiche ou de la pochette dans le coin.
@@ -46,10 +47,10 @@
 {#if panels.length}
   <section>
     {#if !atStart}
-      <button class="nav left" onclick={() => scrollBy(-1)} aria-label="Précédent"><Icon name="chevronLeft" size={22} /></button>
+      <button class="nav left" onclick={() => scrollBy(-1)} aria-label={t("common.c1.previous")}><Icon name="chevronLeft" size={22} /></button>
     {/if}
     {#if !atEnd}
-      <button class="nav right" onclick={() => scrollBy(1)} aria-label="Suivant"><Icon name="chevronRight" size={22} /></button>
+      <button class="nav right" onclick={() => scrollBy(1)} aria-label={t("common.c1.next")}><Icon name="chevronRight" size={22} /></button>
     {/if}
     <div class="track" bind:this={scroller} onscroll={update}>
       {#each panels as p (p.key)}
@@ -75,7 +76,7 @@
               {/if}
             </button>
             {#if p.onplay}
-              <button class="play" onclick={p.onplay} aria-label="Lire {p.title}"><Icon name="play" size={22} filled /></button>
+              <button class="play" onclick={p.onplay} aria-label={t("common.c1.playTitle", { title: p.title })}><Icon name="play" size={22} filled /></button>
             {/if}
           </div>
         </article>

@@ -5,6 +5,7 @@
   import { current, player, playMusic } from "../lib/player.svelte";
   import PosterCard from "../components/PosterCard.svelte";
   import Icon from "../components/Icon.svelte";
+  import { t } from "../lib/i18n";
 
   let { item }: { item: ItemDetail } = $props();
 
@@ -12,11 +13,16 @@
   let tracks = $state<Item[] | null>(null);
 
   const isArtist = $derived(item.kind === "artist");
-  const label: Record<string, string> = { artist: "Artiste", album: "Album", playlist: "Playlist", track: "Titre" };
-  const totalMs = $derived(tracks?.reduce((sum, t) => sum + (t.durationMs ?? 0), 0) ?? 0);
+  const label: Record<string, string> = {
+    artist: t("music.detail.kind.artist"),
+    album: t("music.detail.kind.album"),
+    playlist: t("music.detail.kind.playlist"),
+    track: t("music.detail.kind.track"),
+  };
+  const totalMs = $derived(tracks?.reduce((sum, tr) => sum + (tr.durationMs ?? 0), 0) ?? 0);
   // Une playlist ou une compilation mélange les artistes : on les affiche sur chaque ligne.
   const showArtists = $derived(
-    item.kind === "playlist" || (tracks ?? []).some((t) => t.subtitle && t.subtitle !== item.showTitle),
+    item.kind === "playlist" || (tracks ?? []).some((tr) => tr.subtitle && tr.subtitle !== item.showTitle),
   );
   const playingKey = $derived(current()?.ratingKey);
 
@@ -28,7 +34,7 @@
     if (item.kind === "artist") {
       api.children(item.ratingKey).then((a) => (albums = a), (e) => toast(errorText(e), true));
     } else {
-      api.tracks(item.ratingKey).then((t) => (tracks = t), (e) => toast(errorText(e), true));
+      api.tracks(item.ratingKey).then((list) => (tracks = list), (e) => toast(errorText(e), true));
     }
   });
 </script>
@@ -48,23 +54,23 @@
       {/if}
       <div class="meta">
         {#if item.year}<span>{item.year}</span>{/if}
-        {#if isArtist && albums.length}<span>{albums.length} album{albums.length > 1 ? "s" : ""}</span>{/if}
-        {#if tracks?.length}<span>{tracks.length} titre{tracks.length > 1 ? "s" : ""}</span>{/if}
+        {#if isArtist && albums.length}<span>{t("music.detail.albumCount", { count: albums.length })}</span>{/if}
+        {#if tracks?.length}<span>{t("music.detail.trackCount", { count: tracks.length })}</span>{/if}
         {#if totalMs}<span>{formatDuration(totalMs)}</span>{/if}
         {#each item.genres.slice(0, 3) as g}<span class="genre">{g}</span>{/each}
       </div>
       <div class="actions">
         <button class="btn primary big" onclick={() => start()}>
-          <Icon name="play" size={18} filled /> Lire
+          <Icon name="play" size={18} filled /> {t("music.detail.play")}
         </button>
         {#if item.kind !== "track"}
           <button class="btn big" onclick={() => start({ shuffle: true })}>
-            <Icon name="shuffle" size={18} /> Aléatoire
+            <Icon name="shuffle" size={18} /> {t("music.detail.shuffle")}
           </button>
         {/if}
         {#if nav.admin && item.kind !== "playlist"}
-          <button class="btn big" onclick={() => (nav.editing = item)} title="Modifier les informations">
-            <Icon name="edit" size={18} /> Modifier
+          <button class="btn big" onclick={() => (nav.editing = item)} title={t("music.detail.editInfo")}>
+            <Icon name="edit" size={18} /> {t("music.detail.edit")}
           </button>
         {/if}
       </div>
@@ -74,7 +80,7 @@
 
   {#if isArtist}
     {#if albums.length}
-      <h2 class="row-title">Albums</h2>
+      <h2 class="row-title">{t("music.detail.albums")}</h2>
       <div class="grid">
         {#each albums as album (album.ratingKey)}<PosterCard item={album} />{/each}
       </div>
@@ -85,34 +91,34 @@
     <div class="tracks">
       <div class="track header" class:artists={showArtists}>
         <span class="num">#</span>
-        <span>Titre</span>
-        {#if showArtists}<span>Album</span>{/if}
+        <span>{t("music.detail.columns.title")}</span>
+        {#if showArtists}<span>{t("music.detail.columns.album")}</span>{/if}
         <span class="dur"><Icon name="clock" size={16} /></span>
       </div>
-      {#each tracks as t, i (t.ratingKey)}
+      {#each tracks as tr, i (tr.ratingKey)}
         <button
           class="track"
           class:artists={showArtists}
-          class:playing={playingKey === t.ratingKey}
-          onclick={() => start({ start: t.ratingKey })}
+          class:playing={playingKey === tr.ratingKey}
+          onclick={() => start({ start: tr.ratingKey })}
         >
           <span class="num">
-            {#if playingKey === t.ratingKey && !player.paused}
+            {#if playingKey === tr.ratingKey && !player.paused}
               <span class="eq"><i></i><i></i><i></i></span>
             {:else}
-              <span class="n">{item.kind === "album" ? (t.index ?? i + 1) : i + 1}</span>
+              <span class="n">{item.kind === "album" ? (tr.index ?? i + 1) : i + 1}</span>
               <span class="p"><Icon name="play" size={14} filled /></span>
             {/if}
           </span>
           <span class="name">
-            {#if item.kind === "playlist" && t.poster}<img src={t.poster} alt="" loading="lazy" />{/if}
+            {#if item.kind === "playlist" && tr.poster}<img src={tr.poster} alt="" loading="lazy" />{/if}
             <span class="text">
-              <span class="t">{t.title}</span>
-              {#if showArtists && t.subtitle}<span class="a">{t.subtitle}</span>{/if}
+              <span class="t">{tr.title}</span>
+              {#if showArtists && tr.subtitle}<span class="a">{tr.subtitle}</span>{/if}
             </span>
           </span>
-          {#if showArtists}<span class="album">{t.albumTitle ?? ""}</span>{/if}
-          <span class="dur">{t.durationMs ? formatClock(t.durationMs / 1000) : ""}</span>
+          {#if showArtists}<span class="album">{tr.albumTitle ?? ""}</span>{/if}
+          <span class="dur">{tr.durationMs ? formatClock(tr.durationMs / 1000) : ""}</span>
         </button>
       {/each}
     </div>

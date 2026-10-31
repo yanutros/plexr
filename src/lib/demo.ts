@@ -195,23 +195,23 @@ const SECTIONS: (Section & { items: Item[] })[] = [
 function hubs(key: string): Hub[] {
   if (key === "1") {
     return [
-      { title: "Continuer à regarder", items: movies.filter((m) => m.viewOffsetMs) },
-      { title: "Films sortis récemment", items: [...movies].sort((a, b) => (b.year ?? 0) - (a.year ?? 0)) },
-      { title: "Récemment ajoutés dans Films", items: [...movies].reverse() },
-      { title: "Meilleurs films non vus", items: [...movies].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)) },
+      { title: "Continuer à regarder", identifier: "movie.inprogress.1", items: movies.filter((m) => m.viewOffsetMs) },
+      { title: "Films sortis récemment", identifier: "movie.recentlyreleased.1", items: [...movies].sort((a, b) => (b.year ?? 0) - (a.year ?? 0)) },
+      { title: "Récemment ajoutés dans Films", identifier: "movie.recentlyadded.1", items: [...movies].reverse() },
+      { title: "Meilleurs films non vus", identifier: "movie.topunwatched.1", items: [...movies].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)) },
     ];
   }
   if (key === "2") {
     return [
-      { title: "Continuer à regarder", items: onDeck },
-      { title: "Récemment ajoutés dans Séries TV", items: [...shows].reverse() },
-      { title: "Démarrer le visionnage", items: shows.filter((s) => s.unwatchedCount) },
+      { title: "Continuer à regarder", identifier: "tv.inprogress.2", items: onDeck },
+      { title: "Récemment ajoutés dans Séries TV", identifier: "tv.recentlyadded.2", items: [...shows].reverse() },
+      { title: "Démarrer le visionnage", identifier: "tv.startwatching.2", items: shows.filter((s) => s.unwatchedCount) },
     ];
   }
   return [
-    { title: "Musique écoutée récemment", items: artists },
-    { title: "Récemment ajoutés dans Musique", items: albums },
-    { title: "Listes de lecture", items: playlists },
+    { title: "Musique écoutée récemment", identifier: "music.recent.played.3", items: artists },
+    { title: "Récemment ajoutés dans Musique", identifier: "music.recent.added.3", items: albums },
+    { title: "Listes de lecture", identifier: "plexr.playlists", items: playlists },
   ];
 }
 

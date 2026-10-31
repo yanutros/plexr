@@ -1,7 +1,9 @@
 package io.github.yanutros.plexr
 
 import android.app.UiModeManager
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
@@ -34,6 +36,24 @@ class MainActivity : TauriActivity() {
     webView.addJavascriptInterface(object {
       @JavascriptInterface
       fun isTv(): Boolean = tv
+
+      /** Icône du lanceur aux couleurs du thème : active l'alias correspondant, désactive les autres. */
+      @JavascriptInterface
+      fun setIconTheme(theme: String) {
+        val themes = listOf("jaune", "rouge", "vert", "violet")
+        if (theme !in themes) return
+        // La nouvelle entrée d'abord, pour que le lanceur ne se retrouve jamais sans Plexr.
+        for (name in themes.sortedBy { it != theme }) {
+          val component = ComponentName(this@MainActivity, "$packageName.Icon${name.replaceFirstChar { it.uppercase() }}")
+          val wanted = if (name == theme) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+          val current = when (val state = packageManager.getComponentEnabledSetting(component)) {
+            PackageManager.COMPONENT_ENABLED_STATE_DEFAULT ->
+              if (name == "jaune") PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            else -> state
+          }
+          if (current != wanted) packageManager.setComponentEnabledSetting(component, wanted, PackageManager.DONT_KILL_APP)
+        }
+      }
 
       /**
        * Mise à jour : confie l'APK téléchargé (dans le cache de Plexr) à l'installateur d'Android.

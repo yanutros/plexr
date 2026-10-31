@@ -41,12 +41,16 @@ fn lan_ip() -> Option<IpAddr> {
 }
 
 pub async fn start(app: AppHandle) -> Result<Relay> {
-    let ip = lan_ip().ok_or_else(|| anyhow!("Cet appareil n'est relié à aucun réseau"))?;
+    let ip = lan_ip().ok_or_else(|| anyhow!(crate::i18n::tr("relay.noNetwork")))?;
     let listener = TcpListener::bind("0.0.0.0:0").await?;
     let port = listener.local_addr()?.port();
     let token = uuid::Uuid::new_v4().simple().to_string();
     let status = Arc::new(Mutex::new(r#"{"step":"waiting"}"#.to_string()));
-    let page = Arc::new(PAGE.replace("/*JSQR*/", JSQR));
+    // Textes de la page dans la langue de l'interface.
+    let page = PAGE
+        .replace("<html lang=\"fr\">", &format!("<html lang=\"{}\">", crate::i18n::language()))
+        .replace("/*I18N*/{}", &crate::i18n::section_json("relay"));
+    let page = Arc::new(page.replace("/*JSQR*/", JSQR));
 
     let task = {
         let (token, status) = (token.clone(), status.clone());
@@ -105,7 +109,7 @@ async fn serve(mut conn: TcpStream, app: &AppHandle, token: &str, status: &Mutex
             app.emit("relay-code", body.trim().to_string())?;
             ("200 OK", "application/json", r#"{"ok":true}"#.to_string())
         }
-        _ => ("404 Not Found", "text/plain", "Introuvable".to_string()),
+        _ => ("404 Not Found", "text/plain", crate::i18n::tr("relay.notFound")),
     };
     let response = format!(
         "HTTP/1.1 {code}\r\nContent-Type: {kind}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n{content}",

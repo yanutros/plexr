@@ -1,0 +1,113 @@
+{
+  "app": {
+    "noServer": "Geen Plex-server geselecteerd",
+    "seerrNotConfigured": "Seerr is niet ingesteld (zie Instellingen)",
+    "tracearrNotConfigured": "Tracearr is niet ingesteld (zie Instellingen)",
+    "urlRefused": "Adres niet toegestaan: {{url}}",
+    "notLoggedIn": "Niet ingelogd bij Plex",
+    "serverNotFound": "Server niet gevonden",
+    "mainWindowNotFound": "Hoofdvenster niet gevonden",
+    "nothingToPlay": "Niets om af te spelen",
+    "noPlayback": "Er wordt niets afgespeeld"
+  },
+  "player": {
+    "noPlayback": "Er wordt niets afgespeeld",
+    "mpvNotAtPath": "mpv niet gevonden op de locatie uit Instellingen: {{path}}",
+    "mpvNotFound": "mpv niet gevonden: installeer het (https://mpv.io) of stel het pad in bij Instellingen",
+    "ipcUnavailable": "mpv-IPC niet beschikbaar",
+    "queueWriteFailed": "Kan de afspeelwachtrij niet opslaan",
+    "launchFailed": "Kan mpv niet starten ({{path}})"
+  },
+  "plex": {
+    "noReachableAddress": "Geen bereikbaar adres voor server ‘{{name}}’",
+    "trackCount_one": "{{count}} nummer",
+    "trackCount_other": "{{count}} nummers",
+    "playlists": "Afspeellijsten",
+    "notFound": "Item {{id}} niet gevonden",
+    "noMusic": "‘{{title}}’ bevat geen muziek",
+    "track": "Nummer {{id}}",
+    "noPlayableFile": "Geen afspeelbaar bestand voor ‘{{title}}’",
+    "episodeLine": "S{{season}} · A{{episode}} — {{title}}"
+  },
+  "admin": {
+    "adminOnly": "Alleen de beheerder van de Plex-server kan dit doen",
+    "serverReplied": "De Plex-server antwoordde {{status}}",
+    "notFound": "Item {{id}} niet gevonden",
+    "notEditable": "Dit type item kan niet worden bewerkt",
+    "libraryNotFound": "Bibliotheek niet gevonden voor dit item",
+    "episodeLine": "S{{season}} · A{{episode}} — {{title}}",
+    "fields": {
+      "title": "Titel",
+      "titleSort": "Sorteertitel",
+      "originalTitle": "Originele titel",
+      "releaseDate": "Releasedatum",
+      "contentRating": "Leeftijdsclassificatie",
+      "studio": "Studio",
+      "tagline": "Slogan",
+      "summary": "Samenvatting",
+      "firstAired": "Eerste uitzending",
+      "network": "Zender of studio",
+      "airDate": "Uitzenddatum",
+      "artist": "Artiest",
+      "artistSort": "Sorteerartiest",
+      "biography": "Biografie",
+      "album": "Album",
+      "albumSort": "Sorteeralbum",
+      "label": "Platenlabel",
+      "albumSummary": "Beschrijving",
+      "trackArtist": "Artiest van nummer",
+      "trackNumber": "Nummer op album"
+    }
+  },
+  "seerr": {
+    "plexRequired": "Je moet bij Plex inloggen om verbinding te maken met Seerr",
+    "unreachable": "Seerr is niet bereikbaar: {{error}}",
+    "loginRefused": "Seerr weigerde in te loggen met je Plex-account ({{status}}). De beheerder moet je account in Seerr importeren.",
+    "replied": "Seerr antwoordde {{status}}: {{message}}",
+    "season": "Seizoen {{number}}",
+    "chooseSeason": "Kies minstens één seizoen",
+    "creator": "Bedenker",
+    "jobs": {
+      "director": "Regie",
+      "screenplay": "Scenario",
+      "novel": "Roman",
+      "producer": "Productie"
+    }
+  },
+  "tracearr": {
+    "invalidUrl": "Ongeldig Tracearr-adres: {{url}}",
+    "unreachable": "Tracearr is niet bereikbaar: {{error}}",
+    "loginRefused": "Tracearr weigerde de verbinding ({{status}})",
+    "refused": "verbinding geweigerd",
+    "error": "Tracearr: {{message}}",
+    "notSetUp": "Deze Tracearr is nog niet ingesteld: de beheerder moet eerst inloggen",
+    "replied": "Tracearr antwoordde {{status}} voor {{path}}",
+    "episodeLine": "S{{season}} · A{{episode}} — {{title}}"
+  },
+  "update": {
+    "invalidName": "ongeldige pakketnaam",
+    "emptyDownload": "de download is leeg",
+    "unsupported": "automatische updates zijn niet beschikbaar op {{os}}"
+  },
+  "relay": {
+    "noNetwork": "Dit apparaat is met geen enkel netwerk verbonden",
+    "notFound": "Niet gevonden",
+    "title": "Plexr instellen",
+    "intro": "De serverbeheerder heeft je de uitnodigings-QR-code gestuurd.",
+    "scan": "QR-code scannen",
+    "gallery": "Kies een afbeelding van de QR-code",
+    "or": "of plak de code die je hebt ontvangen",
+    "send": "Versturen",
+    "seerr": "Verzoeken (Seerr)",
+    "tracearr": "Statistieken (Tracearr)",
+    "authorize": "Tracearr autoriseren met Plex",
+    "done": "Klaar! Je kunt je telefoon wegleggen.",
+    "noQr": "Geen QR-code gevonden in de afbeelding: probeer opnieuw en zorg dat hij goed in beeld is.",
+    "notInvite": "Dit is geen Plexr-uitnodigingscode.",
+    "tvGone": "De tv reageert niet meer: open het instelscherm opnieuw.",
+    "watchTv": "Kijk naar je tv: Plexr wordt ingesteld.",
+    "connected": "Verbonden",
+    "connecting": "Verbinden…",
+    "failed": "Instellen mislukt."
+  }
+}

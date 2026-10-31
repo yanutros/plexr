@@ -26,6 +26,7 @@
   import QrCode from "./components/QrCode.svelte";
   import { sidebar } from "./lib/sidebar.svelte";
   import { device } from "./lib/device";
+  import { t } from "./lib/i18n";
 
   let session = $state<Session | null>(null);
   let sections = $state<Section[]>([]);
@@ -91,7 +92,7 @@
 </script>
 
 {#if !session}
-  <div class="center muted">Chargement…</div>
+  <div class="center muted">{t("common.c1.loading")}</div>
 {:else if !session.loggedIn}
   <Login onDone={refresh} />
 {:else if !session.serverName}
@@ -105,12 +106,12 @@
       <!-- Sur téléviseur, la recherche passe par le menu : la barre n'apparaît que sur sa page. -->
       {#if !device.tv || nav.view.name === "search"}
       <header data-nav-low>
-        <button class="btn round ghost" disabled={!nav.history.length} onclick={back} aria-label="Retour">
+        <button class="btn round ghost" disabled={!nav.history.length} onclick={back} aria-label={t("common.c1.back")}>
           <Icon name="back" />
         </button>
         <label class="search">
           <Icon name="search" size={18} />
-          <input type="search" placeholder="Rechercher un film, une série, un artiste…" bind:value={query} oninput={onSearchInput} use:tvAutofocus />
+          <input type="search" placeholder={t("app.searchPlaceholder")} bind:value={query} oninput={onSearchInput} use:tvAutofocus />
         </label>
       </header>
       {/if}
@@ -165,13 +166,13 @@
 
 <!-- Téléviseur : la validation Tracearr se fait sur le téléphone, depuis ce QR code. -->
 {#if nav.authUrl}
-  <div class="auth-qr" role="dialog" aria-label="Autoriser Tracearr">
+  <div class="auth-qr" role="dialog" aria-label={t("app.authTracearr")}>
     <div class="auth-card">
       <QrCode text={nav.authUrl} size={260} />
       <div>
-        <h2>Autoriser Tracearr</h2>
-        <p class="muted">Scanne ce code avec ton téléphone et valide avec ton compte Plex.</p>
-        <button class="btn" onclick={() => (nav.authUrl = null)}>Annuler</button>
+        <h2>{t("app.authTracearr")}</h2>
+        <p class="muted">{t("app.authScan")}</p>
+        <button class="btn" onclick={() => (nav.authUrl = null)}>{t("common.c1.cancel")}</button>
       </div>
     </div>
   </div>

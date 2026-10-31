@@ -35,35 +35,38 @@
 <body>
 <main>
   <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z"/></svg></div>
-  <h1>Configurer Plexr</h1>
-  <p class="sub" id="sub">Le QR code d'invitation t'a été envoyé par l'administrateur du serveur.</p>
+  <h1 data-i18n="title"></h1>
+  <p class="sub" id="sub" data-i18n="intro"></p>
 
   <section id="pick">
-    <label class="btn primary" for="camera">📷 Scanner le QR code</label>
+    <label class="btn primary" for="camera">📷 <span data-i18n="scan"></span></label>
     <input id="camera" type="file" accept="image/*" capture="environment" />
-    <label class="btn" for="gallery">🖼️ Choisir une image du QR code</label>
+    <label class="btn" for="gallery">🖼️ <span data-i18n="gallery"></span></label>
     <input id="gallery" type="file" accept="image/*" />
-    <p class="or">ou colle le code reçu</p>
+    <p class="or" data-i18n="or"></p>
     <textarea id="code" placeholder="PLEXR-INVITE:…" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
-    <button class="btn" id="send">Envoyer</button>
+    <button class="btn" id="send" data-i18n="send"></button>
     <p class="msg" id="msg"></p>
   </section>
 
   <section id="progress" hidden>
     <div class="steps">
-      <div class="step" id="s-seerr" hidden><span class="dot"></span><div>Demandes (Seerr)<small></small></div></div>
-      <div class="step" id="s-tracearr" hidden><span class="dot"></span><div>Statistiques (Tracearr)<small></small></div></div>
+      <div class="step" id="s-seerr" hidden><span class="dot"></span><div><span data-i18n="seerr"></span><small></small></div></div>
+      <div class="step" id="s-tracearr" hidden><span class="dot"></span><div><span data-i18n="tracearr"></span><small></small></div></div>
     </div>
-    <a class="btn primary" id="authorize" target="_blank" rel="noopener" hidden>Autoriser Tracearr avec Plex</a>
-    <p class="done" id="done" hidden>C'est prêt ! Tu peux reposer ton téléphone.</p>
+    <a class="btn primary" id="authorize" target="_blank" rel="noopener" hidden data-i18n="authorize"></a>
+    <p class="done" id="done" hidden data-i18n="done"></p>
     <p class="msg" id="perror"></p>
   </section>
 </main>
+<script>const L = /*I18N*/{};</script>
 <script>/*JSQR*/</script>
 <script>
   const base = location.pathname.replace(/\/$/, "");
   const $ = (id) => document.getElementById(id);
   const PREFIX = "PLEXR-INVITE:";
+  // Textes traduits (fournis par Plexr dans L).
+  document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = L[el.dataset.i18n] || ""));
 
   // Lecture du QR code dans la photo, réduite pour aller vite sur un téléphone.
   async function decode(file) {
@@ -86,7 +89,7 @@
     $("msg").textContent = "";
     try {
       const text = await decode(file);
-      if (!text) throw new Error("Aucun QR code trouvé dans l'image : réessaie en le cadrant bien.");
+      if (!text) throw new Error(L.noQr);
       await send(text);
     } catch (err) {
       $("msg").textContent = err.message;
@@ -95,12 +98,12 @@
 
   async function send(text) {
     text = text.trim();
-    if (!text.startsWith(PREFIX)) throw new Error("Ce n'est pas un code d'invitation Plexr.");
+    if (!text.startsWith(PREFIX)) throw new Error(L.notInvite);
     const r = await fetch(base + "/code", { method: "POST", body: text });
-    if (!r.ok) throw new Error("La télé ne répond plus : rouvre l'écran de configuration.");
+    if (!r.ok) throw new Error(L.tvGone);
     $("pick").hidden = true;
     $("progress").hidden = false;
-    $("sub").textContent = "Regarde ta télé : Plexr se configure.";
+    $("sub").textContent = L.watchTv;
     poll();
   }
 
@@ -109,7 +112,7 @@
     if (!state) return;
     el.hidden = false;
     el.className = "step " + (state === "ok" ? "ok" : state === "run" ? "run" : "err");
-    el.querySelector("small").textContent = detail || (state === "ok" ? "Connecté" : state === "run" ? "Connexion…" : "");
+    el.querySelector("small").textContent = detail || (state === "ok" ? L.connected : state === "run" ? L.connecting : "");
   }
 
   async function poll() {
@@ -125,7 +128,7 @@
         return;
       }
       if (s.step === "error") {
-        $("perror").textContent = s.error || "La configuration a échoué.";
+        $("perror").textContent = s.error || L.failed;
         return;
       }
     } catch {

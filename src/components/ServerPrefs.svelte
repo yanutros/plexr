@@ -1,6 +1,7 @@
 <script lang="ts">
   import { api, errorText, type Pref } from "../lib/api";
   import { toast } from "../lib/nav.svelte";
+  import { t } from "../lib/i18n";
 
   // Formulaire d'un groupe de réglages du serveur Plex (Général, Réseau, Transcodeur…).
   let { prefs, advanced, onSaved }: { prefs: Pref[]; advanced: boolean; onSaved: () => void } = $props();
@@ -23,7 +24,7 @@
     saving = true;
     try {
       await api.setPrefs(Object.fromEntries(dirty.map((id) => [id, edits[id]])));
-      toast("Réglages du serveur enregistrés");
+      toast(t("serverPrefs.saved"));
       edits = {};
       onSaved();
     } catch (e) {
@@ -40,7 +41,7 @@
       {#if p.kind === "bool"}
         <label class="switch-row">
           <span class="text">
-            <span class="label">{p.label}{#if p.advanced}<span class="adv">avancé</span>{/if}</span>
+            <span class="label">{p.label}{#if p.advanced}<span class="adv">{t("serverPrefs.advanced")}</span>{/if}</span>
             {#if p.summary}<span class="summary">{p.summary}</span>{/if}
           </span>
           <input
@@ -52,7 +53,7 @@
         </label>
       {:else}
         <label class="text" for="pref-{p.id}">
-          <span class="label">{p.label}{#if p.advanced}<span class="adv">avancé</span>{/if}</span>
+          <span class="label">{p.label}{#if p.advanced}<span class="adv">{t("serverPrefs.advanced")}</span>{/if}</span>
           {#if p.summary}<span class="summary">{p.summary}</span>{/if}
         </label>
         {#if p.options.length}
@@ -72,15 +73,15 @@
       {/if}
     </div>
   {:else}
-    <p class="muted">Aucun réglage dans cette rubrique{advanced ? "" : " (essaie d'afficher les réglages avancés)"}.</p>
+    <p class="muted">{advanced ? t("serverPrefs.empty") : t("serverPrefs.emptyTryAdvanced")}</p>
   {/each}
 </div>
 
 {#if dirty.length}
   <div class="savebar">
-    <span>{dirty.length} réglage{dirty.length > 1 ? "s" : ""} modifié{dirty.length > 1 ? "s" : ""}</span>
-    <button class="btn" onclick={() => (edits = {})}>Annuler</button>
-    <button class="btn primary" disabled={saving} onclick={save}>{saving ? "Enregistrement…" : "Enregistrer"}</button>
+    <span>{t("serverPrefs.changed", { count: dirty.length })}</span>
+    <button class="btn" onclick={() => (edits = {})}>{t("serverPrefs.cancel")}</button>
+    <button class="btn primary" disabled={saving} onclick={save}>{saving ? t("serverPrefs.saving") : t("serverPrefs.save")}</button>
   </div>
 {/if}
 

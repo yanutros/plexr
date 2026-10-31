@@ -15,6 +15,7 @@
   import TvGrid from "../components/TvGrid.svelte";
   import { device } from "../lib/device";
   import { fromItem, type TvCard } from "../lib/tvcards";
+  import { t } from "../lib/i18n";
 
   let {
     sectionKey,
@@ -24,9 +25,9 @@
 
   type Tab = "recommended" | "library" | "categories";
   const TABS: { id: Tab; label: string }[] = [
-    { id: "recommended", label: "Recommandé" },
-    { id: "library", label: "Bibliothèque" },
-    { id: "categories", label: "Catégories" },
+    { id: "recommended", label: t("library.tabs.recommended") },
+    { id: "library", label: t("library.tabs.library") },
+    { id: "categories", label: t("library.tabs.categories") },
   ];
   const PAGE_SIZE = 120;
 
@@ -49,7 +50,7 @@
   });
 
   // « Continuer à regarder » en grand, puis des panneaux « À la une » tirés des autres rangées.
-  const isContinue = (h: Hub) => /continuer|reprendre|en cours/i.test(h.title) && h.items.every((it) => it.playable);
+  const isContinue = (h: Hub) => /\.inprogress/.test(h.identifier) && h.items.every((it) => it.playable);
   const continueHubs = $derived(hubs?.filter(isContinue) ?? []);
   const restHubs = $derived(hubs?.filter((h) => !isContinue(h)) ?? []);
   const panels = $derived.by<Panel[]>(() => {
@@ -89,7 +90,7 @@
 
   // --- Téléviseur : mêmes données, en rangées et grilles TV ---
   const tvRows = $derived([
-    ...continueHubs.map((h) => ({ title: h.title, cards: h.items.map((i) => fromItem(i, "Reprendre", true)) })),
+    ...continueHubs.map((h) => ({ title: h.title, cards: h.items.map((i) => fromItem(i, t("library.resume"), true)) })),
     ...restHubs.map((h) => ({ title: h.title, cards: h.items.map((i) => fromItem(i, h.title)) })),
   ].filter((r) => r.cards.length));
   const tvItems = $derived(items.map((i) => fromItem(i, title)));
@@ -100,9 +101,9 @@
       shape: "wide",
       label: genreLabel(g.title),
       progress: 0,
-      eyebrow: "Catégorie",
+      eyebrow: t("library.category"),
       title: genreLabel(g.title),
-      line: `${g.count} titres`,
+      line: t("library.titleCount", { count: g.count }),
       summary: null,
       backdrop: g.backdrop,
       open: () => openGenre(g),
@@ -172,8 +173,8 @@
   <div class="tv-head">
     <h1>{title}</h1>
     <div class="tabs" role="tablist" data-nav-low>
-      {#each TABS as t (t.id)}
-        <button role="tab" aria-selected={tab === t.id} class:active={tab === t.id} onclick={() => select(t.id)}>{t.label}</button>
+      {#each TABS as tb (tb.id)}
+        <button role="tab" aria-selected={tab === tb.id} class:active={tab === tb.id} onclick={() => select(tb.id)}>{tb.label}</button>
       {/each}
     </div>
     {#if tab === "library" && genre}
@@ -181,7 +182,7 @@
         {genreLabel(genre.title)} <Icon name="x" size={14} />
       </button>
     {/if}
-    {#if tab === "library" && total}<span class="muted">{total} titres</span>{/if}
+    {#if tab === "library" && total}<span class="muted">{t("library.titleCount", { count: total })}</span>{/if}
   </div>
 {/snippet}
 
@@ -211,9 +212,9 @@
       {#if tab === "library" && total}<span class="muted">{total}</span>{/if}
     </h1>
     <div class="tabs" role="tablist" data-nav-low>
-      {#each TABS as t (t.id)}
-        <button role="tab" aria-selected={tab === t.id} class:active={tab === t.id} onclick={() => select(t.id)}>
-          {t.label}
+      {#each TABS as tb (tb.id)}
+        <button role="tab" aria-selected={tab === tb.id} class:active={tab === tb.id} onclick={() => select(tb.id)}>
+          {tb.label}
         </button>
       {/each}
     </div>
@@ -225,12 +226,12 @@
     {#if !hubs}
       <div class="skeleton" style:height="420px"></div>
     {:else}
-      <HeroCarousel items={slides} eyebrow={(i) => (i.viewOffsetMs ? "À suivre" : "À découvrir")} />
+      <HeroCarousel items={slides} eyebrow={(i) => (i.viewOffsetMs ? t("library.upNext") : t("library.discover"))} />
       {#each continueHubs as hub, i (i)}
         <ContinueRow title={hub.title} items={hub.items} />
       {/each}
       {#if panels.length}
-        <h2 class="feature-title">À la une</h2>
+        <h2 class="feature-title">{t("library.featured")}</h2>
         <FeaturePanels {panels} />
       {/if}
       {#each restHubs as hub, i (i)}
@@ -244,8 +245,8 @@
   {:else if tab === "library"}
     {#if genre}
       <div class="filter">
-        <span>Genre : <strong>{genreLabel(genre.title)}</strong></span>
-        <button class="chip-x" onclick={() => openGenre(null)} aria-label="Retirer le filtre"><Icon name="x" size={14} /></button>
+        <span>{t("library.genreFilter")} <strong>{genreLabel(genre.title)}</strong></span>
+        <button class="chip-x" onclick={() => openGenre(null)} aria-label={t("library.removeFilter")}><Icon name="x" size={14} /></button>
       </div>
     {/if}
     <div class="grid">
@@ -261,7 +262,7 @@
     </div>
   {/if}
 
-  <div bind:this={sentinel} class="sentinel">{#if loading}<span class="muted">Chargement…</span>{/if}</div>
+  <div bind:this={sentinel} class="sentinel">{#if loading}<span class="muted">{t("library.loading")}</span>{/if}</div>
 </div>
 {/if}
 

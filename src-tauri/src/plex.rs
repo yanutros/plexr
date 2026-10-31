@@ -17,7 +17,8 @@ pub fn with_plex_headers(rb: RequestBuilder, client_id: &str, token: Option<&str
         .header("X-Plex-Platform", std::env::consts::OS)
         .header("X-Plex-Device-Name", "Plexr (PC)")
         // Titres des rangées (« Musique lue récemment »…) en français.
-        .header("X-Plex-Language", "fr");
+        // Titres des rangées, genres… dans la langue de l'interface.
+        .header("X-Plex-Language", crate::i18n::language());
     match token {
         Some(t) => rb.header("X-Plex-Token", t),
         None => rb,
@@ -169,7 +170,7 @@ pub async fn pick_connection(http: &Client, client_id: &str, res: &Resource) -> 
         .into_iter()
         .find(|(_, ok)| *ok)
         .map(|(uri, _)| uri)
-        .ok_or_else(|| anyhow!("Aucune adresse joignable pour le serveur « {} »", res.name))
+        .ok_or_else(|| anyhow!(crate::i18n::tr_with("plex.noReachableAddress", &[("name", &res.name)])))
 }
 
 // ---------- Format JSON des serveurs Plex ----------
@@ -204,8 +205,11 @@ struct RawDirectory {
 
 #[derive(Deserialize, Default)]
 #[serde(default)]
+#[serde(rename_all = "camelCase")]
 struct RawHub {
     title: String,
+    /// Identifiant indépendant de la langue (« movie.inprogress.1 », « music.recent.added.3 »…).
+    hub_identifier: String,
     #[serde(rename = "Metadata")]
     metadata: Vec<RawMetadata>,
 }
@@ -387,6 +391,7 @@ pub struct Track {
 #[derive(Serialize)]
 pub struct Hub {
     pub title: String,
+    pub identifier: String,
     pub items: Vec<Item>,
 }
 
@@ -514,7 +519,12 @@ impl PlexServer {
             )),
             "season" | "album" => m.parent_title.clone(),
             "track" => m.original_title.clone().or_else(|| m.grandparent_title.clone()),
-            "playlist" => m.leaf_count.map(|n| format!("{n} titre{}", if n > 1 { "s" } else { "" })),
+            "playlist" => m.leaf_count.map(|n| {
+                // Singulier pour 1 (et pour 0 en français, comme avant).
+                let one = n == 1 || (n == 0 && crate::i18n::language() == "fr");
+                let key = if one { "plex.trackCount_one" } else { "plex.trackCount_other" };
+                crate::i18n::tr_with(key, &[("count", &n.to_string())])
+            }),
             _ => None,
         };
         let watched = match m.kind.as_str() {
@@ -650,13 +660,13 @@ impl PlexServer {
                     .into_iter()
                     .filter(|m| is_music(&m.kind) || matches!(m.kind.as_str(), "movie" | "show" | "season" | "episode"))
                     .collect();
-                (!items.is_empty()).then(|| Hub { title: h.title, items: self.to_items(items) })
+                (!items.is_empty()).then(|| Hub { title: h.title, identifier: h.hub_identifier, items: self.to_items(items) })
             })
             .collect();
         // Les playlists ne font pas partie des rangées du serveur : on les place en troisième, comme Plex.
         if let Ok(items) = playlists {
             if !items.is_empty() {
-                hubs.insert(hubs.len().min(2), Hub { title: "Listes de lecture".into(), items });
+                hubs.insert(hubs.len().min(2), Hub { title: crate::i18n::tr("plex.playlists"), identifier: "plexr.playlists".into(), items });
             }
         }
         Ok(hubs)
@@ -682,7 +692,7 @@ impl PlexServer {
             Some(m) => Some(m),
             None => self.container(&format!("/playlists/{rating_key}")).await?.metadata.into_iter().next(),
         };
-        found.ok_or_else(|| anyhow!("Élément {rating_key} introuvable"))
+        found.ok_or_else(|| anyhow!(crate::i18n::tr_with("plex.notFound", &[("id", rating_key)])))
     }
 
     /// Épisode précédent et suivant ; rien pour un film.
@@ -709,7 +719,7 @@ impl PlexServer {
             "album" => format!("/library/metadata/{rating_key}/children"),
             "artist" => format!("/library/metadata/{rating_key}/allLeaves"),
             "playlist" => format!("/playlists/{rating_key}/items"),
-            _ => return Err(anyhow!("« {} » ne contient pas de musique", m.title)),
+            _ => return Err(anyhow!(crate::i18n::tr_with("plex.noMusic", &[("title", &m.title)]))),
         };
         Ok(self
             .container(&path)
@@ -770,7 +780,7 @@ impl PlexServer {
                         .extended_display_title
                         .clone()
                         .or_else(|| s.display_title.clone())
-                        .unwrap_or_else(|| format!("Piste {}", s.id)),
+                        .unwrap_or_else(|| crate::i18n::tr_with("plex.track", &[("id", &s.id.to_string())])),
                     selected: s.selected,
                 })
                 .collect()
@@ -829,7 +839,7 @@ impl PlexServer {
             .media
             .first()
             .and_then(|x| x.part.first())
-            .ok_or_else(|| anyhow!("Aucun fichier lisible pour « {} »", m.title))?;
+            .ok_or_else(|| anyhow!(crate::i18n::tr_with("plex.noPlayableFile", &[("title", &m.title)])))?;
         if audio.is_some() || subtitle.is_some() {
             let mut q = String::from("allParts=1");
             if let Some(a) = audio {
@@ -849,7 +859,14 @@ impl PlexServer {
         let (title, subtitle_line) = match (m.kind.as_str(), &m.grandparent_title) {
             ("episode", Some(show)) => (
                 show.clone(),
-                Some(format!("S{} · É{} — {}", m.parent_index.unwrap_or(0), m.index.unwrap_or(0), m.title)),
+                Some(crate::i18n::tr_with(
+                    "plex.episodeLine",
+                    &[
+                        ("season", &m.parent_index.unwrap_or(0).to_string()),
+                        ("episode", &m.index.unwrap_or(0).to_string()),
+                        ("title", &m.title),
+                    ],
+                )),
             ),
             _ => (m.title.clone(), m.year.map(|y| y.to_string())),
         };
@@ -892,11 +909,18 @@ impl PlexServer {
             .media
             .first()
             .and_then(|x| x.part.first())
-            .ok_or_else(|| anyhow!("Aucun fichier lisible pour « {} »", m.title))?;
+            .ok_or_else(|| anyhow!(crate::i18n::tr_with("plex.noPlayableFile", &[("title", &m.title)])))?;
         let (title, subtitle_line) = match (m.kind.as_str(), &m.grandparent_title) {
             ("episode", Some(show)) => (
                 show.clone(),
-                Some(format!("S{} · É{} — {}", m.parent_index.unwrap_or(0), m.index.unwrap_or(0), m.title)),
+                Some(crate::i18n::tr_with(
+                    "plex.episodeLine",
+                    &[
+                        ("season", &m.parent_index.unwrap_or(0).to_string()),
+                        ("episode", &m.index.unwrap_or(0).to_string()),
+                        ("title", &m.title),
+                    ],
+                )),
             ),
             _ => (m.title.clone(), m.year.map(|y| y.to_string())),
         };

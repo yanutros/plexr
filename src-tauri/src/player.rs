@@ -50,7 +50,7 @@ impl PlayerControl {
         self.commands
             .send(json!({ "command": args }))
             .ok()
-            .context("Aucune lecture en cours")
+            .with_context(|| crate::i18n::tr("player.noPlayback"))
     }
 }
 
@@ -67,7 +67,7 @@ pub fn find_mpv(configured: Option<&str>) -> Result<PathBuf> {
         if path.is_file() {
             return Ok(path);
         }
-        bail!("mpv introuvable à l'emplacement indiqué dans les Réglages : {}", path.display());
+        bail!(crate::i18n::tr_with("player.mpvNotAtPath", &[("path", &path.display().to_string())]));
     }
     let mut candidates = Vec::new();
     if let Some(dir) = std::env::current_exe().ok().and_then(|e| e.parent().map(|p| p.to_path_buf())) {
@@ -100,7 +100,7 @@ pub fn find_mpv(configured: Option<&str>) -> Result<PathBuf> {
     candidates
         .into_iter()
         .find(|p| p.is_file())
-        .context("mpv introuvable : installe-le (https://mpv.io) ou indique son chemin dans les Réglages")
+        .with_context(|| crate::i18n::tr("player.mpvNotFound"))
 }
 
 fn ipc_path() -> String {
@@ -121,7 +121,7 @@ async fn connect_ipc(path: &str) -> Result<Box<dyn IpcStream>> {
         }
         tokio::time::sleep(Duration::from_millis(200)).await;
     }
-    bail!("IPC mpv indisponible")
+    bail!(crate::i18n::tr("player.ipcUnavailable"))
 }
 
 #[cfg(unix)]
@@ -132,7 +132,7 @@ async fn connect_ipc(path: &str) -> Result<Box<dyn IpcStream>> {
         }
         tokio::time::sleep(Duration::from_millis(200)).await;
     }
-    bail!("IPC mpv indisponible")
+    bail!(crate::i18n::tr("player.ipcUnavailable"))
 }
 
 #[cfg(windows)]
@@ -240,7 +240,7 @@ pub fn launch(
             // Une longue file dépasserait la limite de la ligne de commande : on passe par une playlist.
             let path = std::env::temp_dir().join(format!("plexr-queue-{}.m3u", uuid::Uuid::new_v4().simple()));
             std::fs::write(&path, format!("#EXTM3U\n{}\n", urls.join("\n")))
-                .context("Impossible d'écrire la file de lecture")?;
+                .with_context(|| crate::i18n::tr("player.queueWriteFailed"))?;
             cmd.arg(format!("--playlist={}", path.display()))
                 .arg(format!("--playlist-start={first}"))
                 .arg("--vid=no")
@@ -252,7 +252,7 @@ pub fn launch(
             playlist_file = Some(path);
         }
     }
-    let child = cmd.spawn().with_context(|| format!("Impossible de lancer mpv ({})", mpv.display()));
+    let child = cmd.spawn().with_context(|| crate::i18n::tr_with("player.launchFailed", &[("path", &mpv.display().to_string())]));
     let child = match child {
         Ok(c) => c,
         Err(e) => {

@@ -4,6 +4,7 @@
   import { go, toast } from "../lib/nav.svelte";
   import { play } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   /**
    * Bandeau qui fait défiler jusqu'à 5 éléments, 5 s chacun (pause au survol).
@@ -58,7 +59,7 @@
   <section
     class="hero"
     class:bleed
-    aria-label="À la une"
+    aria-label={t("hero.featured")}
     onmouseenter={() => (hovering = true)}
     onmouseleave={() => {
       hovering = false;
@@ -79,28 +80,28 @@
         <h1>{featured.showTitle ?? featured.title}</h1>
         <div class="meta">
           {#if featured.kind === "episode"}
-            <span>Saison {featured.parentIndex} · Épisode {featured.index} — {featured.title}</span>
+            <span>{t("hero.episodeLine", { season: featured.parentIndex ?? "", episode: featured.index ?? "", title: featured.title })}</span>
           {:else if featured.year}
             <span>{featured.year}</span>
           {/if}
           {#if featured.genres.length}<span>{featured.genres.slice(0, 3).join(" · ")}</span>{/if}
           {#if featured.rating}<span class="rating"><Icon name="star" size={14} filled /> {featured.rating.toFixed(1)}</span>{/if}
-          {#if remaining}<span>{formatDuration(remaining)} restantes</span>{/if}
+          {#if remaining}<span>{t("common.c1.remaining", { time: formatDuration(remaining) })}</span>{/if}
         </div>
         {#if featured.summary}<p class="summary">{featured.summary}</p>{/if}
         <div class="actions">
           <button class="btn primary" onclick={start}>
             <Icon name="play" size={18} filled />
-            {featured.viewOffsetMs ? "Reprendre" : featured.playable ? "Lire" : "Voir"}
+            {featured.viewOffsetMs ? t("common.c1.resume") : featured.playable ? t("common.c1.play") : t("hero.view")}
           </button>
-          <button class="btn" onclick={() => go({ name: "item", ratingKey: featured!.ratingKey })}>Plus d'infos</button>
+          <button class="btn" onclick={() => go({ name: "item", ratingKey: featured!.ratingKey })}>{t("common.c1.moreInfo")}</button>
         </div>
       </div>
     {/key}
     {#if slides.length > 1}
       <div class="dots">
         {#each slides as s, i (s.ratingKey)}
-          <button class:active={i === slide} onclick={() => show(i)} aria-label="Afficher {s.showTitle ?? s.title}">
+          <button class:active={i === slide} onclick={() => show(i)} aria-label={t("hero.showSlide", { title: s.showTitle ?? s.title })}>
             {#if i === slide}
               {#key cycle + slide * 1000}
                 <span class="fill" class:paused={hovering} style:animation-duration="{SLIDE_MS}ms"></span>

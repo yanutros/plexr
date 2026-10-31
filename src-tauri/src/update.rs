@@ -104,7 +104,7 @@ pub async fn check(http: &reqwest::Client) -> Result<Option<UpdateInfo>> {
 /// Télécharge le paquet dans `dir`, en signalant l'avancement (événement `update-progress`, de 0 à 1).
 pub async fn download(app: &AppHandle, http: &reqwest::Client, info: &UpdateInfo, dir: &Path) -> Result<PathBuf> {
     // Le nom vient de GitHub : on n'en garde que la partie fichier.
-    let name = Path::new(&info.asset_name).file_name().ok_or_else(|| anyhow!("nom de paquet invalide"))?;
+    let name = Path::new(&info.asset_name).file_name().ok_or_else(|| anyhow!(crate::i18n::tr("update.invalidName")))?;
     tokio::fs::create_dir_all(dir).await?;
     let path = dir.join(name);
     let mut resp = request(http, &info.asset_url)
@@ -127,7 +127,7 @@ pub async fn download(app: &AppHandle, http: &reqwest::Client, info: &UpdateInfo
     }
     file.flush().await?;
     if done == 0 {
-        bail!("le téléchargement est vide");
+        bail!(crate::i18n::tr("update.emptyDownload"));
     }
     Ok(path)
 }
@@ -147,7 +147,7 @@ pub fn install(path: &Path) -> Result<bool> {
             Ok(false)
         }
         "linux" => install_linux(path),
-        os => bail!("mise à jour automatique indisponible sur {os}"),
+        os => bail!(crate::i18n::tr_with("update.unsupported", &[("os", os)])),
     }
 }
 

@@ -4,6 +4,7 @@
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import Icon, { type IconName } from "./Icon.svelte";
   import { device } from "../lib/device";
+  import { t } from "../lib/i18n";
 
   let { sections, serverName }: { sections: Section[]; serverName: string | null } = $props();
 
@@ -72,7 +73,7 @@
   onfocusout={(e) => device.tv && !e.currentTarget.contains(e.relatedTarget as Node) && (sidebar.collapsed = true)}
 >
   <div class="brand">
-    <button class="toggle" onclick={toggleCollapsed} aria-label={sidebar.collapsed ? "Déplier le menu" : "Replier le menu"} title={sidebar.collapsed ? "Déplier le menu" : "Replier le menu"}>
+    <button class="toggle" onclick={toggleCollapsed} aria-label={sidebar.collapsed ? t("sidebar.expand") : t("sidebar.collapse")} title={sidebar.collapsed ? t("sidebar.expand") : t("sidebar.collapse")}>
       <Icon name="menu" />
     </button>
     {#if !sidebar.collapsed}
@@ -84,25 +85,25 @@
   <nav>
     {#if device.tv}
       <button class="item" class:active={isActive("search")}
-            aria-current={isActive("search") ? "page" : undefined} onclick={() => open({ name: "search", query: "" })} title="Rechercher">
-        <Icon name="search" /> <span class="label">Rechercher</span>
+            aria-current={isActive("search") ? "page" : undefined} onclick={() => open({ name: "search", query: "" })} title={t("sidebar.search")}>
+        <Icon name="search" /> <span class="label">{t("sidebar.search")}</span>
       </button>
     {/if}
     <button class="item" class:active={isActive("home")}
-            aria-current={isActive("home") ? "page" : undefined} onclick={() => open({ name: "home" })} title="Accueil">
-      <Icon name="home" /> <span class="label">Accueil</span>
+            aria-current={isActive("home") ? "page" : undefined} onclick={() => open({ name: "home" })} title={t("sidebar.home")}>
+      <Icon name="home" /> <span class="label">{t("sidebar.home")}</span>
     </button>
 
     {#if sections.length}
       <div class="group">
-        <span>Bibliothèques</span>
+        <span>{t("sidebar.libraries")}</span>
         {#if !sidebar.collapsed && !device.tv}
           <button
             class="customize"
             class:on={sidebar.editing}
             onclick={() => (sidebar.editing = !sidebar.editing)}
-            title={sidebar.editing ? "Terminer" : "Réorganiser les bibliothèques"}
-            aria-label="Réorganiser les bibliothèques"
+            title={sidebar.editing ? t("sidebar.done") : t("sidebar.reorder")}
+            aria-label={t("sidebar.reorder")}
           >
             <Icon name={sidebar.editing ? "check" : "edit"} size={13} />
           </button>
@@ -110,7 +111,7 @@
       </div>
 
       {#if sidebar.editing}
-        <p class="hint">Glisse pour réordonner, l'œil masque une bibliothèque.</p>
+        <p class="hint">{t("sidebar.reorderHint")}</p>
         {#each list as s (s.key)}
           <div
             class="item edit"
@@ -128,8 +129,8 @@
             <span class="grip"><Icon name="grip" size={16} /></span>
             <Icon name={icon(s.kind)} />
             <span class="label">{s.title}</span>
-            <button class="mini" onclick={() => move(s.key, -1)} aria-label="Monter {s.title}"><Icon name="chevronDown" size={14} /></button>
-            <button class="mini" onclick={() => toggleHidden(s.key)} aria-label="Afficher ou masquer {s.title}">
+            <button class="mini" onclick={() => move(s.key, -1)} aria-label={t("sidebar.moveUp", { title: s.title })}><Icon name="chevronDown" size={14} /></button>
+            <button class="mini" onclick={() => toggleHidden(s.key)} aria-label={t("sidebar.toggleHidden", { title: s.title })}>
               <Icon name={sidebar.hidden.includes(s.key) ? "eyeOff" : "eye"} size={15} />
             </button>
           </div>
@@ -149,9 +150,9 @@
         {/each}
 
         {#if hidden.length}
-          <button class="item more" onclick={() => (sidebar.showHidden = !sidebar.showHidden)} title="Plus">
+          <button class="item more" onclick={() => (sidebar.showHidden = !sidebar.showHidden)} title={t("sidebar.more")}>
             <Icon name={sidebar.showHidden ? "chevronDown" : "chevronRight"} />
-            <span class="label">Plus ({hidden.length})</span>
+            <span class="label">{t("sidebar.moreCount", { n: hidden.length })}</span>
           </button>
           {#if sidebar.showHidden}
             {#each hidden as s (s.key)}
@@ -171,24 +172,24 @@
       {/if}
     {/if}
 
-    <div class="group"><span>Demandes</span></div>
+    <div class="group"><span>{t("sidebar.requests")}</span></div>
     <button class="item" class:active={isActive("discover") || isActive("seerr")}
-            aria-current={(isActive("discover") || isActive("seerr")) ? "page" : undefined} onclick={() => open({ name: "discover" })} title="Découvrir">
-      <Icon name="compass" /> <span class="label">Découvrir</span>
+            aria-current={(isActive("discover") || isActive("seerr")) ? "page" : undefined} onclick={() => open({ name: "discover" })} title={t("sidebar.discover")}>
+      <Icon name="compass" /> <span class="label">{t("sidebar.discover")}</span>
     </button>
     <div class="group"><span>Tracearr</span></div>
     <button class="item" class:active={isActive("stats")}
-            aria-current={isActive("stats") ? "page" : undefined} onclick={() => open({ name: "stats" })} title="Mes statistiques">
-      <Icon name="stats" /> <span class="label">Mes statistiques</span>
+            aria-current={isActive("stats") ? "page" : undefined} onclick={() => open({ name: "stats" })} title={t("sidebar.stats")}>
+      <Icon name="stats" /> <span class="label">{t("sidebar.stats")}</span>
     </button>
   </nav>
 
   <div class="spacer"></div>
   <button class="item settings" class:active={isActive("settings")}
-            aria-current={isActive("settings") ? "page" : undefined} onclick={() => open({ name: "settings" })} title="Réglages">
+            aria-current={isActive("settings") ? "page" : undefined} onclick={() => open({ name: "settings" })} title={t("sidebar.settings")}>
     <Icon name="settings" />
     <span class="label">
-      Réglages
+      {t("sidebar.settings")}
       <small>{serverName}</small>
     </span>
   </button>

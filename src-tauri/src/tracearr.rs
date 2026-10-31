@@ -115,7 +115,7 @@ async fn find_art(plex: Option<&PlexServer>, title: Option<&str>) -> Option<Art>
 
 impl Tracearr {
     pub fn new(base: &str, saved_cookies: Option<&str>) -> Result<Self> {
-        let base = Url::parse(base.trim_end_matches('/')).map_err(|_| anyhow!("Adresse Tracearr invalide : {base}"))?;
+        let base = Url::parse(base.trim_end_matches('/')).map_err(|_| anyhow!(crate::i18n::tr_with("tracearr.invalidUrl", &[("url", base)])))?;
         let cookies = Arc::new(Jar::default());
         for pair in saved_cookies.unwrap_or_default().split("; ").filter(|p| p.contains('=')) {
             cookies.add_cookie_str(&format!("{pair}; Path=/"), &base);
@@ -151,9 +151,9 @@ impl Tracearr {
             .json(&json!({}))
             .send()
             .await
-            .map_err(|e| anyhow!("Tracearr injoignable : {e}"))?;
+            .map_err(|e| anyhow!(crate::i18n::tr_with("tracearr.unreachable", &[("error", &e.to_string())])))?;
         if !resp.status().is_success() {
-            bail!("Tracearr a refusé la connexion ({})", resp.status());
+            bail!(crate::i18n::tr_with("tracearr.loginRefused", &[("status", &resp.status().to_string())]));
         }
         Ok(resp.json().await?)
     }
@@ -167,12 +167,12 @@ impl Tracearr {
         let status = resp.status();
         let body: Value = resp.json().await.unwrap_or_default();
         if !status.is_success() {
-            let message = body["message"].as_str().unwrap_or("connexion refusée");
-            bail!("Tracearr : {message}");
+            let message = body["message"].as_str().map(str::to_owned).unwrap_or_else(|| crate::i18n::tr("tracearr.refused"));
+            bail!(crate::i18n::tr_with("tracearr.error", &[("message", &message)]));
         }
         if body["authorized"].as_bool() == Some(true) {
             if body["needsServerSelection"].as_bool() == Some(true) {
-                bail!("Ce Tracearr n'est pas encore configuré : son administrateur doit d'abord s'y connecter");
+                bail!(crate::i18n::tr("tracearr.notSetUp"));
             }
             return Ok(LoginState::Done);
         }
@@ -183,7 +183,7 @@ impl Tracearr {
         let resp = self.builder(Method::GET, path).send().await?;
         match resp.status() {
             StatusCode::UNAUTHORIZED => bail!("SESSION_EXPIRED"),
-            s if !s.is_success() => bail!("Tracearr a répondu {s} pour {path}"),
+            s if !s.is_success() => bail!(crate::i18n::tr_with("tracearr.replied", &[("status", &s.to_string()), ("path", path)])),
             _ => Ok(resp.json().await?),
         }
     }
@@ -244,10 +244,13 @@ impl Tracearr {
                         let (title, subtitle) = match (show, artist) {
                             (Some(show), _) => (
                                 show.to_owned(),
-                                Some(format!(
-                                    "S{} · É{} — {title}",
-                                    s["seasonNumber"].as_u64().unwrap_or(0),
-                                    s["episodeNumber"].as_u64().unwrap_or(0)
+                                Some(crate::i18n::tr_with(
+                                    "tracearr.episodeLine",
+                                    &[
+                                        ("season", &s["seasonNumber"].as_u64().unwrap_or(0).to_string()),
+                                        ("episode", &s["episodeNumber"].as_u64().unwrap_or(0).to_string()),
+                                        ("title", &title),
+                                    ],
                                 )),
                             ),
                             (None, Some(artist)) => (

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { api, errorText, type ServerSummary } from "../lib/api";
+  import { t } from "../lib/i18n";
 
   /**
    * Choix du serveur, façon sélection de profil (Netflix, Apple TV) : la photo du compte Plex du
@@ -45,11 +46,11 @@
 </script>
 
 <div class="picker">
-  <h1>Choisis un serveur</h1>
+  <h1>{t("servers.title")}</h1>
   {#if !servers && !error}
-    <p class="muted">Recherche des serveurs…</p>
+    <p class="muted">{t("servers.searching")}</p>
   {:else if servers && !servers.length}
-    <p class="muted">Aucun serveur Plex accessible avec ce compte.</p>
+    <p class="muted">{t("servers.none")}</p>
   {/if}
 
   <div class="profiles">
@@ -69,14 +70,20 @@
         </span>
         <span class="name">{s.name}</span>
         <span class="owner">
-          {connecting === s.machineId ? "Connexion…" : s.owned ? "Mon serveur" : s.owner ? `Partagé par ${s.owner}` : "Partagé"}
+          {connecting === s.machineId
+            ? t("servers.connecting")
+            : s.owned
+              ? t("servers.mine")
+              : s.owner
+                ? t("servers.sharedBy", { owner: s.owner })
+                : t("servers.shared")}
         </span>
       </button>
     {/each}
   </div>
 
   {#if error}<p class="error">{error}</p>{/if}
-  <button class="btn logout" onclick={() => api.logout().then(onDone)}>Changer de compte</button>
+  <button class="btn logout" onclick={() => api.logout().then(onDone)}>{t("servers.switchAccount")}</button>
 </div>
 
 <style>

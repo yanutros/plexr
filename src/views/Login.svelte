@@ -2,6 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import { api, errorText, type LoginPin } from "../lib/api";
   import { device } from "../lib/device";
+  import { t } from "../lib/i18n";
 
   let { onDone }: { onDone: () => void } = $props();
 
@@ -49,28 +50,28 @@
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z" /></svg>
     </div>
     <h1>Plexr</h1>
-    <p class="muted">Ton client Plex, avec les demandes Seerr intégrées.</p>
+    <p class="muted">{t("login.tagline")}</p>
 
     {#if pin && mode === "link"}
-      <p>Sur ton téléphone ou ton ordinateur, va sur</p>
+      <p>{t("login.goTo")}</p>
       <p class="site">plex.tv/link</p>
-      <p>et saisis ce code :</p>
+      <p>{t("login.enterCode")}</p>
       <div class="code">{#each pin.code.split("") as c, i (i)}<span>{c}</span>{/each}</div>
-      <p class="muted small">La connexion se fera toute seule dès que le code sera validé.</p>
+      <p class="muted small">{t("login.autoConnect")}</p>
       <div class="row">
-        <button class="btn" onclick={() => login("link")}>Nouveau code</button>
-        {#if !device.tv}<button class="btn" onclick={() => login("browser")}>Utiliser le navigateur</button>{/if}
+        <button class="btn" onclick={() => login("link")}>{t("login.newCode")}</button>
+        {#if !device.tv}<button class="btn" onclick={() => login("browser")}>{t("login.useBrowser")}</button>{/if}
       </div>
     {:else if pin}
-      <p>Valide la connexion dans le navigateur qui vient de s'ouvrir…</p>
+      <p>{t("login.validateInBrowser")}</p>
       <div class="row">
-        <button class="btn" onclick={() => login("browser")}>Recommencer</button>
-        <button class="btn" onclick={() => login("link")}>Utiliser un code</button>
+        <button class="btn" onclick={() => login("browser")}>{t("login.restart")}</button>
+        <button class="btn" onclick={() => login("link")}>{t("login.useCode")}</button>
       </div>
     {:else}
       <div class="row">
-        <button class="btn primary" onclick={() => login("browser")}>Se connecter avec Plex</button>
-        <button class="btn" onclick={() => login("link")}>Avec un code (plex.tv/link)</button>
+        <button class="btn primary" onclick={() => login("browser")}>{t("login.signIn")}</button>
+        <button class="btn" onclick={() => login("link")}>{t("login.withCode", { site: "plex.tv/link" })}</button>
       </div>
     {/if}
     {#if error}<p class="error">{error}</p>{/if}
@@ -98,9 +99,9 @@
     margin-bottom: 8px;
     padding-left: 6px;
     border-radius: 20px;
-    background: linear-gradient(145deg, #f7bd3a, #e5a00d 55%, #c98400);
-    color: #1a1300;
-    box-shadow: 0 0 40px #e5a00d55;
+    background: linear-gradient(145deg, var(--accent-light), var(--accent) 55%, var(--accent-dark));
+    color: var(--accent-text);
+    box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 33%, transparent);
   }
 
   .logo svg {

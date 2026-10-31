@@ -12,7 +12,7 @@
   <img alt="Rust" src="https://img.shields.io/badge/Rust-Tauri%202-DEA584?logo=rust&logoColor=white" />
   <img alt="Svelte" src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white" />
   <img alt="mpv" src="https://img.shields.io/badge/lecteur-mpv-691F69" />
-  <img alt="Langue" src="https://img.shields.io/badge/langue-français-E5A00D" />
+  <img alt="Langues" src="https://img.shields.io/badge/langues-FR%20%7C%20EN%20%7C%20ES%20%7C%20DE%20%7C%20NL-E5A00D" />
   <a href="LICENSE"><img alt="Licence GPL-3.0" src="https://img.shields.io/badge/licence-GPL--3.0-blue" /></a>
 </p>
 
@@ -104,6 +104,18 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       <h4>🛠️ Il administre le serveur</h4>
       Lectures en cours, entretien des bibliothèques et réglages du serveur (général, réseau, transcodeur…),
       pour l'administrateur uniquement.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>🎨 Il prend vos couleurs</h4>
+      Quatre couleurs au choix (jaune, rouge, vert, violet) dans Réglages → Interface ; l'icône de l'application
+      suit, dans la barre des tâches comme sur l'écran d'accueil d'Android et de la TV.
+    </td>
+    <td valign="top">
+      <h4>🌍 Il parle votre langue</h4>
+      Français, anglais, espagnol, allemand et néerlandais : Plexr suit la langue du système, ou celle choisie dans
+      Réglages → Interface. Les fiches Seerr et les rangées de Plex arrivent dans la même langue.
     </td>
   </tr>
   <tr>
@@ -330,6 +342,19 @@ l'ordinateur ; **Réglages → Interface** les réinitialise.
 Sur téléviseur, le menu reste replié et se déplie quand on y entre (flèche gauche) ; l'ordre et l'affichage des
 bibliothèques se règlent dans **Réglages → Interface**, avec les boutons ▲ ▼ et l'œil de chaque bibliothèque.
 
+### 🎨 Couleur et langue
+
+Dans **Réglages → Interface** :
+
+- **Couleur** : jaune (par défaut), rouge, vert ou violet. Toute l'interface change de teinte, et l'icône de
+  l'application aussi : fenêtre et barre des tâches sur ordinateur, icône et bannière dans le lanceur sur Android
+  et Android TV (le lanceur de la TV peut mettre un moment à rafraîchir sa vignette). Les raccourcis du bureau et
+  du menu Démarrer gardent l'icône d'origine.
+- **Langue** : *Automatique* suit la langue du système (anglais si elle n'est pas disponible), ou choisissez
+  Français, English, Español, Deutsch ou Nederlands. L'interface se recharge dans la nouvelle langue.
+
+Ces choix sont gardés sur l'appareil.
+
 ### ✏️ Modifier une fiche
 
 Pour l'administrateur du serveur, le menu ⋮ d'une jaquette (ou un clic droit) et le bouton **Modifier** des
@@ -395,6 +420,22 @@ serveur Plex, avec une bibliothèque fictive et des visuels générés. Vues dis
 `categories`, `series`, `fiche`, `lecteur`, `decouvrir`, `seerr`, `musique`, `ecoute`, `stats`. C'est ce mode qui
 produit les captures de cette page (avec Edge en mode sans interface, `--screenshot`).
 
+### 🌍 Traductions
+
+Les textes sont dans des fichiers JSON au format **i18next** (le même que [Tracearr](https://github.com/connorgallopo/Tracearr),
+compatible Crowdin), un par langue :
+
+- `src/locales/<langue>.json` : l'interface ;
+- `src-tauri/locales/<langue>.json` : les messages du backend et la page du téléphone (invitations).
+
+Clés imbriquées, variables `{{nom}}`, pluriels en `_one` / `_other` ; une clé absente se rabat sur l'anglais,
+puis le français. Dans le code : `t("settings.interface.color")` côté interface (`src/lib/i18n.ts`),
+`tr("seerr.unreachable")` côté Rust (`src-tauri/src/i18n.rs`).
+
+**Ajouter une langue** : copiez `en.json` dans les deux dossiers sous le code de la langue (`it.json`…),
+traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis déclarez-la dans `LANGUAGES`
+(`src/lib/i18n.ts`) et `LOCALES` (`src-tauri/src/i18n.rs`). Les propositions de traduction sont les bienvenues.
+
 ### 🏗️ Architecture
 
 | Fichier | Rôle |
@@ -410,6 +451,8 @@ produit les captures de cette page (avec Edge en mode sans interface, `--screens
 | `src/views/` | pages : accueil, bibliothèques, fiches, musique, découverte, statistiques, réglages |
 | `src/components/` | bandeau, cartes, lecteur vidéo, barre de musique… |
 | `src/lib/demo.ts` | mode démo (bibliothèque fictive) |
+| `src/lib/i18n.ts`, `src/locales/`, `src-tauri/src/i18n.rs`, `src-tauri/locales/` | traductions (voir ci-dessus) |
+| `src/lib/theme.ts`, `src-tauri/icons/themes/` | couleurs de l'interface et icônes assorties ; `docs/logo.html?theme=…` et `docs/tv-banner.html?theme=…` les produisent |
 | `src/components/UpdateDialog.svelte`, `src/lib/markdown.ts` | fenêtre « Nouvelle version disponible » et mise en forme des nouveautés |
 | `src/lib/invite.ts`, `src/components/QrCode.svelte` | codes d'invitation, QR codes (qrcode-generator) et lecture d'images (jsQR) |
 | `src/lib/device.ts` | type d'appareil (ordinateur, tablette tactile, téléviseur) et échelle de l'interface sur TV |

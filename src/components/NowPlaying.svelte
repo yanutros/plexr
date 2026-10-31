@@ -2,6 +2,7 @@
   import { formatClock } from "../lib/api";
   import { current, mpv, player } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   const track = $derived(current());
   const upNext = $derived(player.queue.slice(player.index + 1, player.index + 8));
@@ -10,7 +11,7 @@
 <div class="now-playing">
   <div class="bg" style:background-image={track?.cover ? `url("${track.cover}")` : undefined}></div>
 
-  <button class="close" onclick={() => (player.expanded = false)} aria-label="Réduire">
+  <button class="close" onclick={() => (player.expanded = false)} aria-label={t("nowPlaying.collapse")}>
     <Icon name="chevronDown" size={26} />
   </button>
 
@@ -25,15 +26,15 @@
 
     {#if upNext.length}
       <aside class="next">
-        <div class="next-title">À suivre</div>
-        {#each upNext as t, i (t.ratingKey + i)}
+        <div class="next-title">{t("nowPlaying.upNext")}</div>
+        {#each upNext as qt, i (qt.ratingKey + i)}
           <button class="q" onclick={() => mpv("set_property", "playlist-pos", player.index + 1 + i)}>
-            {#if t.cover}<img src={t.cover} alt="" loading="lazy" />{/if}
+            {#if qt.cover}<img src={qt.cover} alt="" loading="lazy" />{/if}
             <span class="q-text">
-              <span class="q-title">{t.title}</span>
-              <span class="q-sub">{t.artist ?? ""}</span>
+              <span class="q-title">{qt.title}</span>
+              <span class="q-sub">{qt.artist ?? ""}</span>
             </span>
-            <span class="q-dur">{formatClock(t.durationMs / 1000)}</span>
+            <span class="q-dur">{formatClock(qt.durationMs / 1000)}</span>
           </button>
         {/each}
       </aside>

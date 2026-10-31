@@ -6,6 +6,7 @@
   import { markdown } from "../lib/markdown";
   import { onBack } from "../lib/nav.svelte";
   import Icon from "./Icon.svelte";
+  import { locale, t } from "../lib/i18n";
 
   /**
    * Au lancement, si une nouvelle version est publiée, une fenêtre la présente par-dessus Plexr
@@ -20,7 +21,7 @@
   const RELEASES = "https://github.com/yanutros/plexr/releases";
 
   const date = $derived(
-    info?.date ? new Date(info.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null,
+    info?.date ? new Date(info.date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" }) : null,
   );
 
   onMount(() => {
@@ -52,13 +53,13 @@
         const device = (window as { PlexrDevice?: { installApk(path: string): string } }).PlexrDevice;
         const result = device?.installApk(apk);
         if (result === "permission") {
-          message = "Autorise Plexr à installer des applications, puis relance la mise à jour.";
+          message = t("update.allowInstall");
         } else {
-          message = "Valide l'installation : Plexr redémarrera dans sa nouvelle version.";
+          message = t("update.confirmInstall");
         }
       } else {
         // Ordinateur : soit Plexr s'est fermé pour laisser faire l'installeur, soit celui-ci s'est ouvert.
-        message = "L'installation est lancée.";
+        message = t("update.installStarted");
       }
     } catch (e) {
       error = errorText(e);
@@ -74,10 +75,10 @@
       <header>
         <span class="logo"><Icon name="play" size={18} filled /></span>
         <div class="titles">
-          <h2 id="update-title">Nouvelle version disponible</h2>
-          <p>Plexr {info.version}{#if date} · {date}{/if} — tu as la {info.current}</p>
+          <h2 id="update-title">{t("update.title")}</h2>
+          <p>Plexr {info.version}{#if date} · {date}{/if} — {t("update.current", { version: info.current })}</p>
         </div>
-        <button class="close" onclick={() => (info = null)} disabled={progress !== null} aria-label="Fermer">
+        <button class="close" onclick={() => (info = null)} disabled={progress !== null} aria-label={t("update.close")}>
           <Icon name="x" size={18} />
         </button>
       </header>
@@ -87,7 +88,7 @@
           <!-- Texte échappé par markdown() avant mise en forme. -->
           {@html markdown(info.notes)}
         {:else}
-          <p>Corrections et améliorations.</p>
+          <p>{t("update.defaultNotes")}</p>
         {/if}
       </div>
 
@@ -99,12 +100,12 @@
 
       <footer>
         <button class="link" onclick={() => invoke("open_url", { url: RELEASES })}>
-          Toutes les versions <Icon name="external" size={14} />
+          {t("update.allReleases")} <Icon name="external" size={14} />
         </button>
         <span class="spacer"></span>
-        <button class="btn" onclick={() => (info = null)} disabled={progress !== null}>Plus tard</button>
+        <button class="btn" onclick={() => (info = null)} disabled={progress !== null}>{t("update.later")}</button>
         <button class="btn primary" bind:this={primary} onclick={update} disabled={progress !== null}>
-          {progress !== null ? `Téléchargement… ${Math.round(progress * 100)} %` : "Mettre à jour"}
+          {progress !== null ? t("update.downloading", { percent: Math.round(progress * 100) }) : t("update.update")}
         </button>
       </footer>
     </div>
@@ -159,9 +160,9 @@
     height: 44px;
     padding-left: 3px;
     border-radius: 13px;
-    background: linear-gradient(145deg, #f7bd3a, #e5a00d 55%, #c98400);
-    color: #1a1300;
-    box-shadow: 0 0 28px #e5a00d55;
+    background: linear-gradient(145deg, var(--accent-light), var(--accent) 55%, var(--accent-dark));
+    color: var(--accent-text);
+    box-shadow: 0 0 28px color-mix(in srgb, var(--accent) 33%, transparent);
   }
 
   .titles {

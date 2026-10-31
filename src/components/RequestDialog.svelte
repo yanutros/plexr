@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { api, errorText, seerrStatusLabel, type SeerrMedia, type SeerrSeason } from "../lib/api";
   import { nav, toast } from "../lib/nav.svelte";
+  import { t } from "../lib/i18n";
 
   let { media }: { media: SeerrMedia } = $props();
 
@@ -41,7 +42,7 @@
     try {
       await api.seerrRequest(media.mediaType, media.tmdbId, media.mediaType === "tv" ? selected : null);
       media.status = 2;
-      toast(`Demande envoyée : ${media.title}`);
+      toast(t("request.sent", { title: media.title }));
       close();
     } catch (e) {
       error = errorText(e);
@@ -56,21 +57,21 @@
   <div class="dialog" onclick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" tabindex="-1">
     {#if media.backdrop}<img class="hero" src={media.backdrop} alt="" />{/if}
     <div class="body">
-      <h2>Demander « {media.title} »</h2>
+      <h2>{t("request.title", { title: media.title })}</h2>
       {#if media.overview}<p class="muted overview">{media.overview}</p>{/if}
 
       {#if media.mediaType === "tv"}
         {#if loading}
-          <p class="muted">Chargement des saisons…</p>
+          <p class="muted">{t("request.loadingSeasons")}</p>
         {:else}
           <div class="seasons-head">
-            <strong>Saisons</strong>
+            <strong>{t("request.seasons")}</strong>
             <button
               class="link"
               onclick={() =>
                 (selected = selected.length === available.length ? [] : available.map((s) => s.seasonNumber))}
             >
-              {selected.length === available.length ? "Tout décocher" : "Tout cocher"}
+              {selected.length === available.length ? t("request.uncheckAll") : t("request.checkAll")}
             </button>
           </div>
           <div class="seasons">
@@ -83,7 +84,7 @@
                   onchange={() => toggle(s.seasonNumber)}
                 />
                 <span>{s.name}</span>
-                <span class="muted">{s.episodeCount} ép.</span>
+                <span class="muted">{t("request.episodes", { count: s.episodeCount })}</span>
                 {#if seerrStatusLabel(s.status)}<span class="badge">{seerrStatusLabel(s.status)}</span>{/if}
               </label>
             {/each}
@@ -94,13 +95,13 @@
       {#if error}<p class="error">{error}</p>{/if}
 
       <div class="actions">
-        <button class="btn" onclick={close}>Annuler</button>
+        <button class="btn" onclick={close}>{t("request.cancel")}</button>
         <button
           class="btn primary"
           disabled={sending || loading || (media.mediaType === "tv" && !selected.length)}
           onclick={submit}
         >
-          {sending ? "Envoi…" : "Envoyer la demande"}
+          {sending ? t("request.sending") : t("request.submit")}
         </button>
       </div>
     </div>

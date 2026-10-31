@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Genre } from "../lib/api";
   import { genreHue, genreLabel } from "../lib/genres";
+  import { t } from "../lib/i18n";
 
   let { genre, onclick }: { genre: Genre; onclick: () => void } = $props();
 
@@ -9,7 +10,7 @@
   const fan = $derived(genre.posters.slice(0, 3));
 </script>
 
-<button class="tile" style:--hue={hue} {onclick} aria-label="{genreLabel(genre.title)}, {genre.count} titres">
+<button class="tile" style:--hue={hue} {onclick} aria-label={t("genreTile.ariaLabel", { genre: genreLabel(genre.title), titles: t("genreTile.titles", { count: genre.count }) })}>
   {#if genre.backdrop}<span class="bg" style:background-image={`url("${genre.backdrop}")`}></span>{/if}
   <span class="tint"></span>
   <span class="fan">
@@ -19,7 +20,7 @@
   </span>
   <span class="label">
     <span class="name">{genreLabel(genre.title)}</span>
-    <span class="count">{genre.count} titre{genre.count > 1 ? "s" : ""}</span>
+    <span class="count">{t("genreTile.titles", { count: genre.count })}</span>
   </span>
 </button>
 

@@ -4,18 +4,19 @@
   import { go } from "../lib/nav.svelte";
   import SeerrCard from "../components/SeerrCard.svelte";
   import Row from "../components/Row.svelte";
+  import { t } from "../lib/i18n";
 
   // Rangées de l'accueil de Seerr, dans le même ordre.
   type Source = { id: string; title: string; load: () => Promise<SeerrMedia[]> };
   const slider = (s: SeerrSlider) => () => api.seerrSlider(s);
   const SOURCES: Source[] = [
-    { id: "requests", title: "Demandes récentes", load: api.seerrRecentRequests },
-    { id: "watchlist", title: "Ta liste de suivi", load: api.seerrWatchlist },
-    { id: "trending", title: "Tendances", load: slider("trending") },
-    { id: "popularMovies", title: "Films populaires", load: slider("popularMovies") },
-    { id: "upcomingMovies", title: "Films à venir", load: slider("upcomingMovies") },
-    { id: "popularTv", title: "Séries populaires", load: slider("popularTv") },
-    { id: "upcomingTv", title: "Séries à venir", load: slider("upcomingTv") },
+    { id: "requests", title: t("discover.rows.requests"), load: api.seerrRecentRequests },
+    { id: "watchlist", title: t("discover.rows.watchlist"), load: api.seerrWatchlist },
+    { id: "trending", title: t("discover.rows.trending"), load: slider("trending") },
+    { id: "popularMovies", title: t("discover.rows.popularMovies"), load: slider("popularMovies") },
+    { id: "upcomingMovies", title: t("discover.rows.upcomingMovies"), load: slider("upcomingMovies") },
+    { id: "popularTv", title: t("discover.rows.popularTv"), load: slider("popularTv") },
+    { id: "upcomingTv", title: t("discover.rows.upcomingTv"), load: slider("upcomingTv") },
   ];
 
   let rows = $state<Record<string, SeerrMedia[] | null>>({});
@@ -37,10 +38,10 @@
 </script>
 
 <div class="page">
-  <h1 class="row-title page-title">Découvrir</h1>
+  <h1 class="row-title page-title">{t("discover.title")}</h1>
   {#if error}
     <p class="error">{error}</p>
-    <button class="btn" onclick={() => go({ name: "settings" })}>Configurer Seerr</button>
+    <button class="btn" onclick={() => go({ name: "settings" })}>{t("discover.configureSeerr")}</button>
   {:else}
     {#each SOURCES as s (s.id)}
       {#if rows[s.id] === null}

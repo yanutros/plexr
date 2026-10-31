@@ -23,54 +23,54 @@ fn type_id(kind: &str) -> Option<u32> {
     })
 }
 
-/// Champs modifiables par type, avec leur libellé et le type de saisie.
+/// Champs modifiables par type, avec la clé de traduction de leur libellé (« admin.fields.… ») et le type de saisie.
 fn fields_for(kind: &str) -> &'static [(&'static str, &'static str, &'static str)] {
     match kind {
         "movie" => &[
-            ("title", "Titre", "text"),
-            ("titleSort", "Titre pour le tri", "text"),
-            ("originalTitle", "Titre original", "text"),
-            ("originallyAvailableAt", "Date de sortie", "date"),
-            ("contentRating", "Classification", "text"),
-            ("studio", "Studio", "text"),
-            ("tagline", "Accroche", "text"),
-            ("summary", "Résumé", "long"),
+            ("title", "title", "text"),
+            ("titleSort", "titleSort", "text"),
+            ("originalTitle", "originalTitle", "text"),
+            ("originallyAvailableAt", "releaseDate", "date"),
+            ("contentRating", "contentRating", "text"),
+            ("studio", "studio", "text"),
+            ("tagline", "tagline", "text"),
+            ("summary", "summary", "long"),
         ],
         "show" => &[
-            ("title", "Titre", "text"),
-            ("titleSort", "Titre pour le tri", "text"),
-            ("originalTitle", "Titre original", "text"),
-            ("originallyAvailableAt", "Première diffusion", "date"),
-            ("contentRating", "Classification", "text"),
-            ("studio", "Chaîne ou studio", "text"),
-            ("tagline", "Accroche", "text"),
-            ("summary", "Résumé", "long"),
+            ("title", "title", "text"),
+            ("titleSort", "titleSort", "text"),
+            ("originalTitle", "originalTitle", "text"),
+            ("originallyAvailableAt", "firstAired", "date"),
+            ("contentRating", "contentRating", "text"),
+            ("studio", "network", "text"),
+            ("tagline", "tagline", "text"),
+            ("summary", "summary", "long"),
         ],
-        "season" => &[("title", "Titre", "text"), ("summary", "Résumé", "long")],
+        "season" => &[("title", "title", "text"), ("summary", "summary", "long")],
         "episode" => &[
-            ("title", "Titre", "text"),
-            ("titleSort", "Titre pour le tri", "text"),
-            ("originallyAvailableAt", "Date de diffusion", "date"),
-            ("contentRating", "Classification", "text"),
-            ("summary", "Résumé", "long"),
+            ("title", "title", "text"),
+            ("titleSort", "titleSort", "text"),
+            ("originallyAvailableAt", "airDate", "date"),
+            ("contentRating", "contentRating", "text"),
+            ("summary", "summary", "long"),
         ],
         "artist" => &[
-            ("title", "Artiste", "text"),
-            ("titleSort", "Artiste pour le tri", "text"),
-            ("summary", "Biographie", "long"),
+            ("title", "artist", "text"),
+            ("titleSort", "artistSort", "text"),
+            ("summary", "biography", "long"),
         ],
         "album" => &[
-            ("title", "Album", "text"),
-            ("titleSort", "Album pour le tri", "text"),
-            ("originallyAvailableAt", "Date de sortie", "date"),
-            ("studio", "Maison de disque", "text"),
-            ("summary", "Présentation", "long"),
+            ("title", "album", "text"),
+            ("titleSort", "albumSort", "text"),
+            ("originallyAvailableAt", "releaseDate", "date"),
+            ("studio", "label", "text"),
+            ("summary", "albumSummary", "long"),
         ],
         "track" => &[
-            ("title", "Titre", "text"),
-            ("titleSort", "Titre pour le tri", "text"),
-            ("originalTitle", "Artiste du titre", "text"),
-            ("index", "Numéro de piste", "text"),
+            ("title", "title", "text"),
+            ("titleSort", "titleSort", "text"),
+            ("originalTitle", "trackArtist", "text"),
+            ("index", "trackNumber", "text"),
         ],
         _ => &[],
     }
@@ -166,9 +166,9 @@ impl PlexServer {
         let resp = self.request(method, path).send().await?;
         match resp.status() {
             StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN => {
-                bail!("Action réservée à l'administrateur du serveur Plex")
+                bail!(crate::i18n::tr("admin.adminOnly"))
             }
-            s if !s.is_success() => bail!("Le serveur Plex a répondu {s}"),
+            s if !s.is_success() => bail!(crate::i18n::tr_with("admin.serverReplied", &[("status", &s.to_string())])),
             _ => Ok(resp.json().await.unwrap_or_default()),
         }
     }
@@ -191,7 +191,7 @@ impl PlexServer {
         let container = c["MediaContainer"].clone();
         let item = container["Metadata"][0].clone();
         if item.is_null() {
-            bail!("Élément {rating_key} introuvable");
+            bail!(crate::i18n::tr_with("admin.notFound", &[("id", rating_key)]));
         }
         Ok((container, item))
     }
@@ -210,7 +210,7 @@ impl PlexServer {
             .iter()
             .map(|(name, label, input)| EditField {
                 name: (*name).into(),
-                label: (*label).into(),
+                label: crate::i18n::tr(&format!("admin.fields.{label}")),
                 input: (*input).into(),
                 value: text(&m[*name]),
                 locked: locked.iter().any(|l| l == name),
@@ -238,11 +238,11 @@ impl PlexServer {
     pub async fn edit(&self, rating_key: &str, changes: Vec<FieldChange>, genres: Option<Vec<String>>) -> Result<()> {
         let (container, m) = self.metadata_value(rating_key).await?;
         let kind = m["type"].as_str().unwrap_or_default();
-        let type_id = type_id(kind).ok_or_else(|| anyhow!("Ce type d'élément ne se modifie pas"))?;
+        let type_id = type_id(kind).ok_or_else(|| anyhow!(crate::i18n::tr("admin.notEditable")))?;
         let section = m["librarySectionID"]
             .as_u64()
             .or_else(|| container["librarySectionID"].as_u64())
-            .ok_or_else(|| anyhow!("Bibliothèque introuvable pour cet élément"))?;
+            .ok_or_else(|| anyhow!(crate::i18n::tr("admin.libraryNotFound")))?;
         let allowed: Vec<&str> = fields_for(kind).iter().map(|f| f.0).collect();
 
         let mut query = format!("type={type_id}&id={rating_key}&includeExternalMedia=1");
@@ -373,11 +373,13 @@ impl PlexServer {
                 let (title, subtitle) = match kind {
                     "episode" => (
                         text(&m["grandparentTitle"]),
-                        Some(format!(
-                            "S{} · É{} — {}",
-                            m["parentIndex"].as_u64().unwrap_or(0),
-                            m["index"].as_u64().unwrap_or(0),
-                            text(&m["title"])
+                        Some(crate::i18n::tr_with(
+                            "admin.episodeLine",
+                            &[
+                                ("season", &m["parentIndex"].as_u64().unwrap_or(0).to_string()),
+                                ("episode", &m["index"].as_u64().unwrap_or(0).to_string()),
+                                ("title", &text(&m["title"])),
+                            ],
                         )),
                     ),
                     "track" => (text(&m["title"]), Some(format!("{} — {}", text(&m["grandparentTitle"]), text(&m["parentTitle"])))),

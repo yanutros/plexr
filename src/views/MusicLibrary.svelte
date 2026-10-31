@@ -11,15 +11,16 @@
   import TvGrid from "../components/TvGrid.svelte";
   import { device } from "../lib/device";
   import { fromItem } from "../lib/tvcards";
+  import { t } from "../lib/i18n";
 
   let { sectionKey, title }: { sectionKey: string; title: string } = $props();
 
   type Tab = "recommended" | "artists" | "albums" | "playlists";
   const TABS: { id: Tab; label: string }[] = [
-    { id: "recommended", label: "Recommandé" },
-    { id: "artists", label: "Artistes" },
-    { id: "albums", label: "Albums" },
-    { id: "playlists", label: "Listes de lecture" },
+    { id: "recommended", label: t("music.library.tabs.recommended") },
+    { id: "artists", label: t("music.library.tabs.artists") },
+    { id: "albums", label: t("music.library.tabs.albums") },
+    { id: "playlists", label: t("music.library.tabs.playlists") },
   ];
   // Types Plex : 8 = artiste, 9 = album.
   const KIND: Record<"artists" | "albums", number> = { artists: 8, albums: 9 };
@@ -41,12 +42,12 @@
   const playlistHub = $derived(hubs?.find(isPlaylistHub) ?? null);
   // « Récemment ajouté » ferait doublon avec les nouveautés.
   const otherHubs = $derived(
-    hubs?.filter((h) => !isPlaylistHub(h) && !(newAlbums.length && /ajout/i.test(h.title))) ?? [],
+    hubs?.filter((h) => !isPlaylistHub(h) && !(newAlbums.length && /recent\.added/.test(h.identifier))) ?? [],
   );
   const panels = $derived<Panel[]>(
     newAlbums.slice(0, 6).map((a, i) => ({
       key: a.ratingKey,
-      eyebrow: i === 0 ? "Dernier ajout" : "Nouvel album",
+      eyebrow: i === 0 ? t("music.library.latestAddition") : t("music.library.newAlbum"),
       title: a.title,
       subtitle: a.subtitle,
       image: a.backdrop,
@@ -61,9 +62,9 @@
   // Téléviseur : mêmes données, en rangées et grilles TV.
   const tvRows = $derived(
     [
-      ...(playlistHub ? [{ title: playlistHub.title, cards: playlistHub.items.map((i) => fromItem(i, "Liste de lecture")) }] : []),
-      { title: "Titres du moment", cards: hotTracks.map((i) => fromItem(i, "Titre du moment")) },
-      { title: "Nouveautés", cards: newAlbums.map((i) => fromItem(i, "Nouvel album")) },
+      ...(playlistHub ? [{ title: playlistHub.title, cards: playlistHub.items.map((i) => fromItem(i, t("music.library.playlist"))) }] : []),
+      { title: t("music.library.hotTracks"), cards: hotTracks.map((i) => fromItem(i, t("music.library.hotTrack"))) },
+      { title: t("music.library.newReleases"), cards: newAlbums.map((i) => fromItem(i, t("music.library.newAlbum"))) },
       ...otherHubs.map((h) => ({ title: h.title, cards: h.items.map((i) => fromItem(i, h.title)) })),
     ].filter((r) => r.cards.length),
   );
@@ -128,8 +129,8 @@
   <div class="tv-head">
     <h1>{title}</h1>
     <div class="tabs" role="tablist" data-nav-low>
-      {#each TABS as t (t.id)}
-        <button role="tab" aria-selected={tab === t.id} class:active={tab === t.id} onclick={() => select(t.id)}>{t.label}</button>
+      {#each TABS as tb (tb.id)}
+        <button role="tab" aria-selected={tab === tb.id} class:active={tab === tb.id} onclick={() => select(tb.id)}>{tb.label}</button>
       {/each}
     </div>
     {#if tab !== "recommended" && total}<span class="muted">{total}</span>{/if}
@@ -154,9 +155,9 @@
       {#if tab !== "recommended" && total}<span class="muted">{total}</span>{/if}
     </h1>
     <div class="tabs" role="tablist">
-      {#each TABS as t (t.id)}
-        <button role="tab" aria-selected={tab === t.id} class:active={tab === t.id} onclick={() => select(t.id)}>
-          {t.label}
+      {#each TABS as tb (tb.id)}
+        <button role="tab" aria-selected={tab === tb.id} class:active={tab === tb.id} onclick={() => select(tb.id)}>
+          {tb.label}
         </button>
       {/each}
     </div>
@@ -168,7 +169,7 @@
     {#if !hubs}
       <div class="skeleton" style:height="260px"></div>
     {:else if !hubs.length}
-      <p class="muted">Rien à recommander pour l'instant : parcours les artistes ou les albums.</p>
+      <p class="muted">{t("music.library.nothingToRecommend")}</p>
     {:else}
       <FeaturePanels {panels} />
       {#if playlistHub}
@@ -176,9 +177,9 @@
           {#each playlistHub.items as item (item.ratingKey)}<PosterCard {item} />{/each}
         </Row>
       {/if}
-      <TrackGrid title="Titres du moment" tracks={hotTracks} />
+      <TrackGrid title={t("music.library.hotTracks")} tracks={hotTracks} />
       {#if newAlbums.length}
-        <Row title="Nouveautés" large>
+        <Row title={t("music.library.newReleases")} large>
           {#each newAlbums as item (item.ratingKey)}<PosterCard {item} />{/each}
         </Row>
       {/if}
@@ -193,7 +194,7 @@
       {#each items as item (item.ratingKey)}<PosterCard {item} />{/each}
     </div>
   {/if}
-  <div bind:this={sentinel} class="sentinel">{#if loading}<span class="muted">Chargement…</span>{/if}</div>
+  <div bind:this={sentinel} class="sentinel">{#if loading}<span class="muted">{t("music.library.loading")}</span>{/if}</div>
 </div>
 {/if}
 

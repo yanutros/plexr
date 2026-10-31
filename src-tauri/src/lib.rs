@@ -1,5 +1,6 @@
 mod config;
 mod error;
+mod i18n;
 mod player;
 mod plex;
 mod plex_admin;
@@ -48,7 +49,7 @@ impl AppState {
 
     fn server(&self) -> anyhow::Result<PlexServer> {
         let c = self.cfg();
-        let s = c.server.ok_or_else(|| anyhow!("Aucun serveur Plex sélectionné"))?;
+        let s = c.server.ok_or_else(|| anyhow!(crate::i18n::tr("app.noServer")))?;
         Ok(PlexServer { http: self.http.clone(), base: s.uri, token: s.token, client_id: c.client_id })
     }
 
@@ -59,7 +60,7 @@ impl AppState {
             return Ok(s.clone());
         }
         let c = self.cfg();
-        let url = c.seerr_url.ok_or_else(|| anyhow!("Seerr n'est pas configuré (voir Réglages)"))?;
+        let url = c.seerr_url.ok_or_else(|| anyhow!(crate::i18n::tr("app.seerrNotConfigured")))?;
         let s = Arc::new(Seerr::connect(&url, c.plex_token).await?);
         *slot = Some(s.clone());
         Ok(s)
@@ -72,7 +73,7 @@ impl AppState {
             return Ok(t.clone());
         }
         let c = self.cfg();
-        let url = c.tracearr_url.ok_or_else(|| anyhow!("Tracearr n'est pas configuré (voir Réglages)"))?;
+        let url = c.tracearr_url.ok_or_else(|| anyhow!(crate::i18n::tr("app.tracearrNotConfigured")))?;
         let t = Arc::new(Tracearr::new(&url, c.tracearr_cookies.as_deref())?);
         *slot = Some(t.clone());
         Ok(t)
@@ -118,7 +119,7 @@ fn get_session(state: State<'_, AppState>) -> Session {
 #[tauri::command]
 fn open_url(app: AppHandle, url: String) -> CmdResult<()> {
     if !(url.starts_with("https://") || url.starts_with("http://")) {
-        return Err(anyhow!("Adresse refusée : {url}").into());
+        return Err(anyhow!(crate::i18n::tr_with("app.urlRefused", &[("url", &url)])).into());
     }
     app.opener().open_url(&url, None::<&str>)?;
     Ok(())
@@ -186,7 +187,7 @@ struct ServerSummary {
 #[tauri::command]
 async fn plex_servers(state: State<'_, AppState>) -> CmdResult<Vec<ServerSummary>> {
     let c = state.cfg();
-    let token = c.plex_token.ok_or_else(|| anyhow!("Non connecté à Plex"))?;
+    let token = c.plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("app.notLoggedIn")))?;
     let (servers, (own, friends)) = futures::join!(
         plex::servers(&state.http, &c.client_id, &token),
         plex::avatars(&state.http, &c.client_id, &token)
@@ -213,12 +214,12 @@ async fn plex_servers(state: State<'_, AppState>) -> CmdResult<Vec<ServerSummary
 #[tauri::command]
 async fn plex_select_server(state: State<'_, AppState>, machine_id: String) -> CmdResult<String> {
     let c = state.cfg();
-    let token = c.plex_token.ok_or_else(|| anyhow!("Non connecté à Plex"))?;
+    let token = c.plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("app.notLoggedIn")))?;
     let res = plex::servers(&state.http, &c.client_id, &token)
         .await?
         .into_iter()
         .find(|r| r.client_identifier == machine_id)
-        .ok_or_else(|| anyhow!("Serveur introuvable"))?;
+        .ok_or_else(|| anyhow!(crate::i18n::tr("app.serverNotFound")))?;
     let uri = plex::pick_connection(&state.http, &c.client_id, &res).await?;
     let name = res.name.clone();
     let saved = SavedServer { name: res.name, machine_id, uri, token: res.access_token.unwrap_or(token) };
@@ -318,7 +319,7 @@ async fn plex_is_admin(state: State<'_, AppState>) -> CmdResult<bool> {
 #[tauri::command]
 async fn plex_account(state: State<'_, AppState>) -> CmdResult<Account> {
     let c = state.cfg();
-    let token = c.plex_token.ok_or_else(|| anyhow!("Non connecté à Plex"))?;
+    let token = c.plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("app.notLoggedIn")))?;
     Ok(plex_admin::account(&state.http, &c.client_id, &token).await?)
 }
 
@@ -433,7 +434,7 @@ async fn play(
     #[cfg(windows)]
     let parent = Some(
         app.get_webview_window("main")
-            .ok_or_else(|| anyhow!("Fenêtre principale introuvable"))?
+            .ok_or_else(|| anyhow!(crate::i18n::tr("app.mainWindowNotFound")))?
             .hwnd()?
             .0 as isize,
     );
@@ -478,7 +479,7 @@ async fn build_queue(
         None => server.queue(rating_key).await?,
     };
     if tracks.is_empty() {
-        return Err(anyhow!("Aucun titre à lire"));
+        return Err(anyhow!(crate::i18n::tr("app.nothingToPlay")));
     }
     let mut index = start
         .as_deref()
@@ -575,7 +576,7 @@ async fn play_music(
 #[tauri::command]
 fn player_command(state: State<'_, AppState>, args: Vec<Value>) -> CmdResult<()> {
     let player = state.player.lock().unwrap();
-    let control = player.as_ref().ok_or_else(|| anyhow!("Aucune lecture en cours"))?;
+    let control = player.as_ref().ok_or_else(|| anyhow!(crate::i18n::tr("app.noPlayback")))?;
     Ok(control.send(args)?)
 }
 
@@ -733,6 +734,37 @@ async fn seerr_request(
     Ok(state.seerr().await?.create_request(&media_type, tmdb_id, seasons).await?)
 }
 
+// ---------- Langue ----------
+
+/// Langue de l'interface, pour les messages du backend.
+#[tauri::command]
+fn set_language(language: String) {
+    i18n::set_language(&language);
+}
+
+// ---------- Thème ----------
+
+/// Icône de la fenêtre (et de la barre des tâches) aux couleurs du thème choisi.
+#[tauri::command]
+fn set_app_icon(app: AppHandle, theme: String) -> CmdResult<()> {
+    #[cfg(desktop)]
+    {
+        let bytes: &[u8] = match theme.as_str() {
+            "rouge" => include_bytes!("../icons/themes/rouge.png"),
+            "vert" => include_bytes!("../icons/themes/vert.png"),
+            "violet" => include_bytes!("../icons/themes/violet.png"),
+            _ => include_bytes!("../icons/themes/jaune.png"),
+        };
+        if let Some(window) = app.get_webview_window("main") {
+            let icon = tauri::image::Image::from_bytes(bytes).map_err(anyhow::Error::from)?;
+            window.set_icon(icon).map_err(anyhow::Error::from)?;
+        }
+    }
+    #[cfg(mobile)]
+    let _ = (app, theme);
+    Ok(())
+}
+
 // ---------- Mises à jour ----------
 
 #[tauri::command]
@@ -864,6 +896,8 @@ pub fn run() {
             relay_start,
             relay_status,
             relay_stop,
+            set_app_icon,
+            set_language,
         ])
         .run(tauri::generate_context!())
         .expect("erreur au lancement de Plexr");

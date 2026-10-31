@@ -1,0 +1,113 @@
+{
+  "app": {
+    "noServer": "No hay ningún servidor de Plex seleccionado",
+    "seerrNotConfigured": "Seerr no está configurado (ver Ajustes)",
+    "tracearrNotConfigured": "Tracearr no está configurado (ver Ajustes)",
+    "urlRefused": "Dirección rechazada: {{url}}",
+    "notLoggedIn": "No has iniciado sesión en Plex",
+    "serverNotFound": "No se encuentra el servidor",
+    "mainWindowNotFound": "No se encuentra la ventana principal",
+    "nothingToPlay": "No hay nada que reproducir",
+    "noPlayback": "No hay ninguna reproducción en curso"
+  },
+  "player": {
+    "noPlayback": "No hay ninguna reproducción en curso",
+    "mpvNotAtPath": "No se encuentra mpv en la ruta indicada en Ajustes: {{path}}",
+    "mpvNotFound": "No se encuentra mpv: instálalo (https://mpv.io) o indica su ruta en Ajustes",
+    "ipcUnavailable": "IPC de mpv no disponible",
+    "queueWriteFailed": "No se puede escribir la cola de reproducción",
+    "launchFailed": "No se puede iniciar mpv ({{path}})"
+  },
+  "plex": {
+    "noReachableAddress": "No hay ninguna dirección accesible para el servidor «{{name}}»",
+    "trackCount_one": "{{count}} canción",
+    "trackCount_other": "{{count}} canciones",
+    "playlists": "Listas de reproducción",
+    "notFound": "No se encuentra el elemento {{id}}",
+    "noMusic": "«{{title}}» no contiene música",
+    "track": "Pista {{id}}",
+    "noPlayableFile": "No hay ningún archivo reproducible para «{{title}}»",
+    "episodeLine": "T{{season}} · E{{episode}} — {{title}}"
+  },
+  "admin": {
+    "adminOnly": "Acción reservada al administrador del servidor de Plex",
+    "serverReplied": "El servidor de Plex ha respondido {{status}}",
+    "notFound": "No se encuentra el elemento {{id}}",
+    "notEditable": "Este tipo de elemento no se puede editar",
+    "libraryNotFound": "No se encuentra la biblioteca de este elemento",
+    "episodeLine": "T{{season}} · E{{episode}} — {{title}}",
+    "fields": {
+      "title": "Título",
+      "titleSort": "Título para ordenar",
+      "originalTitle": "Título original",
+      "releaseDate": "Fecha de estreno",
+      "contentRating": "Clasificación",
+      "studio": "Estudio",
+      "tagline": "Eslogan",
+      "summary": "Sinopsis",
+      "firstAired": "Primera emisión",
+      "network": "Cadena o estudio",
+      "airDate": "Fecha de emisión",
+      "artist": "Artista",
+      "artistSort": "Artista para ordenar",
+      "biography": "Biografía",
+      "album": "Álbum",
+      "albumSort": "Álbum para ordenar",
+      "label": "Sello discográfico",
+      "albumSummary": "Presentación",
+      "trackArtist": "Artista de la canción",
+      "trackNumber": "Número de pista"
+    }
+  },
+  "seerr": {
+    "plexRequired": "Hay que iniciar sesión en Plex para conectarse a Seerr",
+    "unreachable": "No se puede acceder a Seerr: {{error}}",
+    "loginRefused": "Seerr ha rechazado el inicio de sesión con tu cuenta de Plex ({{status}}). El administrador debe importar tu cuenta en Seerr.",
+    "replied": "Seerr ha respondido {{status}}: {{message}}",
+    "season": "Temporada {{number}}",
+    "chooseSeason": "Elige al menos una temporada",
+    "creator": "Creación",
+    "jobs": {
+      "director": "Dirección",
+      "screenplay": "Guion",
+      "novel": "Novela",
+      "producer": "Producción"
+    }
+  },
+  "tracearr": {
+    "invalidUrl": "Dirección de Tracearr no válida: {{url}}",
+    "unreachable": "No se puede acceder a Tracearr: {{error}}",
+    "loginRefused": "Tracearr ha rechazado el inicio de sesión ({{status}})",
+    "refused": "conexión rechazada",
+    "error": "Tracearr: {{message}}",
+    "notSetUp": "Este Tracearr aún no está configurado: su administrador tiene que iniciar sesión en él primero",
+    "replied": "Tracearr ha respondido {{status}} para {{path}}",
+    "episodeLine": "T{{season}} · E{{episode}} — {{title}}"
+  },
+  "update": {
+    "invalidName": "nombre de paquete no válido",
+    "emptyDownload": "la descarga está vacía",
+    "unsupported": "actualización automática no disponible en {{os}}"
+  },
+  "relay": {
+    "noNetwork": "Este dispositivo no está conectado a ninguna red",
+    "notFound": "No encontrado",
+    "title": "Configurar Plexr",
+    "intro": "El administrador del servidor te ha enviado el código QR de invitación.",
+    "scan": "Escanear el código QR",
+    "gallery": "Elegir una imagen del código QR",
+    "or": "o pega el código que has recibido",
+    "send": "Enviar",
+    "seerr": "Solicitudes (Seerr)",
+    "tracearr": "Estadísticas (Tracearr)",
+    "authorize": "Autorizar Tracearr con Plex",
+    "done": "¡Listo! Ya puedes dejar el móvil.",
+    "noQr": "No se ha encontrado ningún código QR en la imagen: inténtalo de nuevo encuadrándolo bien.",
+    "notInvite": "No es un código de invitación de Plexr.",
+    "tvGone": "La tele ya no responde: vuelve a abrir la pantalla de configuración.",
+    "watchTv": "Mira la tele: Plexr se está configurando.",
+    "connected": "Conectado",
+    "connecting": "Conectando…",
+    "failed": "La configuración ha fallado."
+  }
+}

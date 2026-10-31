@@ -3,6 +3,7 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play, playMusic } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   let { item, wide = false }: { item: Item; wide?: boolean } = $props();
 
@@ -16,7 +17,7 @@
     music
       ? (item.subtitle ?? "")
       : item.kind === "episode"
-      ? `S${item.parentIndex ?? 0} · É${item.index ?? 0}${wide ? ` — ${item.title}` : ""}`
+      ? `${t("posterCard.episodeCode", { season: item.parentIndex ?? 0, episode: item.index ?? 0 })}${wide ? ` — ${item.title}` : ""}`
       : item.kind === "season"
         ? (item.showTitle ?? "")
         : String(item.year ?? ""),
@@ -55,13 +56,13 @@
       <span class="corner seen"><Icon name="check" size={12} /></span>
     {/if}
     {#if progress > 0}<div class="progress"><div style:width="{progress}%"></div></div>{/if}
-    <button class="open" onclick={open} title={item.title} aria-label="Ouvrir {item.title}"></button>
+    <button class="open" onclick={open} title={item.title} aria-label={t("posterCard.openTitle", { title: item.title })}></button>
     {#if canPlay}
-      <button class="play" onclick={playNow} aria-label="Lire {item.title}">
+      <button class="play" onclick={playNow} aria-label={t("common.c1.playTitle", { title: item.title })}>
         <Icon name="play" size={22} filled />
       </button>
     {/if}
-    <button class="more" onclick={openMenu} aria-label="Plus d'actions"><Icon name="more" size={18} /></button>
+    <button class="more" onclick={openMenu} aria-label={t("common.c1.moreActions")}><Icon name="more" size={18} /></button>
   </div>
   <button class="meta" onclick={open} tabindex="-1">
     <span class="title">{title}</span>

@@ -1,0 +1,615 @@
+{
+  "settings": {
+    "groups": {
+      "general": "Algemeen",
+      "library": "Bibliotheek",
+      "network": "Netwerk",
+      "transcoder": "Transcoder",
+      "dlna": "DLNA",
+      "extras": "Extra's",
+      "butler": "Geplande taken"
+    },
+    "menu": {
+      "account": "Account",
+      "services": "Seerr en Tracearr",
+      "player": "Speler",
+      "interface": "Interface",
+      "server": "Server {{name}}",
+      "dashboard": "Dashboard",
+      "advanced": "Geavanceerde instellingen tonen",
+      "locked": "De serverinstellingen zijn voorbehouden aan de beheerder."
+    },
+    "account": {
+      "admin": "Serverbeheerder",
+      "shared": "Gedeelde toegang",
+      "server": "Server:",
+      "changeServer": "Andere server",
+      "logout": "Uitloggen"
+    },
+    "services": {
+      "seerrConnected": "Verbonden met Seerr via je Plex-account",
+      "seerrDisabled": "Seerr uitgeschakeld",
+      "tracearrDisabled": "Tracearr uitgeschakeld",
+      "tracearrConnected": "Verbonden met Tracearr",
+      "tracearrDisconnected": "Verbinding met Tracearr verbroken",
+      "seerrIntro": "Verzoeken doe je met je Plex-account, op jouw naam: je hoeft verder niets in te vullen. De beheerder moet je account alleen in Seerr hebben geïmporteerd.",
+      "seerrAddress": "Seerr-adres",
+      "tracearrAddress": "Tracearr-adres",
+      "connecting": "Verbinden…",
+      "connectWithPlex": "Inloggen met Plex",
+      "tracearrIntro": "Je persoonlijke kijkstatistieken. Je logt in met je Plex-account: je browser opent één keer om Tracearr te autoriseren, daarna blijft de sessie 30 dagen geldig.",
+      "waitingBrowser": "Wachten op bevestiging in de browser…",
+      "logout": "Uitloggen",
+      "connected": "Verbonden"
+    },
+    "invite": {
+      "invalid": "Deze uitnodigingscode is niet geldig.",
+      "configured": "Seerr en Tracearr zijn ingesteld",
+      "noQr": "Geen QR-code gevonden in deze afbeelding.",
+      "codeCopied": "Uitnodigingscode gekopieerd",
+      "imageCopied": "Afbeelding van QR-code gekopieerd",
+      "steps": {
+        "run": "Verbinden…",
+        "ok": "Verbonden",
+        "err": "Mislukt"
+      },
+      "quickSetup": "Snel instellen",
+      "phoneHint": "Scan deze code met je telefoon (op hetzelfde wifinetwerk) en laat hem daarna de uitnodiging van de serverbeheerder zien.",
+      "pasteHint": "Plak de uitnodigingscode van de serverbeheerder, of importeer de afbeelding van de QR-code.",
+      "apply": "Toepassen",
+      "importImage": "Afbeelding importeren",
+      "stepSeerr": "Verzoeken (Seerr): {{status}}",
+      "stepTracearr": "Statistieken (Tracearr): {{status}}",
+      "authorizeOnPhone": "autoriseren op de telefoon",
+      "title": "Gebruikers uitnodigen",
+      "intro": "Deel deze QR-code of deze code: Plexr haalt de adressen eruit en maakt verbinding met het Plex-account van ieder persoon.",
+      "copyCode": "Code kopiëren",
+      "copyImage": "Afbeelding kopiëren"
+    },
+    "player": {
+      "saved": "mpv-pad opgeslagen",
+      "intro": "Afspelen gebeurt met mpv. Laat leeg om het automatisch te zoeken.",
+      "mpvPath": "mpv-pad",
+      "save": "Opslaan"
+    },
+    "interface": {
+      "menuReset": "Menu hersteld",
+      "themes": {
+        "jaune": "Geel",
+        "rouge": "Rood",
+        "vert": "Groen",
+        "violet": "Paars"
+      },
+      "color": "Kleur",
+      "libraries": "Bibliotheken in het menu",
+      "moveUp": "{{title}} omhoog",
+      "moveDown": "{{title}} omlaag",
+      "show": "{{title}} tonen",
+      "hide": "{{title}} verbergen",
+      "resetMenu": "Menu herstellen",
+      "collapsed": "Ingeklapt menu",
+      "collapsedHint": "Toont alleen de pictogrammen, zodat de content alle ruimte krijgt.",
+      "reorderHint": "Klik op het potlood naast ‘Bibliotheken’ in het menu om bibliotheken te verplaatsen of te verbergen.",
+      "language": "Taal",
+      "languageAuto": "Automatisch"
+    }
+  },
+  "login": {
+    "tagline": "Je Plex-client, met Seerr-verzoeken ingebouwd.",
+    "goTo": "Ga op je telefoon of computer naar",
+    "enterCode": "en voer deze code in:",
+    "autoConnect": "Je wordt automatisch ingelogd zodra de code is bevestigd.",
+    "newCode": "Nieuwe code",
+    "useBrowser": "Browser gebruiken",
+    "validateInBrowser": "Bevestig het inloggen in de browser die net is geopend…",
+    "restart": "Opnieuw beginnen",
+    "useCode": "Code gebruiken",
+    "signIn": "Inloggen met Plex",
+    "withCode": "Met een code ({{site}})"
+  },
+  "servers": {
+    "title": "Kies een server",
+    "searching": "Servers zoeken…",
+    "none": "Geen Plex-server beschikbaar met dit account.",
+    "connecting": "Verbinden…",
+    "mine": "Mijn server",
+    "sharedBy": "Gedeeld door {{owner}}",
+    "shared": "Gedeeld",
+    "switchAccount": "Ander account"
+  },
+  "search": {
+    "hint": "Typ de titel van een film of serie, of een artiest.",
+    "inLibrary": "In je bibliotheek",
+    "searching": "Zoeken…",
+    "noResults": "Geen resultaten voor ‘{{query}}’.",
+    "notInLibrary": "Niet in de bibliotheek? Vraag het aan",
+    "seerrUnavailable": "Seerr niet beschikbaar: {{error}}",
+    "settings": "Instellingen",
+    "searchingSeerr": "Zoeken in Seerr…",
+    "nothingElse": "Verder niets om aan te vragen."
+  },
+  "discover": {
+    "title": "Ontdekken",
+    "configureSeerr": "Seerr instellen",
+    "rows": {
+      "requests": "Recente verzoeken",
+      "watchlist": "Je kijklijst",
+      "trending": "Trending",
+      "popularMovies": "Populaire films",
+      "upcomingMovies": "Binnenkort: films",
+      "popularTv": "Populaire series",
+      "upcomingTv": "Binnenkort: series"
+    }
+  },
+  "seerr": {
+    "productionStatus": {
+      "released": "Uitgebracht",
+      "postProduction": "Postproductie",
+      "inProduction": "In productie",
+      "planned": "Gepland",
+      "rumored": "Aangekondigd",
+      "canceled": "Geannuleerd",
+      "ended": "Afgelopen",
+      "returningSeries": "Lopend",
+      "pilot": "Pilot"
+    },
+    "detail": {
+      "runtime": "{{minutes}} minuten",
+      "seasons_one": "{{count}} seizoen",
+      "seasons_other": "{{count}} seizoenen",
+      "watchInPlexr": "Bekijken in Plexr",
+      "requestMoreSeasons": "Meer seizoenen aanvragen",
+      "request": "Aanvragen",
+      "trailer": "Trailer",
+      "overview": "Samenvatting",
+      "noOverview": "Geen samenvatting beschikbaar.",
+      "rtCritics": "Rotten Tomatoes (critici)",
+      "rtAudience": "Rotten Tomatoes (publiek)",
+      "percent": "{{value}}%",
+      "cast": "Cast",
+      "recommendations": "Aanbevelingen",
+      "similar": "Vergelijkbare titels"
+    },
+    "facts": {
+      "originalTitle": "Originele titel",
+      "status": "Status",
+      "firstAired": "Eerste uitzending",
+      "releaseDate": "Releasedatum",
+      "episodes": "Afleveringen",
+      "revenue": "Opbrengst",
+      "budget": "Budget",
+      "originalLanguage": "Originele taal",
+      "countries": "Productielanden",
+      "networks": "Zenders",
+      "studios": "Studio's",
+      "streamingOn": "Te streamen op"
+    }
+  },
+  "home": {
+    "upNext": "Hierna",
+    "new": "Nieuw",
+    "continueWatching": "Verder kijken",
+    "recentlyAdded": "Recent toegevoegd",
+    "trendingToRequest": "Trending om aan te vragen"
+  },
+  "library": {
+    "tabs": {
+      "recommended": "Aanbevolen",
+      "library": "Bibliotheek",
+      "categories": "Categorieën"
+    },
+    "resume": "Hervatten",
+    "category": "Categorie",
+    "titleCount_one": "{{count}} titel",
+    "titleCount_other": "{{count}} titels",
+    "upNext": "Hierna",
+    "discover": "Ontdekken",
+    "featured": "Uitgelicht",
+    "genreFilter": "Genre:",
+    "removeFilter": "Filter wissen",
+    "loading": "Laden…"
+  },
+  "music": {
+    "library": {
+      "tabs": {
+        "recommended": "Aanbevolen",
+        "artists": "Artiesten",
+        "albums": "Albums",
+        "playlists": "Afspeellijsten"
+      },
+      "latestAddition": "Laatst toegevoegd",
+      "newAlbum": "Nieuw album",
+      "playlist": "Afspeellijst",
+      "hotTracks": "Populaire nummers",
+      "hotTrack": "Populair nummer",
+      "newReleases": "Nieuwe releases",
+      "nothingToRecommend": "Nog niets om aan te bevelen: blader door artiesten of albums.",
+      "loading": "Laden…"
+    },
+    "detail": {
+      "kind": {
+        "artist": "Artiest",
+        "album": "Album",
+        "playlist": "Afspeellijst",
+        "track": "Nummer"
+      },
+      "albumCount_one": "{{count}} album",
+      "albumCount_other": "{{count}} albums",
+      "trackCount_one": "{{count}} nummer",
+      "trackCount_other": "{{count}} nummers",
+      "play": "Afspelen",
+      "shuffle": "Shuffle",
+      "editInfo": "Info bewerken",
+      "edit": "Bewerken",
+      "albums": "Albums",
+      "columns": {
+        "title": "Titel",
+        "album": "Album"
+      }
+    }
+  },
+  "item": {
+    "remaining": "Nog {{time}}",
+    "seasonEpisode": "Seizoen {{season}} · Aflevering {{episode}}",
+    "seasonCount_one": "{{count}} seizoen",
+    "seasonCount_other": "{{count}} seizoenen",
+    "episodeCount_one": "{{count}} aflevering",
+    "episodeCount_other": "{{count}} afleveringen",
+    "watched": "Bekeken",
+    "resume": "Hervatten",
+    "play": "Afspelen",
+    "playFromStart": "Vanaf het begin afspelen",
+    "episodeNumber": "Aflevering {{number}}",
+    "markUnwatched": "Markeren als niet bekeken",
+    "markWatched": "Markeren als bekeken",
+    "editInfo": "Info bewerken",
+    "facts": {
+      "director": "Regie",
+      "writer": "Scenario",
+      "studio": "Studio",
+      "video": "Video",
+      "audio": "Audio",
+      "subtitles": "Ondertitels",
+      "none": "Geen"
+    },
+    "seasons": "Seizoenen",
+    "episodes": "Afleveringen",
+    "playTitle": "{{title}} afspelen",
+    "cast": "Cast"
+  },
+  "stats": {
+    "title": "Mijn statistieken",
+    "noUrl": "Vul je Tracearr-adres in bij Instellingen om je statistieken te zien.",
+    "openSettings": "Instellingen openen",
+    "loginPrompt": "Log in bij Tracearr met je Plex-account. Je browser opent om de toegang te bevestigen.",
+    "waitingBrowser": "Wachten op bevestiging in de browser…",
+    "loginWithPlex": "Inloggen met Plex",
+    "since": {
+      "years_one": "{{count}} jaar",
+      "years_other": "{{count}} jaar",
+      "months_one": "{{count}} maand",
+      "months_other": "{{count}} maanden",
+      "yearsAndMonths": "{{years}} en {{months}}",
+      "ago": "{{time}} geleden",
+      "thisMonth": "deze maand"
+    },
+    "kpi": {
+      "screenTime": "schermtijd",
+      "musicPart": "waarvan {{time}} muziek",
+      "plays": "keer afgespeeld",
+      "titles": "verschillende titels",
+      "percent": "{{value}}%"
+    },
+    "hero": {
+      "last30Days": "Je afgelopen 30 dagen",
+      "hello": "Hallo {{name}}",
+      "lead_one": "{{time}} schermtijd, {{count}} titel ontdekt of opnieuw bekeken.",
+      "lead_other": "{{time}} schermtijd, {{count}} titels ontdekt of opnieuw bekeken."
+    },
+    "now": {
+      "title": "Nu bezig",
+      "paused": "Gepauzeerd",
+      "playing": "Speelt af",
+      "local": "Lokaal netwerk",
+      "remote": "Op afstand",
+      "transcode": "Transcoderen",
+      "direct": "Direct"
+    },
+    "top": {
+      "title": "Je top 10",
+      "period": "Afgelopen 30 dagen",
+      "episodes_one": "{{count}} aflevering",
+      "episodes_other": "{{count}} afleveringen",
+      "plays_one": "{{count}} keer afgespeeld",
+      "plays_other": "{{count}} keer afgespeeld"
+    },
+    "allTime": {
+      "title": "Aller tijden",
+      "watchTime": "Kijktijd",
+      "hours": "oftewel {{hours}} uur",
+      "spreadOver_one": "verspreid over {{count}} dag",
+      "spreadOver_other": "verspreid over {{count}} dagen",
+      "longestStreak": "Langste reeks",
+      "daysInARow": "dagen op rij",
+      "currentStreak_one": "Huidig: {{count}} dag",
+      "currentStreak_other": "Huidig: {{count}} dagen",
+      "noStreak": "Geen lopende reeks",
+      "favoriteGenres": "Favoriete genres",
+      "biggestBinge": "Grootste binge",
+      "episodesInADay": "afleveringen op één dag",
+      "firstPlay": "Je allereerste keer afspelen"
+    }
+  },
+  "common": {
+    "c1": {
+      "loading": "Laden…",
+      "back": "Terug",
+      "cancel": "Annuleren",
+      "close": "Sluiten",
+      "save": "Opslaan",
+      "saving": "Opslaan…",
+      "play": "Afspelen",
+      "playTitle": "{{title}} afspelen",
+      "resume": "Hervatten",
+      "shuffle": "Shuffle",
+      "previous": "Vorige",
+      "next": "Volgende",
+      "moreInfo": "Meer info",
+      "moreActions": "Meer acties",
+      "movie": "Film",
+      "show": "Serie",
+      "episodeCode": "S{{season}} A{{episode}}",
+      "remaining": "Nog {{time}}",
+      "nowPlaying": "Nu aan het afspelen",
+      "playback": "Afspelen",
+      "pause": "Pauzeren",
+      "stop": "Stoppen",
+      "position": "Positie",
+      "queue": "Wachtrij",
+      "mute": "Dempen",
+      "volume": "Volume"
+    },
+    "c2": {
+      "seerrStatus": {
+        "requested": "Aangevraagd",
+        "processing": "In behandeling",
+        "partial": "Deels beschikbaar",
+        "available": "Beschikbaar"
+      }
+    }
+  },
+  "app": {
+    "searchPlaceholder": "Zoek een film, serie, artiest…",
+    "authTracearr": "Tracearr autoriseren",
+    "authScan": "Scan deze code met je telefoon en bevestig met je Plex-account."
+  },
+  "cardMenu": {
+    "markedWatched": "Gemarkeerd als bekeken",
+    "markedUnwatched": "Gemarkeerd als niet bekeken",
+    "markWatched": "Markeren als bekeken",
+    "markUnwatched": "Markeren als niet bekeken",
+    "openDetails": "Details openen",
+    "edit": "Bewerken…",
+    "refreshMetadata": "Metadata vernieuwen",
+    "refreshStarted": "Metadata worden vernieuwd",
+    "analyze": "Analyseren",
+    "analyzeStarted": "Analyse gestart"
+  },
+  "editDialog": {
+    "tabs": {
+      "general": "Algemeen",
+      "genres": "Genres",
+      "cover": "Hoes",
+      "poster": "Poster",
+      "background": "Achtergrond"
+    },
+    "title": "{{title}} bewerken",
+    "posterUpdated": "Poster bijgewerkt",
+    "backgroundUpdated": "Achtergrond bijgewerkt",
+    "invalidImageUrl": "Vul een webadres van een afbeelding in (https://…)",
+    "saved": "Wijzigingen opgeslagen",
+    "lockedHint": "Vergrendeld: Plex vervangt deze waarde niet",
+    "unlockedHint": "Ontgrendeld: Plex kan deze waarde bijwerken",
+    "lock": "Vergrendelen",
+    "unlock": "Ontgrendelen",
+    "genresHint": "Genres worden gebruikt voor categorieën en rijen als ‘Beste films uit…’.",
+    "removeGenre": "{{genre}} verwijderen",
+    "noGenres": "Geen genres.",
+    "addGenrePlaceholder": "Genre toevoegen (bijv. Comedy, Drama, Science Fiction)",
+    "add": "Toevoegen",
+    "noImages": "Geen afbeeldingen beschikbaar.",
+    "imageUrlPlaceholder": "Of plak het adres van een afbeelding (https://…)",
+    "use": "Gebruiken",
+    "clickToApply": "Klik op een afbeelding om die meteen toe te passen."
+  },
+  "genreTile": {
+    "ariaLabel": "{{genre}}, {{titles}}",
+    "titles_one": "{{count}} titel",
+    "titles_other": "{{count}} titels"
+  },
+  "hero": {
+    "featured": "Uitgelicht",
+    "episodeLine": "Seizoen {{season}} · Aflevering {{episode}} — {{title}}",
+    "view": "Bekijken",
+    "showSlide": "{{title}} tonen"
+  },
+  "musicBar": {
+    "repeatQueue": "Wachtrij herhalen"
+  },
+  "nowPlaying": {
+    "collapse": "Inklappen",
+    "upNext": "Hierna"
+  },
+  "seerrCard": {
+    "viewTitle": "{{title}} bekijken",
+    "request": "Aanvragen"
+  },
+  "posterCard": {
+    "episodeCode": "S{{season}} · A{{episode}}",
+    "openTitle": "{{title}} openen"
+  },
+  "format": {
+    "daysHours": "{{days}} d {{hours}} u",
+    "hoursMinutes": "{{hours}} u {{minutes}} min",
+    "minutes": "{{minutes}} min"
+  },
+  "errors": {
+    "loginCancelled": "Inloggen geannuleerd.",
+    "loginTimeout": "Het inloggen is niet op tijd bevestigd. Probeer het opnieuw."
+  },
+  "invite": {
+    "partialFailure": "Een deel van de instelling is mislukt."
+  },
+  "tv": {
+    "episodeLine": "S{{season}} · A{{episode}} — {{title}}",
+    "remaining": "Nog {{time}}",
+    "toRequest": "Om aan te vragen",
+    "show": "Serie",
+    "movie": "Film",
+    "continueWatching": "Verder kijken",
+    "resume": "Hervatten",
+    "recentlyAdded": "Recent toegevoegd",
+    "recentlyAddedOne": "Recent toegevoegd",
+    "trendingToRequest": "Trending om aan te vragen"
+  },
+  "player": {
+    "channels": "{{channels}} kan.",
+    "forced": "geforceerd",
+    "trackNumber": "Spoor {{id}}",
+    "remoteNote": "De video wordt afgespeeld in het mpv-venster.",
+    "remoteNote2": "Deze pagina bedient hem op afstand.",
+    "close": "Speler sluiten",
+    "position": "Positie",
+    "prevEpisode": "Vorige aflevering",
+    "back10": "10 s terug",
+    "play": "Afspelen",
+    "pause": "Pauzeren",
+    "forward10": "10 s vooruit",
+    "nextEpisode": "Volgende aflevering",
+    "mute": "Dempen",
+    "volume": "Volume",
+    "audioTracks": "Audiosporen",
+    "audio": "Audio",
+    "subtitles": "Ondertitels",
+    "none": "Geen",
+    "fullscreen": "Volledig scherm"
+  },
+  "request": {
+    "sent": "Verzoek verstuurd: {{title}}",
+    "title": "‘{{title}}’ aanvragen",
+    "loadingSeasons": "Seizoenen laden…",
+    "seasons": "Seizoenen",
+    "uncheckAll": "Alles deselecteren",
+    "checkAll": "Alles selecteren",
+    "episodes_one": "{{count}} afl.",
+    "episodes_other": "{{count}} afl.",
+    "cancel": "Annuleren",
+    "sending": "Versturen…",
+    "submit": "Verzoek versturen"
+  },
+  "dashboard": {
+    "nowPlaying": "Nu aan het afspelen",
+    "nobody": "Er kijkt of luistert op dit moment niemand.",
+    "paused": "Gepauzeerd",
+    "buffering": "Bufferen",
+    "playing": "Speelt af",
+    "local": "Lokaal netwerk",
+    "remote": "Op afstand",
+    "transcode": "Transcoderen",
+    "directPlay": "Direct afspelen",
+    "bandwidth": "{{rate}} Mbit/s",
+    "libraries": "Bibliotheken",
+    "scanStarted": "Scan van ‘{{title}}’ gestart",
+    "scan": "Zoeken naar nieuwe bestanden",
+    "trashEmptied": "Prullenbak van ‘{{title}}’ geleegd",
+    "emptyTrashHint": "Verwijdert items waarvan het bestand verdwenen is",
+    "emptyTrash": "Prullenbak legen"
+  },
+  "serverPrefs": {
+    "saved": "Serverinstellingen opgeslagen",
+    "advanced": "geavanceerd",
+    "empty": "Geen instellingen in dit onderdeel.",
+    "emptyTryAdvanced": "Geen instellingen in dit onderdeel (probeer geavanceerde instellingen te tonen).",
+    "changed_one": "{{count}} instelling gewijzigd",
+    "changed_other": "{{count}} instellingen gewijzigd",
+    "cancel": "Annuleren",
+    "saving": "Opslaan…",
+    "save": "Opslaan"
+  },
+  "sidebar": {
+    "expand": "Menu uitklappen",
+    "collapse": "Menu inklappen",
+    "search": "Zoeken",
+    "home": "Start",
+    "libraries": "Bibliotheken",
+    "done": "Klaar",
+    "reorder": "Bibliotheken ordenen",
+    "reorderHint": "Sleep om te ordenen; het oog verbergt een bibliotheek.",
+    "moveUp": "{{title}} omhoog",
+    "toggleHidden": "{{title}} tonen of verbergen",
+    "more": "Meer",
+    "moreCount": "Meer ({{n}})",
+    "requests": "Verzoeken",
+    "discover": "Ontdekken",
+    "stats": "Mijn statistieken",
+    "settings": "Instellingen"
+  },
+  "trackGrid": {
+    "previous": "Vorige",
+    "next": "Volgende",
+    "play": "{{title}} afspelen",
+    "moreActions": "Meer acties",
+    "openAlbum": "Album openen"
+  },
+  "update": {
+    "allowInstall": "Sta Plexr toe apps te installeren en start de update opnieuw.",
+    "confirmInstall": "Bevestig de installatie: Plexr start opnieuw in de nieuwe versie.",
+    "installStarted": "Installatie gestart.",
+    "title": "Nieuwe versie beschikbaar",
+    "current": "je hebt {{version}}",
+    "close": "Sluiten",
+    "defaultNotes": "Oplossingen en verbeteringen.",
+    "allReleases": "Alle versies",
+    "later": "Later",
+    "downloading": "Downloaden… {{percent}}%",
+    "update": "Bijwerken"
+  },
+  "genres": {
+    "actionAdventure": "Actie & Avontuur",
+    "adventure": "Avontuur",
+    "anime": "Anime",
+    "biography": "Biografie",
+    "children": "Kinderen",
+    "kids": "Kids",
+    "comedy": "Komedie",
+    "crime": "Misdaad",
+    "documentary": "Documentaire",
+    "drama": "Drama",
+    "family": "Familie",
+    "fantasy": "Fantasy",
+    "filmNoir": "Film noir",
+    "food": "Koken",
+    "gameShow": "Spelshow",
+    "history": "Geschiedenis",
+    "homeAndGarden": "Huis & Tuin",
+    "horror": "Horror",
+    "martialArts": "Vechtsport",
+    "miniSeries": "Miniserie",
+    "music": "Muziek",
+    "musical": "Musical",
+    "mystery": "Mysterie",
+    "news": "Nieuws",
+    "reality": "Reality",
+    "sciFiFantasy": "Sci-fi & Fantasy",
+    "scienceFiction": "Sciencefiction",
+    "scienceFictionAlt": "Sciencefiction",
+    "short": "Korte film",
+    "soap": "Soap",
+    "suspense": "Suspense",
+    "talk": "Talkshow",
+    "travel": "Reizen",
+    "tvMovie": "Tv-film",
+    "war": "Oorlog",
+    "warPolitics": "Oorlog & Politiek"
+  }
+}

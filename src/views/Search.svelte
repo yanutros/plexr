@@ -4,6 +4,7 @@
   import { go } from "../lib/nav.svelte";
   import PosterCard from "../components/PosterCard.svelte";
   import SeerrCard from "../components/SeerrCard.svelte";
+  import { t } from "../lib/i18n";
 
   let { query }: { query: string } = $props();
 
@@ -25,31 +26,31 @@
 
 <div class="page">
   {#if !query}
-    <p class="muted hint">Saisis le titre d'un film, d'une série ou un artiste.</p>
+    <p class="muted hint">{t("search.hint")}</p>
   {:else}
-  <div class="row-title">Dans ta bibliothèque</div>
+  <div class="row-title">{t("search.inLibrary")}</div>
   {#if plexError}
     <p class="error">{plexError}</p>
   {:else if !plex}
-    <p class="muted">Recherche…</p>
+    <p class="muted">{t("search.searching")}</p>
   {:else if !plex.length}
-    <p class="muted">Aucun résultat pour « {query} ».</p>
+    <p class="muted">{t("search.noResults", { query })}</p>
   {:else}
     <div class="grid">
       {#each plex as item (item.ratingKey)}<PosterCard {item} />{/each}
     </div>
   {/if}
   
-  <div class="row-title">Pas dans la bibliothèque ? Demande-le</div>
+  <div class="row-title">{t("search.notInLibrary")}</div>
   {#if seerrError}
     <p class="muted">
-      Seerr indisponible : {seerrError}
-      <button class="btn" onclick={() => go({ name: "settings" })}>Réglages</button>
+      {t("search.seerrUnavailable", { error: seerrError })}
+      <button class="btn" onclick={() => go({ name: "settings" })}>{t("search.settings")}</button>
     </p>
   {:else if !requestable}
-    <p class="muted">Recherche sur Seerr…</p>
+    <p class="muted">{t("search.searchingSeerr")}</p>
   {:else if !requestable.length}
-    <p class="muted">Rien d'autre à demander.</p>
+    <p class="muted">{t("search.nothingElse")}</p>
   {:else}
     <div class="grid">
       {#each requestable as media (media.mediaType + media.tmdbId)}<SeerrCard {media} />{/each}

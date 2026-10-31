@@ -7,6 +7,7 @@
   import { play, type PlayOptions } from "../lib/player.svelte";
   import PosterCard from "../components/PosterCard.svelte";
   import Icon from "../components/Icon.svelte";
+  import { t, locale } from "../lib/i18n";
 
   let { ratingKey }: { ratingKey: string } = $props();
 
@@ -20,8 +21,8 @@
     try {
       const detail = await api.metadata(ratingKey);
       item = detail;
-      audioStream = detail.audioTracks.find((t) => t.selected)?.id ?? detail.audioTracks[0]?.id ?? null;
-      subtitleStream = detail.subtitleTracks.find((t) => t.selected)?.id ?? 0;
+      audioStream = detail.audioTracks.find((tr) => tr.selected)?.id ?? detail.audioTracks[0]?.id ?? null;
+      subtitleStream = detail.subtitleTracks.find((tr) => tr.selected)?.id ?? 0;
       children = detail.kind === "show" || detail.kind === "season" ? await api.children(ratingKey) : [];
     } catch (e) {
       error = errorText(e);
@@ -54,7 +55,7 @@
   const remaining = $derived(item?.viewOffsetMs && item.durationMs ? item.durationMs - item.viewOffsetMs : null);
   const releaseDate = $derived(
     item?.releaseDate
-      ? new Date(item.releaseDate).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+      ? new Date(item.releaseDate).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })
       : null,
   );
   const art = $derived(item?.kind === "episode" ? (item.thumb ?? item.poster) : item?.poster);
@@ -80,7 +81,7 @@
       <div class="art" class:wide={item.kind === "episode"}>
         {#if art}<img src={art} alt="" />{/if}
         {#if progress > 0}<div class="progress"><div style:width="{progress}%"></div></div>{/if}
-        {#if remaining}<div class="remaining">{formatDuration(remaining)} restantes</div>{/if}
+        {#if remaining}<div class="remaining">{t("item.remaining", { time: formatDuration(remaining) })}</div>{/if}
       </div>
 
       <div class="info">
@@ -91,7 +92,7 @@
         {/if}
         <h1>{item.title}</h1>
         {#if item.kind === "episode"}
-          <div class="line">Saison {item.parentIndex} · Épisode {item.index}</div>
+          <div class="line">{t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</div>
         {:else if item.tagline}
           <div class="line tagline">{item.tagline}</div>
         {/if}
@@ -103,38 +104,38 @@
             <span>{formatDuration(item.durationMs)}</span>
           {/if}
           {#if item.kind === "show" || item.kind === "season"}
-            <span>{children.length} {item.kind === "show" ? "saisons" : "épisodes"}</span>
+            <span>{t(item.kind === "show" ? "item.seasonCount" : "item.episodeCount", { count: children.length })}</span>
           {/if}
           {#if item.rating}<span class="rating"><Icon name="star" size={14} filled /> {item.rating.toFixed(1)}</span>{/if}
-          {#if item.watched}<span class="badge ok">Vu</span>{/if}
+          {#if item.watched}<span class="badge ok">{t("item.watched")}</span>{/if}
         </div>
 
         <div class="actions">
           {#if item.playable}
             <button class="btn primary big" onclick={() => playThis()}>
               <Icon name="play" size={18} filled />
-              {item.viewOffsetMs ? "Reprendre" : "Lire"}
+              {item.viewOffsetMs ? t("item.resume") : t("item.play")}
             </button>
             {#if item.viewOffsetMs}
-              <button class="btn round big" onclick={() => playThis(true)} title="Lire depuis le début">
+              <button class="btn round big" onclick={() => playThis(true)} title={t("item.playFromStart")}>
                 <Icon name="restart" size={18} />
               </button>
             {/if}
           {:else if nextUp}
             <button class="btn primary big" onclick={() => start(nextUp!.ratingKey)}>
-              <Icon name="play" size={18} filled /> Épisode {nextUp.index}
+              <Icon name="play" size={18} filled /> {t("item.episodeNumber", { number: nextUp.index ?? "" })}
             </button>
           {/if}
           <button
             class="btn round big"
             class:on={item.watched}
             onclick={toggleWatched}
-            title={item.watched ? "Marquer comme non vu" : "Marquer comme vu"}
+            title={item.watched ? t("item.markUnwatched") : t("item.markWatched")}
           >
             <Icon name="checkCircle" size={20} />
           </button>
           {#if nav.admin}
-            <button class="btn round big" onclick={() => (nav.editing = item)} title="Modifier les informations">
+            <button class="btn round big" onclick={() => (nav.editing = item)} title={t("item.editInfo")}>
               <Icon name="edit" size={18} />
             </button>
           {/if}
@@ -147,24 +148,24 @@
         {/if}
 
         <dl class="facts">
-          {#if item.directors.length}<dt>Réalisation</dt><dd>{item.directors.join(", ")}</dd>{/if}
-          {#if item.writers.length}<dt>Scénario</dt><dd>{item.writers.slice(0, 3).join(", ")}</dd>{/if}
-          {#if item.studio}<dt>Studio</dt><dd>{item.studio}</dd>{/if}
-          {#if item.video}<dt>Vidéo</dt><dd>{item.video}</dd>{/if}
+          {#if item.directors.length}<dt>{t("item.facts.director")}</dt><dd>{item.directors.join(", ")}</dd>{/if}
+          {#if item.writers.length}<dt>{t("item.facts.writer")}</dt><dd>{item.writers.slice(0, 3).join(", ")}</dd>{/if}
+          {#if item.studio}<dt>{t("item.facts.studio")}</dt><dd>{item.studio}</dd>{/if}
+          {#if item.video}<dt>{t("item.facts.video")}</dt><dd>{item.video}</dd>{/if}
           {#if item.audioTracks.length}
-            <dt>Audio</dt>
+            <dt>{t("item.facts.audio")}</dt>
             <dd>
               <select bind:value={audioStream}>
-                {#each item.audioTracks as t (t.id)}<option value={t.id}>{t.label}</option>{/each}
+                {#each item.audioTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
               </select>
             </dd>
           {/if}
           {#if item.playable}
-            <dt>Sous-titres</dt>
+            <dt>{t("item.facts.subtitles")}</dt>
             <dd>
               <select bind:value={subtitleStream}>
-                <option value={0}>Aucun</option>
-                {#each item.subtitleTracks as t (t.id)}<option value={t.id}>{t.label}</option>{/each}
+                <option value={0}>{t("item.facts.none")}</option>
+                {#each item.subtitleTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
               </select>
             </dd>
           {/if}
@@ -173,16 +174,16 @@
     </div>
 
     {#if item.kind === "show" && children.length}
-      <h2 class="row-title">Saisons</h2>
+      <h2 class="row-title">{t("item.seasons")}</h2>
       <div class="grid">
         {#each children as season (season.ratingKey)}<PosterCard item={season} />{/each}
       </div>
     {:else if item.kind === "season"}
-      <h2 class="row-title">Épisodes</h2>
+      <h2 class="row-title">{t("item.episodes")}</h2>
       <div class="episodes">
         {#each children as ep (ep.ratingKey)}
           <div class="episode">
-            <button class="thumb" onclick={() => start(ep.ratingKey)} aria-label="Lire {ep.title}">
+            <button class="thumb" onclick={() => start(ep.ratingKey)} aria-label={t("item.playTitle", { title: ep.title })}>
               {#if ep.thumb}<img src={ep.thumb} alt="" loading="lazy" />{/if}
               <span class="play"><Icon name="play" size={20} filled /></span>
               {#if ep.viewOffsetMs && ep.durationMs}
@@ -193,7 +194,7 @@
               <button class="ep-title" onclick={() => go({ name: "item", ratingKey: ep.ratingKey })}>
                 <span class="ep-num">{ep.index}</span>
                 {ep.title}
-                {#if ep.watched}<span class="badge ok">Vu</span>{/if}
+                {#if ep.watched}<span class="badge ok">{t("item.watched")}</span>{/if}
               </button>
               <div class="ep-meta">{formatDuration(ep.durationMs)}</div>
               {#if ep.summary}<p class="ep-summary">{ep.summary}</p>{/if}
@@ -204,7 +205,7 @@
     {/if}
 
     {#if item.cast.length}
-      <h2 class="row-title">Distribution</h2>
+      <h2 class="row-title">{t("item.cast")}</h2>
       <div class="cast">
         {#each item.cast as person (person.name + person.role)}
           <div class="person">

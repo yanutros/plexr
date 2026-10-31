@@ -7,21 +7,23 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import { device } from "../lib/device";
+  import { applyTheme, savedTheme, THEME_COLORS, THEMES, type Theme } from "../lib/theme";
   import Icon, { type IconName } from "../components/Icon.svelte";
   import ServerPrefs from "../components/ServerPrefs.svelte";
   import ServerDashboard from "../components/ServerDashboard.svelte";
+  import { LANGUAGES, savedLanguage, setLanguage, t } from "../lib/i18n";
 
   let { session, onChange }: { session: Session; onChange: () => void } = $props();
 
   // Rubriques de Plexr, puis celles du serveur Plex (administrateur seulement), comme dans Plex Web.
   const GROUPS: Record<string, { label: string; icon: IconName }> = {
-    general: { label: "Général", icon: "sliders" },
-    library: { label: "Bibliothèque", icon: "film" },
-    network: { label: "Réseau", icon: "compass" },
-    transcoder: { label: "Transcodeur", icon: "play" },
-    dlna: { label: "DLNA", icon: "tv" },
-    extras: { label: "Bonus", icon: "star" },
-    butler: { label: "Tâches planifiées", icon: "clock" },
+    general: { label: t("settings.groups.general"), icon: "sliders" },
+    library: { label: t("settings.groups.library"), icon: "film" },
+    network: { label: t("settings.groups.network"), icon: "compass" },
+    transcoder: { label: t("settings.groups.transcoder"), icon: "play" },
+    dlna: { label: t("settings.groups.dlna"), icon: "tv" },
+    extras: { label: t("settings.groups.extras"), icon: "star" },
+    butler: { label: t("settings.groups.butler"), icon: "clock" },
   };
 
   let page = $state("account");
@@ -63,7 +65,7 @@
     seerrError = null;
     try {
       await api.seerrConfigure(seerrUrl);
-      toast(seerrUrl ? "Connecté à Seerr avec ton compte Plex" : "Seerr désactivé");
+      toast(seerrUrl ? t("settings.services.seerrConnected") : t("settings.services.seerrDisabled"));
       onChange();
     } catch (e) {
       seerrError = errorText(e);
@@ -78,10 +80,10 @@
     try {
       if (tracearrUrl.trim() !== (session.tracearrUrl ?? "")) await api.tracearrConfigure(tracearrUrl);
       if (!tracearrUrl.trim()) {
-        toast("Tracearr désactivé");
+        toast(t("settings.services.tracearrDisabled"));
       } else {
         await tracearrLogin();
-        toast("Connecté à Tracearr");
+        toast(t("settings.services.tracearrConnected"));
         go({ name: "stats" });
       }
       onChange();
@@ -121,7 +123,7 @@
   async function runInvite(text: string, phone: boolean) {
     const invite = decodeInvite(text);
     if (!invite) {
-      inviteError = "Ce code d'invitation n'est pas valide.";
+      inviteError = t("settings.invite.invalid");
       if (phone) api.relayStatus({ step: "error", error: inviteError }).catch(() => {});
       return;
     }
@@ -135,7 +137,7 @@
       phone,
     );
     onChange();
-    if (result.step === "done") toast("Seerr et Tracearr sont configurés");
+    if (result.step === "done") toast(t("settings.invite.configured"));
   }
 
   async function onInviteImage(e: Event) {
@@ -145,12 +147,12 @@
     if (!file) return;
     const text = await readQrImage(file).catch(() => null);
     if (text) runInvite(text, false);
-    else inviteError = "Aucun QR code trouvé dans cette image.";
+    else inviteError = t("settings.invite.noQr");
   }
 
   async function copyInviteCode() {
     await navigator.clipboard.writeText(inviteCode);
-    toast("Code d'invitation copié");
+    toast(t("settings.invite.codeCopied"));
   }
 
   // Le QR code en image PNG, à coller dans un message.
@@ -166,7 +168,7 @@
       canvas.getContext("2d")!.drawImage(img, 0, 0, 600, 600);
       const blob = await new Promise<Blob>((ok, ko) => canvas.toBlob((b) => (b ? ok(b) : ko(new Error("image"))), "image/png"));
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      toast("Image du QR code copiée");
+      toast(t("settings.invite.imageCopied"));
     } catch (e) {
       toast(errorText(e), true);
     }
@@ -192,18 +194,22 @@
     };
   });
 
-  const STEP: Record<string, string> = { run: "Connexion…", ok: "Connecté", err: "Échec" };
+  const STEP: Record<string, string> = {
+    run: t("settings.invite.steps.run"),
+    ok: t("settings.invite.steps.ok"),
+    err: t("settings.invite.steps.err"),
+  };
 
   async function disconnectTracearr() {
     await api.tracearrLogout();
-    toast("Déconnecté de Tracearr");
+    toast(t("settings.services.tracearrDisconnected"));
     onChange();
   }
 
   async function saveMpv() {
     try {
       await api.setMpvPath(mpvPath || null);
-      toast("Chemin de mpv enregistré");
+      toast(t("settings.player.saved"));
       onChange();
     } catch (e) {
       toast(errorText(e), true);
@@ -216,7 +222,7 @@
     // Sur téléviseur, le menu reste replié hors sélection.
     sidebar.collapsed = device.tv;
     saveSidebar();
-    toast("Menu réinitialisé");
+    toast(t("settings.interface.menuReset"));
   }
 
   async function changeServer() {
@@ -248,6 +254,22 @@
     saveSidebar();
   }
 
+  let theme = $state<Theme>(savedTheme());
+  const THEME_LABELS: Record<Theme, string> = {
+    jaune: t("settings.interface.themes.jaune"),
+    rouge: t("settings.interface.themes.rouge"),
+    vert: t("settings.interface.themes.vert"),
+    violet: t("settings.interface.themes.violet"),
+  };
+
+  // Langue choisie (« auto » : celle du système) ; en changer recharge l'interface.
+  const language = savedLanguage();
+
+  function chooseTheme(th: Theme) {
+    theme = th;
+    applyTheme(th, true);
+  }
+
   async function logout() {
     await api.logout();
     onChange();
@@ -267,27 +289,27 @@
 <div class="page settings">
   <nav class="menu">
     <div class="menu-group">Plexr</div>
-    {@render link("account", "Compte", "user")}
-    {@render link("services", "Seerr et Tracearr", "compass")}
-    {#if !device.tv}{@render link("player", "Lecteur", "play")}{/if}
-    {@render link("interface", "Interface", "menu")}
+    {@render link("account", t("settings.menu.account"), "user")}
+    {@render link("services", t("settings.menu.services"), "compass")}
+    {#if !device.tv}{@render link("player", t("settings.menu.player"), "play")}{/if}
+    {@render link("interface", t("settings.menu.interface"), "menu")}
 
-    <div class="menu-group">Serveur {session.serverName}</div>
+    <div class="menu-group">{t("settings.menu.server", { name: session.serverName ?? "" })}</div>
     {#if nav.admin}
-      {@render link("dashboard", "Tableau de bord", "server")}
+      {@render link("dashboard", t("settings.menu.dashboard"), "server")}
       {#each groups as g (g)}{@render link(g, GROUPS[g].label, GROUPS[g].icon)}{/each}
       <label class="adv-toggle">
         <input type="checkbox" bind:checked={advanced} />
-        Afficher les réglages avancés
+        {t("settings.menu.advanced")}
       </label>
     {:else}
-      <p class="locked"><Icon name="lock" size={14} /> Les réglages du serveur sont réservés à son administrateur.</p>
+      <p class="locked"><Icon name="lock" size={14} /> {t("settings.menu.locked")}</p>
     {/if}
   </nav>
 
   <div class="panel">
     {#if page === "account"}
-      <h1 class="title">Compte</h1>
+      <h1 class="title">{t("settings.menu.account")}</h1>
       <section class="card account">
         {#if account?.thumb}<img class="avatar" src={account.thumb} alt="" />{:else}<span class="avatar ph"><Icon name="user" size={30} /></span>{/if}
         <div>
@@ -295,50 +317,52 @@
           {#if account?.email}<div class="muted">{account.email}</div>{/if}
           <div class="badges">
             {#if account?.plexPass}<span class="badge pass">Plex Pass</span>{/if}
-            <span class="badge outline">{nav.admin ? "Administrateur du serveur" : "Accès partagé"}</span>
+            <span class="badge outline">{nav.admin ? t("settings.account.admin") : t("settings.account.shared")}</span>
           </div>
         </div>
       </section>
       <section class="card">
-        <p>Serveur : <strong>{session.serverName}</strong></p>
+        <p>{t("settings.account.server")} <strong>{session.serverName}</strong></p>
         <div class="row">
-          <button class="btn" onclick={changeServer}>Changer de serveur</button>
-          <button class="btn" onclick={logout}><Icon name="logout" size={16} /> Se déconnecter</button>
+          <button class="btn" onclick={changeServer}>{t("settings.account.changeServer")}</button>
+          <button class="btn" onclick={logout}><Icon name="logout" size={16} /> {t("settings.account.logout")}</button>
         </div>
       </section>
     {:else if page === "services"}
-      <h1 class="title">Seerr et Tracearr</h1>
+      <h1 class="title">{t("settings.menu.services")}</h1>
       <section class="card">
-        <h2>Configuration rapide</h2>
+        <h2>{t("settings.invite.quickSetup")}</h2>
         {#if device.mobile}
           <div class="phone-setup">
             {#if relayUrl}<QrCode text={relayUrl} size={190} />{:else}<div class="qr-wait skeleton"></div>{/if}
             <p class="muted">
-              Scanne ce code avec ton téléphone, connecté au même Wi-Fi, puis montre-lui l'invitation de
-              l'administrateur du serveur.
+              {t("settings.invite.phoneHint")}
             </p>
           </div>
           {#if relayError}<p class="error">{relayError}</p>{/if}
         {:else}
-          <p class="muted">Colle le code d'invitation de l'administrateur du serveur, ou importe l'image de son QR code.</p>
+          <p class="muted">{t("settings.invite.pasteHint")}</p>
           <div class="row">
             <input class="grow" bind:value={pasted} placeholder="PLEXR-INVITE:…" spellcheck="false" />
             <button class="btn primary" disabled={!pasted.trim() || applying?.step === "running"} onclick={() => runInvite(pasted, false)}>
-              Appliquer
+              {t("settings.invite.apply")}
             </button>
             <label class="btn">
-              <Icon name="image" size={16} /> Importer l'image
+              <Icon name="image" size={16} /> {t("settings.invite.importImage")}
               <input type="file" accept="image/*" hidden onchange={onInviteImage} />
             </label>
           </div>
         {/if}
         {#if applying}
           <ul class="steps">
-            {#if applying.seerr}<li class={applying.seerr}>Demandes (Seerr) : {applying.seerrError ?? STEP[applying.seerr]}</li>{/if}
+            {#if applying.seerr}<li class={applying.seerr}>{t("settings.invite.stepSeerr", { status: applying.seerrError ?? STEP[applying.seerr] })}</li>{/if}
             {#if applying.tracearr}
               <li class={applying.tracearr}>
-                Statistiques (Tracearr) : {applying.tracearrError ??
-                  (applying.authUrl ? "à autoriser sur le téléphone" : STEP[applying.tracearr])}
+                {t("settings.invite.stepTracearr", {
+                  status:
+                    applying.tracearrError ??
+                    (applying.authUrl ? t("settings.invite.authorizeOnPhone") : STEP[applying.tracearr]),
+                })}
               </li>
             {/if}
           </ul>
@@ -347,13 +371,13 @@
       </section>
       {#if nav.admin}
         <section class="card">
-          <h2>Inviter des utilisateurs</h2>
+          <h2>{t("settings.invite.title")}</h2>
           <p class="muted">
-            Partage ce QR code ou ce code : Plexr y trouvera ces adresses et s'y connectera avec le compte Plex de chacun.
+            {t("settings.invite.intro")}
           </p>
           <div class="invite-fields">
-            <label>Adresse de Seerr <input bind:value={inviteSeerr} placeholder="https://seerr.mondomaine.fr" /></label>
-            <label>Adresse de Tracearr <input bind:value={inviteTracearr} placeholder="https://tracearr.mondomaine.fr" /></label>
+            <label>{t("settings.services.seerrAddress")} <input bind:value={inviteSeerr} placeholder="https://seerr.mondomaine.fr" /></label>
+            <label>{t("settings.services.tracearrAddress")} <input bind:value={inviteTracearr} placeholder="https://tracearr.mondomaine.fr" /></label>
           </div>
           {#if inviteCode}
           <div class="invite">
@@ -362,8 +386,8 @@
               <code class="invite-code">{inviteCode}</code>
               {#if !device.tv}
                 <div class="row">
-                  <button class="btn" onclick={copyInviteCode}><Icon name="copy" size={16} /> Copier le code</button>
-                  <button class="btn" onclick={copyInviteImage}><Icon name="image" size={16} /> Copier l'image</button>
+                  <button class="btn" onclick={copyInviteCode}><Icon name="copy" size={16} /> {t("settings.invite.copyCode")}</button>
+                  <button class="btn" onclick={copyInviteImage}><Icon name="image" size={16} /> {t("settings.invite.copyImage")}</button>
                 </div>
               {/if}
             </div>
@@ -374,13 +398,12 @@
       <section class="card">
         <h2>Seerr</h2>
         <p class="muted">
-          Les demandes se font avec ton compte Plex, à ton nom : rien d'autre à saisir. Ton compte doit simplement
-          avoir été importé dans Seerr par l'administrateur.
+          {t("settings.services.seerrIntro")}
         </p>
-        <label>Adresse de Seerr <input bind:value={seerrUrl} placeholder="https://seerr.mondomaine.fr" /></label>
+        <label>{t("settings.services.seerrAddress")} <input bind:value={seerrUrl} placeholder="https://seerr.mondomaine.fr" /></label>
         <div>
           <button class="btn primary" disabled={seerrBusy} onclick={saveSeerr}>
-            {seerrBusy ? "Connexion…" : "Se connecter avec Plex"}
+            {seerrBusy ? t("settings.services.connecting") : t("settings.services.connectWithPlex")}
           </button>
         </div>
         {#if seerrError}<p class="error">{seerrError}</p>{/if}
@@ -388,70 +411,103 @@
       <section class="card">
         <h2>Tracearr</h2>
         <p class="muted">
-          Tes statistiques de visionnage personnelles. La connexion passe par ton compte Plex : ton navigateur s'ouvre une
-          fois pour autoriser Tracearr, puis la session dure 30 jours.
+          {t("settings.services.tracearrIntro")}
         </p>
-        <label>Adresse de Tracearr <input bind:value={tracearrUrl} placeholder="https://tracearr.mondomaine.fr" /></label>
+        <label>{t("settings.services.tracearrAddress")} <input bind:value={tracearrUrl} placeholder="https://tracearr.mondomaine.fr" /></label>
         <div class="row">
           <button class="btn primary" disabled={tracearrBusy} onclick={connectTracearr}>
-            {tracearrBusy ? "En attente de validation dans le navigateur…" : "Se connecter avec Plex"}
+            {tracearrBusy ? t("settings.services.waitingBrowser") : t("settings.services.connectWithPlex")}
           </button>
           {#if session.tracearrConnected}
-            <button class="btn" onclick={disconnectTracearr}>Se déconnecter</button>
-            <span class="ok">● Connecté</span>
+            <button class="btn" onclick={disconnectTracearr}>{t("settings.services.logout")}</button>
+            <span class="ok">● {t("settings.services.connected")}</span>
           {/if}
         </div>
         {#if tracearrError}<p class="error">{tracearrError}</p>{/if}
       </section>
     {:else if page === "player"}
-      <h1 class="title">Lecteur</h1>
+      <h1 class="title">{t("settings.menu.player")}</h1>
       <section class="card">
-        <p class="muted">La lecture se fait avec mpv. Laisse vide pour le chercher automatiquement.</p>
-        <label>Chemin de mpv <input bind:value={mpvPath} placeholder="C:\Program Files\mpv\mpv.exe" /></label>
-        <div><button class="btn" onclick={saveMpv}>Enregistrer</button></div>
+        <p class="muted">{t("settings.player.intro")}</p>
+        <label>{t("settings.player.mpvPath")} <input bind:value={mpvPath} placeholder="C:\Program Files\mpv\mpv.exe" /></label>
+        <div><button class="btn" onclick={saveMpv}>{t("settings.player.save")}</button></div>
       </section>
     {:else if page === "interface"}
-      <h1 class="title">Interface</h1>
+      <h1 class="title">{t("settings.menu.interface")}</h1>
+      <section class="card">
+        <h2>{t("settings.interface.color")}</h2>
+        <div class="themes" role="radiogroup" aria-label={t("settings.interface.color")}>
+          {#each THEMES as th (th)}
+            <button
+              class="theme"
+              class:on={theme === th}
+              role="radio"
+              aria-checked={theme === th}
+              style:--swatch={THEME_COLORS[th]}
+              onclick={() => chooseTheme(th)}
+            >
+              <span class="swatch">{#if theme === th}<Icon name="check" size={20} />{/if}</span>
+              {THEME_LABELS[th]}
+            </button>
+          {/each}
+        </div>
+      </section>
+      <section class="card">
+        <h2>{t("settings.interface.language")}</h2>
+        <div class="languages" role="radiogroup" aria-label={t("settings.interface.language")}>
+          {#each [{ id: "auto", label: t("settings.interface.languageAuto") }, ...LANGUAGES] as lang (lang.id)}
+            <button
+              class="btn"
+              class:primary={language === lang.id}
+              role="radio"
+              aria-checked={language === lang.id}
+              onclick={() => language !== lang.id && setLanguage(lang.id as Parameters<typeof setLanguage>[0])}
+            >
+              {lang.label}
+            </button>
+          {/each}
+        </div>
+      </section>
       {#if device.tv}
       <section class="card">
-        <h2>Bibliothèques du menu</h2>
+        <h2>{t("settings.interface.libraries")}</h2>
         <div class="libs">
           {#each libraries as s, i (s.key)}
             {@const off = sidebar.hidden.includes(s.key)}
             <div class="lib" class:off>
               <Icon name={s.kind === "movie" ? "film" : s.kind === "artist" ? "music" : "tv"} />
               <span class="lib-name">{s.title}</span>
-              <button class="btn round" data-lib={s.key} data-dir="-1" disabled={i === 0} onclick={() => moveLibrary(s.key, -1)} aria-label="Monter {s.title}">
+              <button class="btn round" data-lib={s.key} data-dir="-1" disabled={i === 0} onclick={() => moveLibrary(s.key, -1)} aria-label={t("settings.interface.moveUp", { title: s.title })}>
                 <Icon name="chevronUp" size={18} />
               </button>
-              <button class="btn round" data-lib={s.key} data-dir="1" disabled={i === libraries.length - 1} onclick={() => moveLibrary(s.key, 1)} aria-label="Descendre {s.title}">
+              <button class="btn round" data-lib={s.key} data-dir="1" disabled={i === libraries.length - 1} onclick={() => moveLibrary(s.key, 1)} aria-label={t("settings.interface.moveDown", { title: s.title })}>
                 <Icon name="chevronDown" size={18} />
               </button>
-              <button class="btn round" onclick={() => toggleLibrary(s.key)} aria-label={off ? `Afficher ${s.title}` : `Masquer ${s.title}`}>
+              <button class="btn round" onclick={() => toggleLibrary(s.key)} aria-label={off ? t("settings.interface.show", { title: s.title }) : t("settings.interface.hide", { title: s.title })}>
                 <Icon name={off ? "eyeOff" : "eye"} size={18} />
               </button>
             </div>
           {/each}
         </div>
-        <div><button class="btn" onclick={resetSidebar}>Réinitialiser le menu</button></div>
+        <div><button class="btn" onclick={resetSidebar}>{t("settings.interface.resetMenu")}</button></div>
       </section>
       {:else}
       <section class="card">
         <label class="switch-line">
           <span>
-            <strong>Menu replié</strong>
-            <span class="muted">N'affiche que les icônes, pour laisser toute la place au contenu.</span>
+            <strong>{t("settings.interface.collapsed")}</strong>
+            <span class="muted">{t("settings.interface.collapsedHint")}</span>
           </span>
           <input type="checkbox" bind:checked={sidebar.collapsed} onchange={saveSidebar} />
         </label>
         <p class="muted">
-          Pour réordonner ou masquer des bibliothèques, clique sur le crayon à côté de « Bibliothèques » dans le menu.
+          {t("settings.interface.reorderHint")}
         </p>
-        <div><button class="btn" onclick={resetSidebar}>Réinitialiser le menu</button></div>
+        <div><button class="btn" onclick={resetSidebar}>{t("settings.interface.resetMenu")}</button></div>
       </section>
       {/if}
     {:else if page === "dashboard"}
-      <h1 class="title">Tableau de bord</h1>
+      <h1 class="title">{t("settings.menu.dashboard")}</h1>
       <ServerDashboard />
     {:else if GROUPS[page]}
       <h1 class="title">{GROUPS[page].label}</h1>
@@ -548,6 +604,58 @@
     font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .languages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+  }
+
+  .theme {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 4px;
+    border: none;
+    border-radius: 12px;
+    background: none;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .theme.on {
+    color: var(--text);
+  }
+
+  .swatch {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--swatch);
+    color: #fff;
+    box-shadow:
+      0 0 0 3px var(--bg-elev),
+      0 0 0 5px transparent;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+
+  .theme:hover .swatch {
+    transform: scale(1.06);
+  }
+
+  .theme.on .swatch {
+    box-shadow:
+      0 0 0 3px var(--bg-elev),
+      0 0 0 5px var(--swatch);
   }
 
   .libs {

@@ -3,6 +3,7 @@
   import { api, errorText, formatClock, type Section, type ServerSession } from "../lib/api";
   import { toast } from "../lib/nav.svelte";
   import Icon from "./Icon.svelte";
+  import { t } from "../lib/i18n";
 
   // Tableau de bord du serveur : lectures en cours de tous les utilisateurs et entretien des bibliothèques.
   let sessions = $state<ServerSession[] | null>(null);
@@ -37,13 +38,13 @@
   onDestroy(() => clearInterval(timer));
 </script>
 
-<h3 class="sub">Lectures en cours</h3>
+<h3 class="sub">{t("dashboard.nowPlaying")}</h3>
 {#if error}
   <p class="error">{error}</p>
 {:else if !sessions}
   <div class="skeleton" style:height="120px"></div>
 {:else if !sessions.length}
-  <p class="muted">Personne ne regarde ou n'écoute quoi que ce soit en ce moment.</p>
+  <p class="muted">{t("dashboard.nobody")}</p>
 {:else}
   <div class="sessions">
     {#each sessions as s, i (i)}
@@ -53,7 +54,7 @@
           <div class="who">
             {#if s.userThumb}<img class="avatar" src={s.userThumb} alt="" />{/if}
             <span>{s.user}</span>
-            <span class="state" class:paused={s.state === "paused"}>{s.state === "paused" ? "En pause" : s.state === "buffering" ? "Chargement" : "En lecture"}</span>
+            <span class="state" class:paused={s.state === "paused"}>{s.state === "paused" ? t("dashboard.paused") : s.state === "buffering" ? t("dashboard.buffering") : t("dashboard.playing")}</span>
           </div>
           <div class="title">{s.title}</div>
           {#if s.subtitle}<div class="muted small">{s.subtitle}</div>{/if}
@@ -61,8 +62,8 @@
           <div class="meta">
             <span>{formatClock(s.progressMs / 1000)} / {formatClock(s.durationMs / 1000)}</span>
             <span>
-              {s.player} · {s.local ? "Réseau local" : "À distance"} · {s.transcode ? "Transcodage" : "Lecture directe"}
-              {#if s.bandwidthKbps}· {(s.bandwidthKbps / 1000).toFixed(1)} Mb/s{/if}
+              {s.player} · {s.local ? t("dashboard.local") : t("dashboard.remote")} · {s.transcode ? t("dashboard.transcode") : t("dashboard.directPlay")}
+              {#if s.bandwidthKbps}· {t("dashboard.bandwidth", { rate: (s.bandwidthKbps / 1000).toFixed(1) })}{/if}
             </span>
           </div>
         </div>
@@ -71,17 +72,17 @@
   </div>
 {/if}
 
-<h3 class="sub">Bibliothèques</h3>
+<h3 class="sub">{t("dashboard.libraries")}</h3>
 <div class="libs">
   {#each sections as s (s.key)}
     <div class="lib">
       <Icon name={s.kind === "movie" ? "film" : s.kind === "artist" ? "music" : "tv"} />
       <span class="lib-name">{s.title}</span>
-      <button class="btn" onclick={() => act(() => api.scanSection(s.key), `Analyse de « ${s.title} » lancée`)}>
-        <Icon name="search" size={16} /> Rechercher les nouveaux fichiers
+      <button class="btn" onclick={() => act(() => api.scanSection(s.key), t("dashboard.scanStarted", { title: s.title }))}>
+        <Icon name="search" size={16} /> {t("dashboard.scan")}
       </button>
-      <button class="btn" onclick={() => act(() => api.emptyTrash(s.key), `Corbeille de « ${s.title} » vidée`)} title="Retire les éléments dont le fichier a disparu">
-        <Icon name="x" size={16} /> Vider la corbeille
+      <button class="btn" onclick={() => act(() => api.emptyTrash(s.key), t("dashboard.trashEmptied", { title: s.title }))} title={t("dashboard.emptyTrashHint")}>
+        <Icon name="x" size={16} /> {t("dashboard.emptyTrash")}
       </button>
     </div>
   {/each}

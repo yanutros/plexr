@@ -4,7 +4,27 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <script>
+      // ?theme=rouge|vert|violet : la même icône dans une autre couleur (jaune par défaut).
+      const THEMES = {
+        rouge: ["#ff4b52", "#e50914", "#b0060f", "#1f0203"],
+        vert: ["#3ee07a", "#1db954", "#148a3e", "#04140a"],
+        violet: ["#c98be0", "#aa5cc3", "#823f9b", "#ffffff"],
+      };
+      const t = THEMES[new URLSearchParams(location.search).get("theme")];
+      if (t) {
+        const s = document.documentElement.style;
+        ["--light", "--accent", "--dark", "--on"].forEach((k, i) => s.setProperty(k, t[i]));
+      }
+    </script>
     <style>
+      :root {
+        --light: #f7bd3a;
+        --accent: #e5a00d;
+        --dark: #c98400;
+        --on: #1a1300;
+      }
+
       html,
       body {
         margin: 0;
@@ -12,7 +32,7 @@
         height: 180px;
         overflow: hidden;
         background:
-          radial-gradient(70% 120% at 20% 50%, #e5a00d40, transparent 65%),
+          radial-gradient(70% 120% at 20% 50%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 65%),
           linear-gradient(135deg, #1b1c20, #0d0e10);
         font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
         color: #f1f1f3;
@@ -32,8 +52,8 @@
         width: 76px;
         height: 76px;
         border-radius: 20px;
-        background: linear-gradient(145deg, #f7bd3a, #e5a00d 55%, #c98400);
-        box-shadow: 0 0 30px #e5a00d66;
+        background: linear-gradient(145deg, var(--light), var(--accent) 55%, var(--dark));
+        box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 40%, transparent);
       }
 
       svg {
@@ -52,7 +72,7 @@
   </head>
   <body>
     <div class="wrap">
-      <div class="logo"><svg viewBox="0 0 24 24" fill="#1a1300"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z" /></svg></div>
+      <div class="logo"><svg viewBox="0 0 24 24" style="fill: var(--on)"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z" /></svg></div>
       <h1>Plexr</h1>
     </div>
   </body>
