@@ -293,7 +293,8 @@ machine), puis ajouté à la version avec `gh release upload`.
 ## ▶️ Premiers pas
 
 1. Cliquez sur **Se connecter avec Plex** : votre navigateur s'ouvre, validez le code.
-2. Choisissez votre serveur : Plexr teste ses adresses et garde la plus rapide (locale, distante, puis relais).
+2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
+   teste ses adresses et garde la plus rapide (locale, distante, puis relais).
 3. Parcourez vos bibliothèques et lancez une lecture.
 4. Dans **Réglages → Seerr et Tracearr**, ajoutez si vous le souhaitez Seerr et Tracearr, à la main ou avec
    l'invitation de l'administrateur (voir ci-dessous).
@@ -349,9 +350,10 @@ partagé ne voit pas cette partie : Plex la lui refuserait de toute façon.
 
 ### 📨 Inviter des utilisateurs
 
-Dans **Réglages → Seerr et Tracearr**, l'administrateur du serveur trouve **Inviter des utilisateurs** : un QR
-code (et le code équivalent) contenant les adresses de Seerr et de Tracearr configurées chez lui, **sans aucun
-identifiant**. Il le copie (texte ou image) pour l'envoyer par message.
+Dans **Réglages → Seerr et Tracearr**, l'administrateur du serveur trouve **Inviter des utilisateurs** : il y
+indique les adresses de Seerr et de Tracearr à partager (pré-remplies avec les siennes, s'il les a configurées) et
+obtient un QR code, et le code équivalent, qui les contient **sans aucun identifiant**. Il le copie (texte ou
+image) pour l'envoyer par message.
 
 Chez l'utilisateur, la **Configuration rapide** de la même page l'applique : Plexr enregistre les adresses, se
 connecte à Seerr avec le compte Plex et lance la connexion Tracearr.

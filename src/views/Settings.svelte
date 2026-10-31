@@ -94,11 +94,23 @@
 
   // --- Invitations ---
   // L'administrateur partage ses adresses Seerr et Tracearr ; les autres les appliquent en un geste.
-  const shareable = $derived(nav.admin && !!(session.seerrUrl || session.tracearrUrl));
+  // Adresses à partager : celles de l'administrateur par défaut, modifiables (il n'a pas besoin
+  // de s'être connecté lui-même pour inviter).
+  let inviteSeerr = $state("");
+  let inviteTracearr = $state("");
+  $effect.pre(() => {
+    inviteSeerr = session.seerrUrl ?? "";
+    inviteTracearr = session.tracearrUrl ?? "";
+  });
+  const isUrl = (v: string) => /^https?:\/\/[^\s]+$/.test(v.trim());
   const inviteCode = $derived(
-    shareable ? encodeInvite({ seerr: session.seerrUrl ?? undefined, tracearr: session.tracearrUrl ?? undefined }) : "",
+    isUrl(inviteSeerr) || isUrl(inviteTracearr)
+      ? encodeInvite({
+          seerr: isUrl(inviteSeerr) ? inviteSeerr.trim().replace(/\/+$/, "") : undefined,
+          tracearr: isUrl(inviteTracearr) ? inviteTracearr.trim().replace(/\/+$/, "") : undefined,
+        })
+      : "",
   );
-  const shared = $derived([session.seerrUrl && "Seerr", session.tracearrUrl && "Tracearr"].filter(Boolean).join(" et "));
   let inviteQr = $state<HTMLElement>();
   let relayUrl = $state<string | null>(null);
   let relayError = $state<string | null>(null);
@@ -333,10 +345,17 @@
         {/if}
         {#if inviteError}<p class="error">{inviteError}</p>{/if}
       </section>
-      {#if shareable}
+      {#if nav.admin}
         <section class="card">
           <h2>Inviter des utilisateurs</h2>
-          <p class="muted">Partage ce QR code ou ce code : Plexr y trouvera {shared} et s'y connectera avec le compte Plex de chacun.</p>
+          <p class="muted">
+            Partage ce QR code ou ce code : Plexr y trouvera ces adresses et s'y connectera avec le compte Plex de chacun.
+          </p>
+          <div class="invite-fields">
+            <label>Adresse de Seerr <input bind:value={inviteSeerr} placeholder="https://seerr.mondomaine.fr" /></label>
+            <label>Adresse de Tracearr <input bind:value={inviteTracearr} placeholder="https://tracearr.mondomaine.fr" /></label>
+          </div>
+          {#if inviteCode}
           <div class="invite">
             <div bind:this={inviteQr}><QrCode text={inviteCode} size={170} /></div>
             <div class="invite-side">
@@ -349,6 +368,7 @@
               {/if}
             </div>
           </div>
+          {/if}
         </section>
       {/if}
       <section class="card">
@@ -498,6 +518,12 @@
 
   .steps li.err::before {
     background: var(--danger);
+  }
+
+  .invite-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
   .invite {

@@ -84,8 +84,43 @@ pub struct Resource {
     pub access_token: Option<String>,
     #[serde(default)]
     pub owned: bool,
+    /// Propriétaire d'un serveur partagé (identifiant plex.tv et nom).
+    pub owner_id: Option<u64>,
+    pub source_title: Option<String>,
     #[serde(default)]
     pub connections: Vec<Connection>,
+}
+
+/// Photos des comptes Plex : celle de l'utilisateur et celles de ses amis (propriétaires des
+/// serveurs partagés), par identifiant. Facultatif : en cas d'échec, pas de photo.
+pub async fn avatars(http: &Client, client_id: &str, token: &str) -> (Option<String>, Vec<(u64, String)>) {
+    let get = |url: &'static str| async move {
+        with_plex_headers(http.get(url), client_id, Some(token)).send().await.ok()?.error_for_status().ok()?.text().await.ok()
+    };
+    let (me, users) = futures::join!(get("https://plex.tv/api/v2/user"), get("https://plex.tv/api/users"));
+    let own = me
+        .and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok())
+        .and_then(|v| v["thumb"].as_str().map(str::to_owned));
+    // Ancienne API en XML (la liste d'amis en JSON n'existe plus) : un <User …/> par ami.
+    let friends = users
+        .unwrap_or_default()
+        .split("<User ")
+        .skip(1)
+        .filter_map(|tag| {
+            // L'espace retirée par le découpage précède le premier attribut.
+            let tag = format!(" {}", &tag[..tag.find('>').unwrap_or(tag.len())]);
+            Some((xml_attr(&tag, "id")?.parse().ok()?, xml_attr(&tag, "thumb")?))
+        })
+        .collect();
+    (own, friends)
+}
+
+/// Valeur d'un attribut dans une balise XML (`nom="valeur"`), entités courantes décodées.
+fn xml_attr(tag: &str, name: &str) -> Option<String> {
+    let start = tag.find(&format!(" {name}=\""))? + name.len() + 3;
+    let end = start + tag[start..].find('"')?;
+    let value = tag[start..end].replace("&amp;", "&").replace("&quot;", "\"").replace("&lt;", "<").replace("&gt;", ">");
+    (!value.is_empty()).then_some(value)
 }
 
 #[derive(Deserialize, Clone)]

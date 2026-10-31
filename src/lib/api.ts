@@ -22,6 +22,8 @@ export interface ServerSummary {
   name: string;
   machineId: string;
   owned: boolean;
+  owner: string | null;
+  ownerThumb: string | null;
 }
 
 export interface Section {

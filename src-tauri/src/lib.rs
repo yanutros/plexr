@@ -178,16 +178,35 @@ struct ServerSummary {
     name: String,
     machine_id: String,
     owned: bool,
+    /// Nom du propriétaire (serveurs partagés) et photo de son compte Plex.
+    owner: Option<String>,
+    owner_thumb: Option<String>,
 }
 
 #[tauri::command]
 async fn plex_servers(state: State<'_, AppState>) -> CmdResult<Vec<ServerSummary>> {
     let c = state.cfg();
     let token = c.plex_token.ok_or_else(|| anyhow!("Non connecté à Plex"))?;
-    let servers = plex::servers(&state.http, &c.client_id, &token).await?;
-    Ok(servers
+    let (servers, (own, friends)) = futures::join!(
+        plex::servers(&state.http, &c.client_id, &token),
+        plex::avatars(&state.http, &c.client_id, &token)
+    );
+    Ok(servers?
         .into_iter()
-        .map(|r| ServerSummary { name: r.name, machine_id: r.client_identifier, owned: r.owned })
+        .map(|r| {
+            let owner_thumb = if r.owned {
+                own.clone()
+            } else {
+                r.owner_id.and_then(|id| friends.iter().find(|(f, _)| *f == id).map(|(_, t)| t.clone()))
+            };
+            ServerSummary {
+                name: r.name,
+                machine_id: r.client_identifier,
+                owned: r.owned,
+                owner: (!r.owned).then_some(r.source_title).flatten(),
+                owner_thumb,
+            }
+        })
         .collect())
 }
 
