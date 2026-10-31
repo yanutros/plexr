@@ -1,0 +1,39 @@
+<!doctype html>
+<!-- Source de l'icône de Plexr (1024×1024, fond transparent). Rendu puis conversion :
+     msedge --headless=new --default-background-color=00000000 --window-size=1024,1024 --screenshot=docs/logo.png docs/logo.html
+     npx tauri icon docs/logo.png -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1024px;
+        height: 1024px;
+        background: transparent;
+      }
+
+      .icon {
+        position: absolute;
+        inset: 64px;
+        border-radius: 224px;
+        background: linear-gradient(145deg, #f7bd3a, #e5a00d 55%, #c98400);
+        box-shadow: inset 0 10px 0 #ffffff55, inset 0 -18px 40px #0000002a;
+        display: grid;
+        place-items: center;
+      }
+
+      svg {
+        width: 470px;
+        height: 470px;
+        margin-left: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="#1a1300"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z" /></svg>
+    </div>
+  </body>
+</html>

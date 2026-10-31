@@ -1,0 +1,254 @@
+:root {
+  --bg: #141518;
+  --bg-sidebar: #0e0f11;
+  --bg-elev: #1d1f23;
+  --bg-hover: #2a2d33;
+  --border: #ffffff14;
+  --text: #f1f1f3;
+  --text-dim: #a0a3ab;
+  --text-faint: #6c7079;
+  --accent: #e5a00d;
+  --accent-hover: #f5b52a;
+  --accent-text: #1a1300;
+  --ok: #46c08a;
+  --info: #6b9bff;
+  --danger: #ef5d55;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Pendant la lecture, la vidéo (mpv) est dessinée sous la page : le fond doit être transparent. */
+html.playing body {
+  background: transparent;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--accent);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #ffffff12;
+  font-weight: 500;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #ffffff21;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn.round {
+  width: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.page {
+  padding: 8px 40px 48px;
+}
+
+.row-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 19px;
+  font-weight: 600;
+  margin: 32px 0 14px;
+}
+
+.row-title.page-title {
+  margin-top: 8px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.page-title .muted {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 28px 20px;
+}
+
+.muted {
+  color: var(--text-dim);
+}
+
+.error {
+  color: var(--danger);
+}
+
+.center {
+  display: grid;
+  place-items: center;
+  height: 100%;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 4px;
+  padding: 4px 6px;
+  background: #ffffff1c;
+  color: var(--text);
+}
+
+.badge.ok {
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--ok);
+}
+
+.badge.info {
+  background: color-mix(in srgb, var(--info) 22%, transparent);
+  color: var(--info);
+}
+
+.badge.outline {
+  background: none;
+  border: 1px solid #ffffff55;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-elev) 0%, #24272c 50%, var(--bg-elev) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius);
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffffff38;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ffffff5c;
+  background-clip: padding-box;
+}
+
+/* Télécommande (Android TV) : l'élément sélectionné est entouré de la couleur d'accent,
+   et les boutons se remplissent de cette couleur pour se repérer d'un coup d'œil. */
+html.tv :focus {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+html.tv .btn:focus:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: transparent;
+}
+
+/* Les jaquettes ont déjà leur propre liseré quand elles sont sélectionnées. */
+html.tv .img > :focus {
+  outline: none;
+}
+
+/* Écrans tactiles : pas de survol, les boutons d'action restent visibles. */
+html.touch .more,
+html.touch .dots,
+html.touch .album,
+html.touch .request {
+  opacity: 1;
+}
+
+/* Téléviseur : les flous d'arrière-plan coûtent cher aux puces des TV, on s'en passe. */
+html.tv *:not(.update-backdrop) {
+  backdrop-filter: none !important;
+}

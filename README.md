@@ -1,0 +1,457 @@
+<p align="center">
+  <img src="docs/banner.png" alt="Plexr, le client Plex de bureau" width="100%" />
+</p>
+
+<h3 align="center">Vos films, vos séries et votre musique Plex, dans une application de bureau rapide et soignée.</h3>
+
+<p align="center">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white" />
+  <img alt="Linux" src="https://img.shields.io/badge/Linux-RPM%20%7C%20DEB%20%7C%20AppImage-FCC624?logo=linux&logoColor=black" />
+  <img alt="macOS" src="https://img.shields.io/badge/macOS-11%2B-000000?logo=apple&logoColor=white" />
+  <img alt="Android TV" src="https://img.shields.io/badge/Android%20TV%20%7C%20tablette-7%2B-3DDC84?logo=android&logoColor=white" />
+  <img alt="Rust" src="https://img.shields.io/badge/Rust-Tauri%202-DEA584?logo=rust&logoColor=white" />
+  <img alt="Svelte" src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white" />
+  <img alt="mpv" src="https://img.shields.io/badge/lecteur-mpv-691F69" />
+  <img alt="Langue" src="https://img.shields.io/badge/langue-français-E5A00D" />
+  <a href="LICENSE"><img alt="Licence GPL-3.0" src="https://img.shields.io/badge/licence-GPL--3.0-blue" /></a>
+</p>
+
+<p align="center">
+  <a href="#-ce-que-fait-plexr">Fonctionnalités</a> ·
+  <a href="#-aperçu">Aperçu</a> ·
+  <a href="#-installer">Installer</a> ·
+  <a href="#%EF%B8%8F-configurer">Configurer</a> ·
+  <a href="#-développer">Développer</a> ·
+  <a href="#-confidentialité">Confidentialité</a> ·
+  <a href="#%EF%B8%8F-mentions-légales">Mentions légales</a> ·
+  <a href="#-licence">Licence</a>
+</p>
+
+---
+
+Plexr est un client [Plex](https://www.plex.tv) pour PC, écrit en Rust avec [Tauri](https://tauri.app). La vidéo
+et la musique sont lues par [mpv](https://mpv.io), directement dans la fenêtre de l'application, et l'interface est
+pensée comme celle d'une box TV : grands visuels, bandeaux qui défilent, rien de superflu.
+
+Il existe aussi en **application Android**, pour **Android TV / Google TV** et les **tablettes** : une interface
+dédiée à la télécommande, plus légère, pour rester fluide sur le matériel limité des téléviseurs.
+
+Il réunit aussi deux outils que l'on utilise souvent à côté de Plex : **Seerr** (Jellyseerr / Overseerr), pour
+demander un film ou une série absent de la bibliothèque, et **Tracearr**, pour suivre ses statistiques de
+visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe supplémentaire.
+
+## ✨ Ce que fait Plexr
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h4>🎬 Il lit tout, dans sa propre fenêtre</h4>
+      Vidéo intégrée avec une barre de contrôle maison : progression, ±10 s, épisode précédent et suivant,
+      volume, pistes audio et sous-titres, plein écran, raccourcis clavier. Reprise là où vous vous étiez arrêté.
+    </td>
+    <td width="50%" valign="top">
+      <h4>🏠 Il met vos bibliothèques en valeur</h4>
+      Accueil et bibliothèques avec un bandeau qui fait défiler cinq titres, puis un « Continuer à regarder »
+      façon plateforme de streaming : grandes affiches, et celle survolée s'ouvre en grand avec sa scène, son
+      épisode, sa progression et le bouton Reprendre. Puis de grands panneaux « À la une » et les rangées de Plex.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>🗂️ Il range par catégories</h4>
+      Chaque genre devient une grande carte colorée avec un éventail des affiches les mieux notées. Un clic
+      filtre la bibliothèque.
+    </td>
+    <td valign="top">
+      <h4>🎵 Il joue votre musique</h4>
+      Une page d'accueil façon Apple Music : grands panneaux des derniers albums, listes de lecture,
+      « Titres du moment », pochettes qui grandissent avec la fenêtre. File d'attente, lecture aléatoire et
+      vue « En cours de lecture ». Une barre de lecture flottante, en verre dépoli teinté par la pochette, reste
+      en bas pendant que vous naviguez.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>📥 Il fait vos demandes</h4>
+      Découvrez les tendances et les sorties à venir via Seerr, lisez la fiche complète (notes, casting,
+      bande-annonce) et demandez un film ou des saisons en un clic.
+    </td>
+    <td valign="top">
+      <h4>📊 Il raconte vos habitudes</h4>
+      Avec Tracearr : temps passé devant l'écran, top 10 du mois, plus long marathon, genres préférés… dans
+      une page façon Apple TV.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>🔍 Il trouve tout</h4>
+      Une seule recherche pour les films, séries et artistes de la bibliothèque, puis les titres absents
+      que l'on peut demander.
+    </td>
+    <td valign="top">
+      <h4>🔑 Il se connecte avec Plex</h4>
+      Connexion par code PIN, choix du serveur avec test automatique des adresses ; Seerr et Tracearr
+      utilisent le même compte.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>✏️ Il modifie vos fiches</h4>
+      Titre, résumé, dates, genres, affiche et fond d'écran d'un film, d'une série ou d'un album, avec les
+      verrous de champ de Plex. Menu ⋮ (ou clic droit) sur chaque jaquette.
+    </td>
+    <td valign="top">
+      <h4>🛠️ Il administre le serveur</h4>
+      Lectures en cours, entretien des bibliothèques et réglages du serveur (général, réseau, transcodeur…),
+      pour l'administrateur uniquement.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>🔄 Il se met à jour tout seul</h4>
+      Au lancement, une fenêtre présente la nouvelle version et ses nouveautés ; un clic télécharge et installe
+      le bon paquet, y compris sur Android TV, où installer à la main est fastidieux.
+    </td>
+    <td valign="top">
+      <h4>📨 Il s'invite en un QR code</h4>
+      L'administrateur partage un QR code ; chez l'utilisateur, il remplit Seerr et Tracearr et lance la
+      connexion. Sur la télé, on le montre simplement à son téléphone.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h4>📺 Il passe sur la télé</h4>
+      Sur Android TV, une interface faite pour la télécommande, à la manière des applications TV : la fiche de
+      l'élément sélectionné en haut, des rangées de jaquettes en dessous, un menu qui se déplie quand on y entre.
+      Connexion par un code à saisir sur plex.tv/link depuis son téléphone.
+    </td>
+    <td valign="top">
+      <h4>📱 Il tient dans la main</h4>
+      Sur tablette Android, l'interface complète de l'ordinateur, adaptée au toucher : menu replié par défaut,
+      boutons d'action toujours visibles, bouton Retour d'Android.
+    </td>
+  </tr>
+</table>
+
+## 📸 Aperçu
+
+> [!NOTE]
+> Ces captures viennent du **mode démo** de Plexr : la bibliothèque est fictive et toutes les affiches sont
+> générées par le programme. Aucun film, aucune série ni aucune œuvre réelle n'y figure.
+
+<p align="center">
+  <img src="docs/screenshots/accueil.png" alt="Accueil de Plexr" width="100%" />
+  <br /><em>L'accueil : bandeau « À suivre », rangées et barre de musique.</em>
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/films.png" alt="Bibliothèque de films" /><br /><em>🎞️ Une bibliothèque, onglet Recommandé</em></td>
+    <td width="50%"><img src="docs/screenshots/categories.png" alt="Catégories" /><br /><em>🗂️ Les catégories</em></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/fiche.png" alt="Fiche d'un film" /><br /><em>📄 La fiche d'un film</em></td>
+    <td><img src="docs/screenshots/lecteur.png" alt="Lecteur vidéo" /><br /><em>▶️ Le lecteur intégré</em></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/decouvrir.png" alt="Découvrir" /><br /><em>🧭 Découvrir avec Seerr</em></td>
+    <td><img src="docs/screenshots/seerr.png" alt="Fiche Seerr" /><br /><em>📥 Demander un titre</em></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/musique.png" alt="Musique" /><br /><em>🎵 La musique</em></td>
+    <td><img src="docs/screenshots/ecoute.png" alt="En cours de lecture" /><br /><em>🎧 En cours de lecture</em></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/stats.png" alt="Statistiques" /><br /><em>📊 Mes statistiques (Tracearr)</em></td>
+    <td><img src="docs/screenshots/series.png" alt="Séries" /><br /><em>📺 Les séries</em></td>
+  </tr>
+</table>
+
+## 🧰 Ce qu'il faut
+
+<table>
+  <tr><td>💻 <b>Système</b></td><td>Windows 10 ou 11, Linux (Fedora, Debian, Ubuntu… en 64 bits), macOS 11 et plus, ou Android 7 et plus (Android TV, Google TV, tablettes ; processeurs ARM)</td></tr>
+  <tr><td>🎞️ <b>Plex</b></td><td>un compte Plex et l'accès à un serveur Plex Media Server</td></tr>
+  <tr><td>▶️ <b>mpv</b></td><td>sur ordinateur, le lecteur <a href="https://mpv.io">mpv</a> : installé automatiquement avec les paquets RPM et DEB, sinon voir ci-dessous (inutile sur Android)</td></tr>
+  <tr><td>➕ <b>En option</b></td><td>une instance <a href="https://github.com/seerr-team/seerr">Seerr / Jellyseerr / Overseerr</a> pour les demandes, une instance <a href="https://github.com/connorgallopo/Tracearr">Tracearr</a> pour les statistiques</td></tr>
+</table>
+
+## 🚀 Installer
+
+Les paquets de chaque version sont publiés dans les [Releases](../../releases) du dépôt.
+
+| Système | Fichier | Installation |
+| --- | --- | --- |
+| 🪟 **Windows** | `Plexr_<version>_x64-setup.exe` (ou `.msi`) | lancez l'installeur, puis `winget install shinchiro.mpv` |
+| 🎩 **Fedora / RHEL** | `Plexr-<version>-1.x86_64.rpm` | `sudo dnf install ./Plexr-*.rpm` (installe aussi mpv) |
+| 🐧 **Debian / Ubuntu** | `Plexr_<version>_amd64.deb` | `sudo apt install ./Plexr_*.deb` (installe aussi mpv) |
+| 📦 **Autres Linux** | `Plexr_<version>_amd64.AppImage` | rendez-le exécutable (`chmod +x`), installez mpv avec votre gestionnaire de paquets |
+| 🍎 **macOS** | `Plexr_<version>_universal.dmg` | glissez Plexr dans Applications, puis `brew install mpv` |
+| 🤖 **Android TV / tablette** | `Plexr_<version>_android.apk` | voir ci-dessous |
+
+Plexr s'ouvre ensuite comme n'importe quel logiciel (menu Démarrer, lanceur d'applications ou Launchpad).
+
+> [!NOTE]
+> **Sous Linux et macOS**, la vidéo s'ouvre dans une fenêtre mpv séparée, en plein écran : Plexr la pilote à
+> distance (pause, avance, pistes…) et suit la progression comme sous Windows. L'incrustation de la vidéo dans la
+> fenêtre de Plexr n'existe pour l'instant que sous Windows. La musique fonctionne partout de la même façon.
+
+> [!IMPORTANT]
+> **macOS** : l'application n'est pas signée par Apple. Au premier lancement, faites un clic droit sur Plexr →
+> **Ouvrir**, puis confirmez.
+
+### 📺 Android TV et tablettes
+
+L'APK n'est pas sur le Play Store : il s'installe à la main (« sideload »).
+
+- **Tablette** : copiez l'APK sur l'appareil et ouvrez-le ; Android demande d'autoriser l'installation depuis
+  le gestionnaire de fichiers ou le navigateur.
+- **Téléviseur** : le plus simple est l'application *Downloader* (ou un gestionnaire de fichiers avec une clé
+  USB). Depuis un ordinateur, avec le débogage activé dans les options pour les développeurs de la TV :
+  `adb connect <ip-de-la-tv>:5555` puis `adb install Plexr_<version>_android.apk`.
+
+Plexr apparaît ensuite parmi les applications, avec sa bannière sur l'écran d'accueil de la TV.
+
+> [!NOTE]
+> **Lecture sur Android** : il n'y a pas de mpv. La vidéo est convertie à la volée par votre serveur Plex (flux
+> HLS, 1080p au maximum, sous-titres incrustés) et lue par le lecteur intégré ; le choix des pistes audio et des
+> sous-titres n'est pas encore proposé. La musique est lue directement. La reprise, l'épisode suivant et la
+> progression fonctionnent comme sur ordinateur.
+
+> [!TIP]
+> **Sur téléviseur**, l'interface est volontairement plus sobre que sur ordinateur (pas de carrousel animé, de
+> cartes qui s'agrandissent ni de flou) pour consommer peu de mémoire. Les nouveautés arrivent d'abord sur
+> l'application de bureau.
+
+### 🔄 Mises à jour
+
+À chaque lancement, Plexr consulte la dernière version publiée dans les [Releases](../../releases). S'il y en a
+une plus récente, une fenêtre en présente les nouveautés par-dessus l'application floutée ; **Mettre à jour**
+télécharge le paquet qui convient et l'installe :
+
+| Système | Ce qui se passe |
+| --- | --- |
+| 🪟 Windows | l'installeur tourne avec une simple barre de progression, puis Plexr redémarre |
+| 🤖 Android / TV | l'installateur d'Android s'ouvre ; la première fois, Android demande d'autoriser Plexr à installer des applications |
+| 📦 Linux (AppImage) | le fichier est remplacé et Plexr redémarre |
+| 🎩 Linux (RPM / DEB) | le paquet s'ouvre dans la logithèque du système |
+| 🍎 macOS | l'image disque s'ouvre ; glissez Plexr dans Applications |
+
+**Plus tard** referme la fenêtre jusqu'au prochain lancement. Rien n'est envoyé : Plexr lit seulement la page
+publique des versions sur GitHub.
+
+### Pourquoi pas encore de Flatpak ?
+
+Flatpak est le meilleur format pour toucher toutes les distributions via Flathub, mais il demande d'embarquer mpv
+dans le bac à sable et Flathub n'accepte que les projets publics. Il viendra avec l'ouverture du dépôt ; d'ici là,
+le RPM est la solution la plus simple sous Fedora (mises à jour par `dnf`, mpv venant des dépôts officiels).
+
+### Compiler soi-même
+
+Il faut [Rust](https://rustup.rs) et [Node.js](https://nodejs.org), plus :
+
+- **Windows** : les [Visual Studio Build Tools](https://visualstudio.microsoft.com/fr/visual-cpp-build-tools/)
+  (charge de travail « Développement Desktop en C++ ») ;
+- **Fedora** : `sudo dnf install webkit2gtk4.1-devel openssl-devel librsvg2-devel` et le groupe
+  `sudo dnf group install c-development` ;
+- **Debian / Ubuntu** : `sudo apt install libwebkit2gtk-4.1-dev build-essential librsvg2-dev libssl-dev` ;
+- **macOS** : les outils en ligne de commande Xcode (`xcode-select --install`).
+
+```bash
+git clone https://github.com/yanutros/plexr.git
+cd plexr
+npm install
+npm run tauri build
+```
+
+Les paquets sont créés dans `src-tauri/target/release/bundle/` (sous-dossiers `nsis`, `msi`, `rpm`, `deb`,
+`appimage` ou `dmg` selon le système).
+
+**Android.** Il faut en plus le JDK 17, le SDK Android (plateforme 36, build-tools, platform-tools) et le NDK,
+avec les variables `JAVA_HOME`, `ANDROID_HOME` et `NDK_HOME`, ainsi que les cibles Rust
+(`rustup target add aarch64-linux-android armv7-linux-androideabi`). Sous Windows, le **mode développeur** doit
+être activé (Tauri crée des liens symboliques). Le projet Android est versionné dans `src-tauri/gen/android`.
+
+```bash
+npx tauri android build --apk --target aarch64 --target armv7
+```
+
+L'APK universel est créé dans `src-tauri/gen/android/app/build/outputs/apk/universal/release/`. Pour le signer,
+placez un fichier `src-tauri/gen/android/keystore.properties` (ignoré par git) contenant `storeFile`,
+`password` et `keyAlias` ; sans lui, l'APK n'est pas signé et Android refuse de l'installer.
+
+### Publier une version
+
+Le workflow [`.github/workflows/paquets.yml`](.github/workflows/paquets.yml) construit les paquets des trois
+systèmes sur GitHub Actions et les joint à une version en brouillon. Il se lance en poussant une étiquette
+(`git tag v0.2.0 && git push origin v0.2.0`, après avoir mis à jour la version dans `package.json`,
+`src-tauri/Cargo.toml` et `src-tauri/tauri.conf.json`) ou à la main depuis l'onglet **Actions**.
+
+L'APK Android est compilé et signé sur l'ordinateur du mainteneur (la clé de signature ne quitte pas sa
+machine), puis ajouté à la version avec `gh release upload`.
+
+## ▶️ Premiers pas
+
+1. Cliquez sur **Se connecter avec Plex** : votre navigateur s'ouvre, validez le code.
+2. Choisissez votre serveur : Plexr teste ses adresses et garde la plus rapide (locale, distante, puis relais).
+3. Parcourez vos bibliothèques et lancez une lecture.
+4. Dans **Réglages → Seerr et Tracearr**, ajoutez si vous le souhaitez Seerr et Tracearr, à la main ou avec
+   l'invitation de l'administrateur (voir ci-dessous).
+
+**Sur téléviseur**, il n'y a pas de navigateur : Plexr affiche un code à quatre caractères. Allez sur
+[plex.tv/link](https://plex.tv/link) depuis un téléphone ou un ordinateur et saisissez-le ; la connexion se fait
+toute seule. Ce mode est aussi proposé sur ordinateur et tablette (**Avec un code**).
+
+### 📺 À la télécommande
+
+Les flèches déplacent la sélection (entourée en doré), **OK** ouvre ou lance, **Retour** ferme ce qui est ouvert
+puis revient à la page précédente. Sur « Continuer à regarder », OK reprend directement la lecture. Pendant une
+vidéo, les touches lecture / pause et suivant / précédent de la télécommande fonctionnent.
+
+### ⌨️ Raccourcis
+
+| Touche | Pendant une vidéo | Pendant la musique |
+| --- | --- | --- |
+| Espace | Lecture / pause (K aussi) | Lecture / pause |
+| ← / → | Reculer / avancer de 10 s | |
+| ↑ / ↓ | Volume | |
+| M | Couper le son | |
+| F | Plein écran (double-clic aussi) | |
+| Touches multimédia | | Lecture / pause, suivant, précédent |
+| Échap | Quitter le plein écran, puis le lecteur | Fermer la file d'attente ou la vue « En cours de lecture » |
+
+### 🧭 Menu latéral
+
+Le bouton ☰ replie le menu pour ne garder que les icônes. Le crayon à côté de « Bibliothèques » permet de les
+réordonner par glisser-déposer et d'en masquer (elles passent sous « Plus »). Ces choix sont gardés sur
+l'ordinateur ; **Réglages → Interface** les réinitialise.
+
+Sur téléviseur, le menu reste replié et se déplie quand on y entre (flèche gauche) ; l'ordre et l'affichage des
+bibliothèques se règlent dans **Réglages → Interface**, avec les boutons ▲ ▼ et l'œil de chaque bibliothèque.
+
+### ✏️ Modifier une fiche
+
+Pour l'administrateur du serveur, le menu ⋮ d'une jaquette (ou un clic droit) et le bouton **Modifier** des
+fiches ouvrent l'édition : champs (titre, tri, titre original, date, classification, studio, accroche, résumé…
+selon le type), genres, affiche et fond d'écran parmi les images proposées par Plex ou depuis une adresse web.
+Un champ modifié est verrouillé, comme dans Plex, pour que l'actualisation des métadonnées ne l'écrase pas ; le
+cadenas permet de le déverrouiller. Le même menu propose **Actualiser les métadonnées** et **Analyser**.
+
+## ⚙️ Configurer
+
+### 🖥️ Réglages du serveur Plex
+
+**Réglages** regroupe les options de Plexr (compte, Seerr et Tracearr, lecteur, interface) et, pour
+l'administrateur du serveur, celles de Plex : **Tableau de bord** (lectures en cours de tous les utilisateurs,
+recherche de nouveaux fichiers et corbeille de chaque bibliothèque) puis **Général, Bibliothèque, Réseau,
+Transcodeur, DLNA, Bonus et Tâches planifiées**. Les réglages avancés s'affichent sur demande. Un utilisateur
+partagé ne voit pas cette partie : Plex la lui refuserait de toute façon.
+
+### 📨 Inviter des utilisateurs
+
+Dans **Réglages → Seerr et Tracearr**, l'administrateur du serveur trouve **Inviter des utilisateurs** : un QR
+code (et le code équivalent) contenant les adresses de Seerr et de Tracearr configurées chez lui, **sans aucun
+identifiant**. Il le copie (texte ou image) pour l'envoyer par message.
+
+Chez l'utilisateur, la **Configuration rapide** de la même page l'applique : Plexr enregistre les adresses, se
+connecte à Seerr avec le compte Plex et lance la connexion Tracearr.
+
+- **Sur ordinateur** : collez le code, ou importez l'image du QR code.
+- **Sur téléviseur et tablette** : Plexr affiche son propre QR code. Scanné par un téléphone connecté au **même
+  Wi-Fi**, il ouvre une page servie par Plexr lui-même, où l'on prend en photo le QR code de l'invitation (ou
+  choisit l'image reçue, ou colle le code). La télé se configure aussitôt ; pour Tracearr, la page propose
+  ensuite d'autoriser la connexion avec Plex, sur le téléphone. Cette page n'existe que tant que l'écran est
+  ouvert, à une adresse aléatoire.
+
+Sur téléviseur, la connexion manuelle à Tracearr affiche elle aussi le lien d'autorisation en QR code, à
+scanner avec le téléphone.
+
+### 📥 Seerr
+
+Plexr ouvre la session Seerr avec **le compte Plex de l'utilisateur** : les demandes sont faites à son nom, avec
+ses quotas et ses droits. Il n'y a pas de clé API à saisir ; le compte doit simplement avoir été importé dans Seerr
+par l'administrateur. L'adresse de l'instance se règle dans **Réglages → Seerr**. La protection CSRF de Seerr est
+prise en charge.
+
+### 📊 Tracearr
+
+Dans **Réglages → Tracearr**, indiquez l'adresse de l'instance puis cliquez sur **Se connecter avec Plex**.
+Tracearr gère lui-même sa connexion Plex : le navigateur s'ouvre une fois pour l'autoriser, Plexr détecte la
+validation et garde la session 30 jours. Seules les données de l'utilisateur connecté sont affichées.
+
+## 🛠️ Développer
+
+```bash
+npm install
+npm run tauri dev
+```
+
+L'interface se recharge à chaque modification et le backend Rust est recompilé automatiquement.
+
+**Mode démo.** `npx vite` puis `http://localhost:1420/?demo=accueil` lance l'interface dans un navigateur, sans
+serveur Plex, avec une bibliothèque fictive et des visuels générés. Vues disponibles : `accueil`, `films`,
+`categories`, `series`, `fiche`, `lecteur`, `decouvrir`, `seerr`, `musique`, `ecoute`, `stats`. C'est ce mode qui
+produit les captures de cette page (avec Edge en mode sans interface, `--screenshot`).
+
+### 🏗️ Architecture
+
+| Fichier | Rôle |
+| --- | --- |
+| `src-tauri/src/plex.rs` | plex.tv (PIN, serveurs) et API du serveur Plex : bibliothèques, rangées, genres, musique |
+| `src-tauri/src/player.rs` | mpv incrusté dans la fenêtre (`--wid`, sous la page web transparente) ou en audio seul, piloté par son IPC JSON |
+| `src-tauri/src/seerr.rs` | Seerr : connexion Plex, découverte, fiches détaillées, demandes |
+| `src-tauri/src/tracearr.rs` | Tracearr : connexion Plex et tableau de bord personnel |
+| `src-tauri/src/plex_admin.rs` | administration : édition des métadonnées, images, réglages et lectures du serveur |
+| `src-tauri/src/update.rs` | dernière version sur GitHub, paquet adapté à l'appareil, téléchargement et installation |
+| `src-tauri/src/relay.rs`, `relay.html` | relais d'invitation : petite page servie sur le réseau local au téléphone (lecture du QR code avec jsQR) |
+| `src-tauri/src/lib.rs` | état de l'application et commandes Tauri |
+| `src/views/` | pages : accueil, bibliothèques, fiches, musique, découverte, statistiques, réglages |
+| `src/components/` | bandeau, cartes, lecteur vidéo, barre de musique… |
+| `src/lib/demo.ts` | mode démo (bibliothèque fictive) |
+| `src/components/UpdateDialog.svelte`, `src/lib/markdown.ts` | fenêtre « Nouvelle version disponible » et mise en forme des nouveautés |
+| `src/lib/invite.ts`, `src/components/QrCode.svelte` | codes d'invitation, QR codes (qrcode-generator) et lecture d'images (jsQR) |
+| `src/lib/device.ts` | type d'appareil (ordinateur, tablette tactile, téléviseur) et échelle de l'interface sur TV |
+| `src/lib/spatial.ts`, `src/lib/nav.svelte.ts` | navigation à la télécommande (flèches) et bouton Retour d'Android |
+| `src/components/TvRows.svelte`, `TvGrid.svelte`, `src/lib/tvcards.ts` | interface TV : rangées avec fiche en haut, grilles légères |
+| `src/lib/player.svelte.ts` | lecture : mpv sur ordinateur, lecteur HTML (HLS transcodé par Plex) sur Android |
+| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière), signature, détection du téléviseur (`MainActivity.kt`) |
+| `src-tauri/tauri.conf.json`, `tauri.windows.conf.json` | configuration et paquets ; la fenêtre transparente n'est activée que sous Windows |
+| `.github/workflows/paquets.yml` | construction des paquets Windows, Linux et macOS (l'APK est construit à part) |
+
+Sous Windows, pendant une vidéo, la fenêtre Tauri devient transparente et mpv dessine l'image dessous : l'interface
+web n'affiche plus que la barre de contrôle par-dessus. Ailleurs, mpv ouvre sa propre fenêtre et Plexr devient une
+télécommande, reliée à mpv par son IPC (socket Unix).
+
+## 🔒 Confidentialité
+
+- Plexr parle directement à votre serveur Plex, à plex.tv (connexion), à l'API publique de GitHub (pour savoir
+  si une nouvelle version existe) et, si vous les configurez, à vos instances Seerr et Tracearr. Il n'envoie
+  rien ailleurs et ne collecte aucune statistique d'usage.
+- Pendant la configuration par téléphone, et seulement tant que l'écran est ouvert, Plexr écoute sur le réseau
+  local à une adresse aléatoire, qui n'accepte qu'un code d'invitation.
+- La configuration est stockée sur votre appareil : `%APPDATA%\io.github.yanutros.plexr\config.json` sous Windows,
+  `~/.config/io.github.yanutros.plexr/config.json` sous Linux, `~/Library/Application Support/io.github.yanutros.plexr/config.json`
+  sous macOS, dans les données privées de l'application sur Android. Elle contient
+  le jeton Plex et les cookies de session Tracearr **en clair** : ne la partagez pas.
+- Les affiches et images affichées viennent de votre serveur Plex, de Seerr ou de TMDB, comme dans leurs propres
+  applications.
+
+## ⚖️ Mentions légales
+
+Plexr est un projet indépendant, **sans lien avec Plex, Inc.**, ni avec les projets Seerr, Overseerr, Jellyseerr,
+Tracearr ou mpv. « Plex » est une marque de Plex, Inc. ; les autres noms appartiennent à leurs propriétaires
+respectifs. Plexr ne fournit aucun contenu : il se contente d'afficher et de lire la bibliothèque de votre propre
+serveur. Les visuels du mode démo et des captures ci-dessus sont générés par le programme.
+
+## 📜 Licence
+
+Plexr est un logiciel libre, distribué sous la licence **GNU GPL version 3 ou ultérieure** : voir le fichier
+[`LICENSE`](LICENSE).
+
+En résumé, chacun peut utiliser, étudier, modifier et redistribuer Plexr, y compris dans une version modifiée,
+à condition de la distribuer elle aussi sous GPL, avec son code source et en conservant les mentions de droits
+d'auteur. Plexr est fourni **sans aucune garantie**.
+
+Les bibliothèques utilisées gardent leur propre licence (Tauri, Svelte et qrcode-generator sous MIT, jsQR et
+hls.js sous Apache-2.0, notamment) ; mpv est un
+programme séparé, lancé par Plexr, et reste sous sa licence.

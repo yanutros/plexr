@@ -1,0 +1,71 @@
+# Construit les paquets de Plexr pour Windows, Linux et macOS, puis les joint à une version
+# GitHub en brouillon. Se lance en poussant une étiquette « vX.Y.Z » ou à la main (onglet Actions).
+name: Paquets
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  paquets:
+    name: ${{ matrix.nom }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - nom: Windows (installeur NSIS et MSI)
+            os: windows-latest
+            args: ""
+          - nom: Linux (RPM, DEB et AppImage)
+            os: ubuntu-22.04
+            args: ""
+          - nom: macOS (Apple Silicon et Intel)
+            os: macos-latest
+            args: "--target universal-apple-darwin"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Dépendances système (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - run: npm ci
+
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: Plexr v__VERSION__
+          releaseBody: |
+            Paquets de Plexr v__VERSION__.
+
+            - **Windows** : `Plexr_…_x64-setup.exe` (ou le `.msi`).
+            - **Fedora / RHEL** : `Plexr-….x86_64.rpm` — `sudo dnf install ./Plexr-*.rpm` (installe aussi mpv).
+            - **Debian / Ubuntu** : `Plexr_…_amd64.deb` — `sudo apt install ./Plexr_*.deb`.
+            - **Autres Linux** : `Plexr_…_amd64.AppImage` (mpv à installer avec le gestionnaire de paquets).
+            - **macOS** : `Plexr_…_universal.dmg` (mpv : `brew install mpv`). L'application n'est pas signée :
+              au premier lancement, clic droit sur Plexr → Ouvrir.
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}

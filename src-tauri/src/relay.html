@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Plexr</title>
+<style>
+  :root { color-scheme: dark; --accent: #e5a00d; --bg: #141518; --elev: #1d1f23; --dim: #a0a3ab; --ok: #46c08a; --err: #ef5d55; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: #f1f1f3; font: 16px/1.5 system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 440px; margin: 0 auto; padding: 32px 20px 48px; }
+  .logo { width: 56px; height: 56px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 16px; background: linear-gradient(145deg, #f7bd3a, #e5a00d 55%, #c98400); color: #1a1300; box-shadow: 0 0 36px #e5a00d55; }
+  h1 { margin: 0 0 6px; text-align: center; font-size: 24px; }
+  .sub { margin: 0 0 28px; text-align: center; color: var(--dim); }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 54px; margin-bottom: 12px; padding: 0 18px; border: 1px solid #ffffff1a; border-radius: 14px; background: #ffffff12; color: inherit; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .btn.primary { border-color: transparent; background: var(--accent); color: #1a1300; font-weight: 700; }
+  .btn:disabled { opacity: 0.5; }
+  input[type=file] { display: none; }
+  .or { margin: 18px 0 10px; text-align: center; color: var(--dim); font-size: 14px; }
+  textarea { width: 100%; min-height: 84px; margin-bottom: 12px; padding: 12px 14px; border: 1px solid #ffffff1a; border-radius: 14px; background: var(--elev); color: inherit; font: 14px/1.4 ui-monospace, monospace; resize: vertical; }
+  .steps { display: grid; gap: 10px; }
+  .step { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: var(--elev); }
+  .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: #ffffff33; }
+  .step.run .dot { background: var(--accent); animation: pulse 1s infinite alternate; }
+  .step.ok .dot { background: var(--ok); }
+  .step.err .dot { background: var(--err); }
+  .step small { display: block; color: var(--dim); }
+  @keyframes pulse { to { opacity: 0.35; } }
+  .msg { min-height: 24px; margin: 10px 0 0; text-align: center; color: var(--err); }
+  .done { margin-top: 22px; text-align: center; font-size: 18px; font-weight: 700; color: var(--ok); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z"/></svg></div>
+  <h1>Configurer Plexr</h1>
+  <p class="sub" id="sub">Le QR code d'invitation t'a été envoyé par l'administrateur du serveur.</p>
+
+  <section id="pick">
+    <label class="btn primary" for="camera">📷 Scanner le QR code</label>
+    <input id="camera" type="file" accept="image/*" capture="environment" />
+    <label class="btn" for="gallery">🖼️ Choisir une image du QR code</label>
+    <input id="gallery" type="file" accept="image/*" />
+    <p class="or">ou colle le code reçu</p>
+    <textarea id="code" placeholder="PLEXR-INVITE:…" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+    <button class="btn" id="send">Envoyer</button>
+    <p class="msg" id="msg"></p>
+  </section>
+
+  <section id="progress" hidden>
+    <div class="steps">
+      <div class="step" id="s-seerr" hidden><span class="dot"></span><div>Demandes (Seerr)<small></small></div></div>
+      <div class="step" id="s-tracearr" hidden><span class="dot"></span><div>Statistiques (Tracearr)<small></small></div></div>
+    </div>
+    <a class="btn primary" id="authorize" target="_blank" rel="noopener" hidden>Autoriser Tracearr avec Plex</a>
+    <p class="done" id="done" hidden>C'est prêt ! Tu peux reposer ton téléphone.</p>
+    <p class="msg" id="perror"></p>
+  </section>
+</main>
+<script>/*JSQR*/</script>
+<script>
+  const base = location.pathname.replace(/\/$/, "");
+  const $ = (id) => document.getElementById(id);
+  const PREFIX = "PLEXR-INVITE:";
+
+  // Lecture du QR code dans la photo, réduite pour aller vite sur un téléphone.
+  async function decode(file) {
+    const img = await createImageBitmap(file);
+    const scale = Math.min(1, 1200 / Math.max(img.width, img.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const found = jsQR(data.data, data.width, data.height, { inversionAttempts: "attemptBoth" });
+    return found ? found.data : null;
+  }
+
+  async function onFile(e) {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    $("msg").textContent = "";
+    try {
+      const text = await decode(file);
+      if (!text) throw new Error("Aucun QR code trouvé dans l'image : réessaie en le cadrant bien.");
+      await send(text);
+    } catch (err) {
+      $("msg").textContent = err.message;
+    }
+  }
+
+  async function send(text) {
+    text = text.trim();
+    if (!text.startsWith(PREFIX)) throw new Error("Ce n'est pas un code d'invitation Plexr.");
+    const r = await fetch(base + "/code", { method: "POST", body: text });
+    if (!r.ok) throw new Error("La télé ne répond plus : rouvre l'écran de configuration.");
+    $("pick").hidden = true;
+    $("progress").hidden = false;
+    $("sub").textContent = "Regarde ta télé : Plexr se configure.";
+    poll();
+  }
+
+  function show(id, state, detail) {
+    const el = $(id);
+    if (!state) return;
+    el.hidden = false;
+    el.className = "step " + (state === "ok" ? "ok" : state === "run" ? "run" : "err");
+    el.querySelector("small").textContent = detail || (state === "ok" ? "Connecté" : state === "run" ? "Connexion…" : "");
+  }
+
+  async function poll() {
+    try {
+      const s = await (await fetch(base + "/status", { cache: "no-store" })).json();
+      show("s-seerr", s.seerr, s.seerrError);
+      show("s-tracearr", s.tracearr, s.tracearrError);
+      const auth = $("authorize");
+      auth.hidden = !(s.tracearr === "run" && s.authUrl);
+      if (s.authUrl) auth.href = s.authUrl;
+      if (s.step === "done") {
+        $("done").hidden = false;
+        return;
+      }
+      if (s.step === "error") {
+        $("perror").textContent = s.error || "La configuration a échoué.";
+        return;
+      }
+    } catch {
+      // La télé a peut-être fermé l'écran : on réessaie quand même.
+    }
+    setTimeout(poll, 1500);
+  }
+
+  $("camera").addEventListener("change", onFile);
+  $("gallery").addEventListener("change", onFile);
+  $("send").addEventListener("click", () => send($("code").value).catch((err) => ($("msg").textContent = err.message)));
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+node_modules/
+dist/
+src-tauri/target/
+# Le projet Android (gen/android) est personnalisé et versionné ; les schémas sont régénérés.
+src-tauri/gen/schemas/
