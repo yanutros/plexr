@@ -24,7 +24,11 @@
       "shared": "Acceso compartido",
       "server": "Servidor:",
       "changeServer": "Cambiar de servidor",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "version": "Plexr {{version}}",
+      "checkUpdates": "Buscar actualizaciones",
+      "checking": "Buscando…",
+      "upToDate": "Plexr está actualizado ({{version}})"
     },
     "services": {
       "seerrConnected": "Conectado a Seerr con tu cuenta de Plex",

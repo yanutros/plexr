@@ -24,7 +24,11 @@
       "shared": "Shared access",
       "server": "Server:",
       "changeServer": "Change server",
-      "logout": "Sign out"
+      "logout": "Sign out",
+      "version": "Plexr {{version}}",
+      "checkUpdates": "Check for updates",
+      "checking": "Checking…",
+      "upToDate": "Plexr is up to date ({{version}})"
     },
     "services": {
       "seerrConnected": "Connected to Seerr with your Plex account",

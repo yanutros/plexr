@@ -24,7 +24,11 @@
       "shared": "Gedeelde toegang",
       "server": "Server:",
       "changeServer": "Andere server",
-      "logout": "Uitloggen"
+      "logout": "Uitloggen",
+      "version": "Plexr {{version}}",
+      "checkUpdates": "Zoeken naar updates",
+      "checking": "Zoeken…",
+      "upToDate": "Plexr is up-to-date ({{version}})"
     },
     "services": {
       "seerrConnected": "Verbonden met Seerr via je Plex-account",

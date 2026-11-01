@@ -1,5 +1,9 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
+  "build": {
+    "beforeDevCommand": "node scripts/fetch-mpv.mjs && npm run dev",
+    "beforeBuildCommand": "node scripts/fetch-mpv.mjs && npm run build"
+  },
   "app": {
     "windows": [
       {
@@ -13,6 +17,14 @@
     ]
   },
   "bundle": {
-    "targets": ["nsis", "msi"]
+    "targets": [
+      "nsis",
+      "msi"
+    ],
+    "resources": {
+      "mpv-win/mpv.exe": "mpv/mpv.exe",
+      "mpv-win/d3dcompiler_43.dll": "mpv/d3dcompiler_43.dll",
+      "mpv-win/mpv/fonts.conf": "mpv/mpv/fonts.conf"
+    }
   }
 }

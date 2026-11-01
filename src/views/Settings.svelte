@@ -7,6 +7,8 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import { device } from "../lib/device";
+  import { getVersion } from "@tauri-apps/api/app";
+  import { checkForUpdate, update } from "../lib/update.svelte";
   import { applyTheme, savedTheme, THEME_COLORS, THEMES, type Theme } from "../lib/theme";
   import Icon, { type IconName } from "../components/Icon.svelte";
   import ServerPrefs from "../components/ServerPrefs.svelte";
@@ -270,6 +272,18 @@
     applyTheme(th, true);
   }
 
+  // Version installée, et recherche manuelle d'une nouvelle version.
+  let version = $state("");
+  getVersion().then((v) => (version = v), () => {});
+
+  async function checkUpdates() {
+    try {
+      if (!(await checkForUpdate())) toast(t("settings.account.upToDate", { version }));
+    } catch (e) {
+      toast(errorText(e), true);
+    }
+  }
+
   async function logout() {
     await api.logout();
     onChange();
@@ -326,6 +340,15 @@
         <div class="row">
           <button class="btn" onclick={changeServer}>{t("settings.account.changeServer")}</button>
           <button class="btn" onclick={logout}><Icon name="logout" size={16} /> {t("settings.account.logout")}</button>
+        </div>
+      </section>
+      <section class="card">
+        <p>{t("settings.account.version", { version })}</p>
+        <div class="row">
+          <button class="btn" disabled={update.checking} onclick={checkUpdates}>
+            <Icon name="restart" size={16} />
+            {update.checking ? t("settings.account.checking") : t("settings.account.checkUpdates")}
+          </button>
         </div>
       </section>
     {:else if page === "services"}

@@ -7,12 +7,14 @@
   import { onBack } from "../lib/nav.svelte";
   import Icon from "./Icon.svelte";
   import { locale, t } from "../lib/i18n";
+  import { checkForUpdate, update as pending } from "../lib/update.svelte";
 
   /**
    * Au lancement, si une nouvelle version est publiée, une fenêtre la présente par-dessus Plexr
    * flouté : nouveautés, puis « Mettre à jour » télécharge et installe le bon paquet pour l'appareil.
    */
-  let info = $state<UpdateInfo | null>(null);
+  // La version proposée vit dans lib/update.svelte.ts (la recherche peut venir des Réglages).
+  const info = $derived(pending.info);
   let progress = $state<number | null>(null);
   let message = $state<string | null>(null);
   let error = $state<string | null>(null);
@@ -27,11 +29,11 @@
   onMount(() => {
     // Pas de vérification dans le mode démo (captures du README).
     if (new URLSearchParams(location.search).has("demo")) return;
-    api.updateCheck().then((i) => (info = i), () => {});
+    checkForUpdate().catch(() => {});
     const unlisten = listen<number>("update-progress", (e) => (progress = e.payload));
     onBack(() => {
       if (!info || progress !== null) return false;
-      info = null;
+      pending.info = null;
       return true;
     });
     return () => unlisten.then((f) => f());
@@ -78,7 +80,7 @@
           <h2 id="update-title">{t("update.title")}</h2>
           <p>Plexr {info.version}{#if date} · {date}{/if} — {t("update.current", { version: info.current })}</p>
         </div>
-        <button class="close" onclick={() => (info = null)} disabled={progress !== null} aria-label={t("update.close")}>
+        <button class="close" onclick={() => (pending.info = null)} disabled={progress !== null} aria-label={t("update.close")}>
           <Icon name="x" size={18} />
         </button>
       </header>
@@ -103,7 +105,7 @@
           {t("update.allReleases")} <Icon name="external" size={14} />
         </button>
         <span class="spacer"></span>
-        <button class="btn" onclick={() => (info = null)} disabled={progress !== null}>{t("update.later")}</button>
+        <button class="btn" onclick={() => (pending.info = null)} disabled={progress !== null}>{t("update.later")}</button>
         <button class="btn primary" bind:this={primary} onclick={update} disabled={progress !== null}>
           {progress !== null ? t("update.downloading", { percent: Math.round(progress * 100) }) : t("update.update")}
         </button>

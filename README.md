@@ -187,7 +187,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
 <table>
   <tr><td>💻 <b>Système</b></td><td>Windows 10 ou 11, Linux (Fedora, Debian, Ubuntu… en 64 bits), macOS 11 et plus, ou Android 7 et plus (téléphones, tablettes, Android TV, Google TV ; processeurs ARM)</td></tr>
   <tr><td>🎞️ <b>Plex</b></td><td>un compte Plex et l'accès à un serveur Plex Media Server</td></tr>
-  <tr><td>▶️ <b>mpv</b></td><td>sur ordinateur, le lecteur <a href="https://mpv.io">mpv</a> : installé automatiquement avec les paquets RPM et DEB, sinon voir ci-dessous (inutile sur Android)</td></tr>
+  <tr><td>▶️ <b>mpv</b></td><td>sur ordinateur, le lecteur <a href="https://mpv.io">mpv</a> : fourni avec l'installeur Windows, installé automatiquement avec les paquets RPM et DEB, sinon voir ci-dessous (inutile sur Android)</td></tr>
   <tr><td>➕ <b>En option</b></td><td>une instance <a href="https://github.com/seerr-team/seerr">Seerr / Jellyseerr / Overseerr</a> pour les demandes, une instance <a href="https://github.com/connorgallopo/Tracearr">Tracearr</a> pour les statistiques</td></tr>
 </table>
 
@@ -197,7 +197,7 @@ Les paquets de chaque version sont publiés dans les [Releases](../../releases) 
 
 | Système | Fichier | Installation |
 | --- | --- | --- |
-| 🪟 **Windows** | `Plexr_<version>_x64-setup.exe` (ou `.msi`) | lancez l'installeur, puis `winget install shinchiro.mpv` |
+| 🪟 **Windows** | `Plexr_<version>_x64-setup.exe` (ou `.msi`) | lancez l'installeur : mpv est inclus, rien d'autre à installer |
 | 🎩 **Fedora / RHEL** | `Plexr-<version>-1.x86_64.rpm` | `sudo dnf install ./Plexr-*.rpm` (installe aussi mpv) |
 | 🐧 **Debian / Ubuntu** | `Plexr_<version>_amd64.deb` | `sudo apt install ./Plexr_*.deb` (installe aussi mpv) |
 | 📦 **Autres Linux** | `Plexr_<version>_amd64.AppImage` | rendez-le exécutable (`chmod +x`), installez mpv avec votre gestionnaire de paquets |
@@ -263,8 +263,9 @@ télécharge le paquet qui convient et l'installe :
 | 🎩 Linux (RPM / DEB) | le paquet s'ouvre dans la logithèque du système |
 | 🍎 macOS | l'image disque s'ouvre ; glissez Plexr dans Applications |
 
-**Plus tard** referme la fenêtre jusqu'au prochain lancement. Rien n'est envoyé : Plexr lit seulement la page
-publique des versions sur GitHub.
+**Plus tard** referme la fenêtre jusqu'au prochain lancement. **Réglages → Compte → Rechercher les mises à jour**
+lance la même vérification à la demande. Rien n'est envoyé : Plexr lit seulement la page publique des versions
+sur GitHub.
 
 ### Pourquoi pas encore de Flatpak ?
 
@@ -292,6 +293,11 @@ npm run tauri build
 
 Les paquets sont créés dans `src-tauri/target/release/bundle/` (sous-dossiers `nsis`, `msi`, `rpm`, `deb`,
 `appimage` ou `dmg` selon le système).
+
+Sous Windows, `scripts/fetch-mpv.mjs` télécharge d'abord une version épinglée de mpv
+([mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake)), vérifiée par son empreinte SHA-256,
+dans `src-tauri/mpv-win/` (ignoré par git) : l'installeur la dépose dans `Plexr\mpv\`, où Plexr la trouve. Un
+chemin de mpv indiqué dans **Réglages → Lecteur** reste prioritaire.
 
 **Android.** Il faut en plus le JDK 17, le SDK Android (plateforme 36, build-tools, platform-tools) et le NDK,
 avec les variables `JAVA_HOME`, `ANDROID_HOME` et `NDK_HOME`, ainsi que les cibles Rust
@@ -517,4 +523,6 @@ d'auteur. Plexr est fourni **sans aucune garantie**.
 
 Les bibliothèques utilisées gardent leur propre licence (Tauri, Svelte et qrcode-generator sous MIT, jsQR et
 hls.js sous Apache-2.0, notamment) ; mpv est un
-programme séparé, lancé par Plexr, et reste sous sa licence.
+programme séparé, lancé par Plexr, et reste sous sa licence. L'installeur Windows en inclut une version
+compilée par [mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake), sous GPL, dont le code source
+est disponible sur [github.com/mpv-player/mpv](https://github.com/mpv-player/mpv).
