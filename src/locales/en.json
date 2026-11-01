@@ -623,5 +623,10 @@
     "libraries": "Libraries",
     "noLibraries": "No libraries on this server.",
     "search": "Search"
+  },
+  "person": {
+    "titles_one": "{{count}} title in your libraries",
+    "titles_other": "{{count}} titles in your libraries",
+    "none": "Nothing in your libraries."
   }
 }

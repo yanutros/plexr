@@ -623,5 +623,10 @@
     "libraries": "Mediatheken",
     "noLibraries": "Keine Mediatheken auf diesem Server.",
     "search": "Suchen"
+  },
+  "person": {
+    "titles_one": "{{count}} Titel in deinen Mediatheken",
+    "titles_other": "{{count}} Titel in deinen Mediatheken",
+    "none": "Nichts in deinen Mediatheken."
   }
 }

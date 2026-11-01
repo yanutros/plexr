@@ -3,6 +3,7 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import TitleLogo from "./TitleLogo.svelte";
   import { t } from "../lib/i18n";
 
   /**
@@ -85,7 +86,7 @@
           <div class="shade"></div>
           <div class="info">
             {#if item.kind === "episode"}<div class="eyebrow">{t("common.c1.show")}</div>{:else}<div class="eyebrow">{t("common.c1.movie")}</div>{/if}
-            <h3>{item.showTitle ?? item.title}</h3>
+            <h3><TitleLogo logo={item.logo} title={item.showTitle ?? item.title} /></h3>
             <div class="sub">
               {#if item.kind === "episode"}
                 <span class="ep">{t("common.c1.episodeCode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</span> · {item.title}
@@ -423,5 +424,15 @@
 
   :global(html.phone) .left {
     display: none;
+  }
+
+  /* Logo du titre dans la carte ouverte. */
+  h3 {
+    --logo-h: 72px;
+    --logo-w: 62%;
+  }
+
+  :global(html.phone) h3 {
+    --logo-h: 48px;
   }
 </style>

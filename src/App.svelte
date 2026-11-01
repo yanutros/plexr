@@ -11,6 +11,7 @@
   import ItemDetail from "./views/ItemDetail.svelte";
   import Search from "./views/Search.svelte";
   import Libraries from "./views/Libraries.svelte";
+  import Person from "./views/Person.svelte";
   import PhoneTabs from "./components/PhoneTabs.svelte";
   import Discover from "./views/Discover.svelte";
   import SeerrDetail from "./views/SeerrDetail.svelte";
@@ -151,6 +152,8 @@
             <Library sectionKey={nav.view.key} title={nav.view.title} initialTab={nav.view.tab} />
           {:else if nav.view.name === "item"}
             <ItemDetail ratingKey={nav.view.ratingKey} />
+          {:else if nav.view.name === "person"}
+            <Person id={nav.view.id} name={nav.view.personName} photo={nav.view.photo} />
           {:else if nav.view.name === "search"}
             <Search query={nav.view.query} />
           {:else if nav.view.name === "discover"}

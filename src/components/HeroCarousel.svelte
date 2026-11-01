@@ -4,6 +4,7 @@
   import { go, toast } from "../lib/nav.svelte";
   import { play } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
+  import TitleLogo from "./TitleLogo.svelte";
   import { t } from "../lib/i18n";
 
   /**
@@ -77,7 +78,7 @@
     {#key featured.ratingKey}
       <div class="hero-body">
         {#if eyebrow?.(featured)}<div class="eyebrow">{eyebrow(featured)}</div>{/if}
-        <h1>{featured.showTitle ?? featured.title}</h1>
+        <h1><TitleLogo logo={featured.logo} title={featured.showTitle ?? featured.title} /></h1>
         <div class="meta">
           {#if featured.kind === "episode"}
             <span>{t("hero.episodeLine", { season: featured.parentIndex ?? "", episode: featured.index ?? "", title: featured.title })}</span>
@@ -314,5 +315,15 @@
   :global(html.phone) .dots {
     right: 16px;
     bottom: 18px;
+  }
+
+  /* Logo du titre dans le bandeau. */
+  h1 {
+    --logo-h: 130px;
+    --logo-w: min(440px, 90%);
+  }
+
+  :global(html.phone) h1 {
+    --logo-h: 84px;
   }
 </style>

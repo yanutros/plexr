@@ -41,6 +41,8 @@ export interface Item {
   year: number | null;
   summary: string | null;
   poster: string | null;
+  /** Logo officiel du titre (PNG transparent), quand Plex en a un. */
+  logo: string | null;
   thumb: string | null;
   backdrop: string | null;
   index: number | null;
@@ -72,7 +74,7 @@ export interface ItemDetail extends Item {
   releaseDate: string | null;
   directors: string[];
   writers: string[];
-  cast: { name: string; role: string | null; photo: string | null }[];
+  cast: { id: number | null; name: string; role: string | null; photo: string | null }[];
   video: string | null;
   audioTracks: Track[];
   subtitleTracks: Track[];
@@ -328,6 +330,7 @@ export const api = {
   home: () => invoke<Home>("plex_home"),
   metadata: (ratingKey: string) => invoke<ItemDetail>("plex_metadata", { ratingKey }),
   children: (ratingKey: string) => invoke<Item[]>("plex_children", { ratingKey }),
+  personItems: (id: number) => invoke<Item[]>("plex_person_items", { id }),
   search: (query: string) => invoke<Item[]>("plex_search", { query }),
   setWatched: (ratingKey: string, watched: boolean) => invoke<void>("plex_set_watched", { ratingKey, watched }),
 

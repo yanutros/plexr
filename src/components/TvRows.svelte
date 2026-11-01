@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import { moveFocus } from "../lib/spatial";
+  import TitleLogo from "./TitleLogo.svelte";
   import type { TvRow } from "../lib/tvcards";
 
   /**
@@ -81,7 +82,7 @@
   {#if current}
     <div class="spotlight">
       <div class="eyebrow">{current.eyebrow}</div>
-      <h1>{current.title}</h1>
+      <h1><TitleLogo logo={current.logo} title={current.title} /></h1>
       {#if current.line}<div class="line">{current.line}</div>{/if}
       {#if current.summary}<p>{current.summary}</p>{/if}
     </div>
@@ -325,5 +326,11 @@
     height: 100%;
     border-radius: 2px;
     background: var(--accent);
+  }
+
+  /* Logo du titre dans la fiche du haut. */
+  h1 {
+    --logo-h: 104px;
+    --logo-w: 70%;
   }
 </style>

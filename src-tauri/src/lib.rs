@@ -227,6 +227,29 @@ async fn plex_select_server(state: State<'_, AppState>, machine_id: String) -> C
     Ok(name)
 }
 
+/// Au lancement : la meilleure adresse du serveur peut avoir changé (autre réseau, Wi-Fi ↔ 4G,
+/// adresse locale devenue joignable) ; on la revérifie et on la garde si elle diffère.
+async fn refresh_connection(state: &AppState) -> anyhow::Result<()> {
+    let c = state.cfg();
+    let (Some(token), Some(saved)) = (c.plex_token, c.server) else { return Ok(()) };
+    let Some(res) = plex::servers(&state.http, &c.client_id, &token)
+        .await?
+        .into_iter()
+        .find(|r| r.client_identifier == saved.machine_id)
+    else {
+        return Ok(());
+    };
+    let uri = plex::pick_connection(&state.http, &c.client_id, &res).await?;
+    if uri != saved.uri {
+        state.update_cfg(|c| {
+            if let Some(s) = c.server.as_mut() {
+                s.uri = uri;
+            }
+        })?;
+    }
+    Ok(())
+}
+
 // ---------- Bibliothèques ----------
 
 #[tauri::command]
@@ -292,6 +315,12 @@ async fn plex_home(state: State<'_, AppState>) -> CmdResult<Home> {
 #[tauri::command]
 async fn plex_metadata(state: State<'_, AppState>, rating_key: String) -> CmdResult<ItemDetail> {
     Ok(state.server()?.metadata(&rating_key).await?)
+}
+
+/// Films et séries où joue une personne (identifiant Plex de l'acteur), toutes bibliothèques confondues.
+#[tauri::command]
+async fn plex_person_items(state: State<'_, AppState>, id: u64) -> CmdResult<Vec<plex::Item>> {
+    Ok(state.server()?.person_items(id).await?)
 }
 
 #[tauri::command]
@@ -830,6 +859,10 @@ pub fn run() {
                 player: Mutex::new(None),
                 relay: Mutex::new(None),
             });
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let _ = refresh_connection(&handle.state::<AppState>()).await;
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -852,6 +885,7 @@ pub fn run() {
             plex_home,
             plex_metadata,
             plex_children,
+            plex_person_items,
             plex_search,
             plex_set_watched,
             plex_is_admin,

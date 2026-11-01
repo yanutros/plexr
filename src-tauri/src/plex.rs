@@ -131,6 +131,10 @@ pub struct Connection {
     pub local: bool,
     #[serde(default)]
     pub relay: bool,
+    #[serde(default)]
+    pub address: String,
+    #[serde(default)]
+    pub port: u16,
 }
 
 pub async fn servers(http: &Client, client_id: &str, token: &str) -> Result<Vec<Resource>> {
@@ -150,20 +154,38 @@ pub async fn servers(http: &Client, client_id: &str, token: &str) -> Result<Vec<
         .collect())
 }
 
-/// Teste toutes les adresses du serveur en parallèle et garde la meilleure joignable :
-/// locale d'abord, puis distante, le relais Plex en dernier recours.
+/// Teste toutes les adresses du serveur en parallèle et garde la meilleure joignable : locale
+/// d'abord, puis distante, le relais Plex en dernier recours.
+///
+/// Les adresses locales sécurisées de Plex (`10-0-0-2.<id>.plex.direct`) sont bloquées par les
+/// routeurs et DNS qui protègent du « DNS rebinding » : comme Plex Web, on essaie alors l'adresse IP
+/// locale directement (`http://10.0.0.2:32400`), plutôt que de faire le tour par l'adresse publique
+/// (que la boucle du routeur, le « NAT hairpin », rend souvent capricieuse).
 pub async fn pick_connection(http: &Client, client_id: &str, res: &Resource) -> Result<String> {
     let token = res.access_token.as_deref().unwrap_or_default();
-    let mut conns = res.connections.clone();
-    conns.sort_by_key(|c| (c.relay, !c.local));
-    let checks = conns.iter().map(|c| async move {
-        let ok = with_plex_headers(http.get(format!("{}/identity", c.uri)), client_id, Some(token))
+    let mut candidates: Vec<(u8, String)> = Vec::new();
+    for c in &res.connections {
+        if c.relay {
+            candidates.push((3, c.uri.clone()));
+        } else if c.local {
+            candidates.push((0, c.uri.clone()));
+            if !c.address.is_empty() && c.port != 0 {
+                candidates.push((1, format!("http://{}:{}", c.address, c.port)));
+            }
+        } else {
+            candidates.push((2, c.uri.clone()));
+        }
+    }
+    candidates.sort();
+    candidates.dedup_by(|a, b| a.1 == b.1);
+    let checks = candidates.iter().map(|(_, uri)| async move {
+        let ok = with_plex_headers(http.get(format!("{uri}/identity")), client_id, Some(token))
             .timeout(Duration::from_secs(4))
             .send()
             .await
             .map(|r| r.status().is_success())
             .unwrap_or(false);
-        (c.uri.clone(), ok)
+        (uri.clone(), ok)
     });
     join_all(checks)
         .await
@@ -259,6 +281,17 @@ struct RawMetadata {
     writer: Vec<RawTag>,
     #[serde(rename = "Role")]
     role: Vec<RawRole>,
+    /// Images associées (affiche, fond, logo du titre…) ; pour un épisode, celles de sa série.
+    #[serde(rename = "Image")]
+    images: Vec<RawImage>,
+}
+
+#[derive(Deserialize, Default)]
+#[serde(default)]
+struct RawImage {
+    #[serde(rename = "type")]
+    kind: String,
+    url: String,
 }
 
 #[derive(Deserialize, Default)]
@@ -301,6 +334,8 @@ struct RawTag {
 #[derive(Deserialize, Default)]
 #[serde(default)]
 struct RawRole {
+    /// Identifiant de la personne sur le serveur (filtre « actor=… »).
+    id: Option<u64>,
     tag: String,
     role: Option<String>,
     thumb: Option<String>,
@@ -326,6 +361,8 @@ pub struct Item {
     pub summary: Option<String>,
     /// Affiche verticale (pour un épisode : celle de la série).
     pub poster: Option<String>,
+    /// Logo officiel du titre (« clear logo », PNG transparent), quand Plex en a un.
+    pub logo: Option<String>,
     /// Vignette propre à l'élément (image d'épisode en 16:9).
     pub thumb: Option<String>,
     pub backdrop: Option<String>,
@@ -375,6 +412,7 @@ pub struct ItemDetail {
 
 #[derive(Serialize)]
 pub struct CastMember {
+    pub id: Option<u64>,
     pub name: String,
     pub role: Option<String>,
     pub photo: Option<String>,
@@ -496,6 +534,16 @@ impl PlexServer {
         )
     }
 
+    /// Logo d'un titre : réduit sans être recadré, en PNG pour garder la transparence.
+    fn logo(&self, path: &str) -> String {
+        format!(
+            "{}/photo/:/transcode?width=800&height=320&format=png&url={}&X-Plex-Token={}",
+            self.base,
+            urlencoding::encode(path),
+            self.token
+        )
+    }
+
     /// Image du serveur (chemin Plex « /library/metadata/… »), redimensionnée.
     pub fn image_url(&self, path: &str, width: u32, height: u32) -> String {
         self.image(path, width, height)
@@ -554,6 +602,7 @@ impl PlexServer {
             poster: poster_path.map(|p| if music { self.image(p, 400, 400) } else { self.image(p, 300, 450) }),
             thumb: m.thumb.as_ref().map(|p| self.image(p, 480, 270)),
             backdrop: m.art.as_ref().map(|p| self.image(p, 1600, 900)),
+            logo: m.images.iter().find(|i| i.kind == "clearLogo").map(|i| self.logo(&i.url)),
             playable: matches!(m.kind.as_str(), "movie" | "episode" | "track"),
             resolution: media.and_then(|x| x.video_resolution.clone()),
             genres: m.genre.into_iter().map(|g| g.tag).collect(),
@@ -609,6 +658,25 @@ impl PlexServer {
             .await?;
         let total = c.total_size.unwrap_or(c.metadata.len() as u32);
         Ok(Page { items: self.to_items(c.metadata), total })
+    }
+
+    /// Films et séries d'une personne (acteur) dans toutes les bibliothèques vidéo du serveur.
+    pub async fn person_items(&self, id: u64) -> Result<Vec<Item>> {
+        let sections = self.sections().await?;
+        let lists = join_all(
+            sections
+                .iter()
+                .filter(|s| s.kind == "movie" || s.kind == "show")
+                .map(|s| self.container_owned(format!("/library/sections/{}/all?actor={id}&sort=year:desc", s.key))),
+        )
+        .await;
+        let mut items: Vec<Item> = lists.into_iter().filter_map(Result::ok).flat_map(|c| self.to_items(c.metadata)).collect();
+        items.sort_by(|a, b| b.year.cmp(&a.year));
+        Ok(items)
+    }
+
+    async fn container_owned(&self, path: String) -> Result<MediaContainer> {
+        self.container(&path).await
     }
 
     pub async fn on_deck(&self) -> Result<Vec<Item>> {
@@ -790,7 +858,7 @@ impl PlexServer {
         let cast = std::mem::take(&mut m.role)
             .into_iter()
             .take(30)
-            .map(|r| CastMember { name: r.tag, role: r.role, photo: r.thumb })
+            .map(|r| CastMember { id: r.id, name: r.tag, role: r.role, photo: r.thumb })
             .collect();
         Ok(ItemDetail {
             tagline: m.tagline.take(),

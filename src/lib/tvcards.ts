@@ -16,6 +16,8 @@ export interface TvCard {
   progress: number;
   eyebrow: string;
   title: string;
+  /** Logo officiel du titre, affiché à la place du texte quand il existe. */
+  logo: string | null;
   line: string;
   summary: string | null;
   backdrop: string | null;
@@ -56,6 +58,7 @@ export function fromItem(item: Item, eyebrow: string, resume = false): TvCard {
     progress: item.viewOffsetMs && item.durationMs ? Math.min(100, (item.viewOffsetMs / item.durationMs) * 100) : 0,
     eyebrow,
     title: item.kind === "episode" ? (item.showTitle ?? item.title) : item.title,
+    logo: item.logo,
     line: parts.join("  ·  "),
     summary: item.summary,
     backdrop: item.backdrop ?? item.thumb,
@@ -72,6 +75,7 @@ export function fromSeerr(m: SeerrMedia): TvCard {
     progress: 0,
     eyebrow: t("tv.toRequest"),
     title: m.title,
+    logo: null,
     line: [m.year, m.mediaType === "tv" ? t("tv.show") : t("tv.movie"), m.rating ? `★ ${m.rating.toFixed(1)}` : null]
       .filter(Boolean)
       .join("  ·  "),

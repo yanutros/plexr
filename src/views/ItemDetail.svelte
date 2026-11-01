@@ -7,6 +7,7 @@
   import { play, type PlayOptions } from "../lib/player.svelte";
   import PosterCard from "../components/PosterCard.svelte";
   import Icon from "../components/Icon.svelte";
+  import TitleLogo from "../components/TitleLogo.svelte";
   import { t, locale } from "../lib/i18n";
 
   let { ratingKey }: { ratingKey: string } = $props();
@@ -90,7 +91,8 @@
             {item.showTitle}
           </button>
         {/if}
-        <h1>{item.title}</h1>
+        <!-- Le logo représente le film ou la série : un épisode garde son titre. -->
+        <h1><TitleLogo logo={item.kind === "episode" ? null : item.logo} title={item.title} /></h1>
         {#if item.kind === "episode"}
           <div class="line">{t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</div>
         {:else if item.tagline}
@@ -208,13 +210,18 @@
       <h2 class="row-title">{t("item.cast")}</h2>
       <div class="cast">
         {#each item.cast as person (person.name + person.role)}
-          <div class="person">
+          <!-- Comme dans Plex : un acteur ouvre la liste de ses films et séries du serveur. -->
+          <button
+            class="person"
+            disabled={person.id === null}
+            onclick={() => person.id !== null && go({ name: "person", id: person.id, personName: person.name, photo: person.photo })}
+          >
             <div class="avatar">
               {#if person.photo}<img src={person.photo} alt="" loading="lazy" />{:else}{person.name[0]}{/if}
             </div>
             <div class="name">{person.name}</div>
             {#if person.role}<div class="role">{person.role}</div>{/if}
-          </div>
+          </button>
         {/each}
       </div>
     {/if}
@@ -515,7 +522,21 @@
   }
 
   .person {
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
     text-align: center;
+  }
+
+  .person:not(:disabled) .avatar {
+    transition: transform 0.2s var(--ease), box-shadow 0.2s;
+  }
+
+  .person:not(:disabled):hover .avatar {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px var(--accent);
   }
 
   .avatar {
@@ -622,5 +643,15 @@
     width: 76px;
     height: 76px;
     font-size: 26px;
+  }
+
+  /* Logo du titre sur la fiche. */
+  h1 {
+    --logo-h: 140px;
+    --logo-w: min(480px, 100%);
+  }
+
+  :global(html.phone) h1 {
+    --logo-h: 90px;
   }
 </style>

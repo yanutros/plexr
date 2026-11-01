@@ -25,6 +25,7 @@ function item(p: Partial<Item> & Pick<Item, "kind" | "title">): Item {
     year: 2025,
     summary: null,
     poster: null,
+    logo: null,
     thumb: null,
     backdrop: null,
     index: null,
@@ -250,7 +251,7 @@ function detail(key: string): ItemDetail {
     releaseDate: `${base.year}-03-14`,
     directors: base.kind === "movie" || base.kind === "episode" ? ["Claire Vasseur"] : [],
     writers: base.kind === "movie" || base.kind === "episode" ? ["Antoine Rey", "Claire Vasseur"] : [],
-    cast: base.kind === "movie" || base.kind === "show" ? CAST.map((name, i) => ({ name, role: ROLES[i], photo: avatar(name) })) : [],
+    cast: base.kind === "movie" || base.kind === "show" ? CAST.map((name, i) => ({ id: i + 1, name, role: ROLES[i], photo: avatar(name) })) : [],
     video: base.playable ? "4K (HEVC)" : null,
     audioTracks: base.playable
       ? [
@@ -343,7 +344,7 @@ function seerrDetail(tmdbId: number): SeerrDetail {
       { name: "Antoine Rey", role: "Scénario", photo: null },
       { name: "Nadia Ferrand", role: "Production", photo: null },
     ],
-    cast: CAST.map((name, i) => ({ name, role: ROLES[i], photo: avatar(name) })),
+    cast: CAST.map((name, i) => ({ id: i + 1, name, role: ROLES[i], photo: avatar(name) })),
     trailer: "https://example.org",
     ratings: { rtCritics: 87, rtAudience: 91, rtUrl: null, imdb: 7.8, imdbUrl: null, tmdb: 7.6 },
     collection: null,
@@ -422,6 +423,9 @@ function handle(cmd: string, a: Args): unknown {
         tracearrUrl: "https://tracearr.exemple.fr",
         tracearrConnected: true,
       };
+    case "plex_person_items":
+      // Démo : chaque personne joue dans une partie du catalogue fictif.
+      return [...movies, ...shows].filter((_, i) => i % 3 === Number(a.id) % 3);
     case "plex_sections":
       return SECTIONS.map(({ key, title, kind }) => ({ key, title, kind }));
     case "plex_home":

@@ -55,6 +55,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       Accueil et bibliothèques avec un bandeau qui fait défiler cinq titres, puis un « Continuer à regarder »
       façon plateforme de streaming : grandes affiches, et celle survolée s'ouvre en grand avec sa scène, son
       épisode, sa progression et le bouton Reprendre. Puis de grands panneaux « À la une » et les rangées de Plex.
+      Les titres s'affichent avec leur logo officiel quand Plex en a un, comme dans Jellyfin.
     </td>
   </tr>
   <tr>
@@ -87,7 +88,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
     <td valign="top">
       <h4>🔍 Il trouve tout</h4>
       Une seule recherche pour les films, séries et artistes de la bibliothèque, puis les titres absents
-      que l'on peut demander.
+      que l'on peut demander. Un acteur, sur une fiche, ouvre tous ses films et séries du serveur.
     </td>
     <td valign="top">
       <h4>🔑 Il se connecte avec Plex</h4>
@@ -319,7 +320,10 @@ machine), puis ajouté à la version avec `gh release upload`.
 
 1. Cliquez sur **Se connecter avec Plex** : votre navigateur s'ouvre, validez le code.
 2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
-   teste ses adresses et garde la plus rapide (locale, distante, puis relais).
+   teste ses adresses et garde la plus rapide (locale, distante, puis relais), et la revérifie à chaque lancement.
+   Si le routeur ou le DNS bloque les adresses locales `*.plex.direct` (protection contre le « DNS rebinding »),
+   Plexr utilise directement l'adresse IP locale du serveur (`http://10.0.0.2:32400`), comme Plex Web, plutôt
+   que de faire le tour par l'adresse publique.
 3. Parcourez vos bibliothèques et lancez une lecture.
 4. Dans **Réglages → Seerr et Tracearr**, ajoutez si vous le souhaitez Seerr et Tracearr, à la main ou avec
    l'invitation de l'administrateur (voir ci-dessous).
