@@ -149,7 +149,7 @@
           {:else if nav.view.name === "section" && nav.view.kind === "artist"}
             <MusicLibrary sectionKey={nav.view.key} title={nav.view.title} />
           {:else if nav.view.name === "section"}
-            <Library sectionKey={nav.view.key} title={nav.view.title} initialTab={nav.view.tab} />
+            <Library sectionKey={nav.view.key} title={nav.view.title} kind={nav.view.kind} initialTab={nav.view.tab} />
           {:else if nav.view.name === "item"}
             <ItemDetail ratingKey={nav.view.ratingKey} />
           {:else if nav.view.name === "person"}

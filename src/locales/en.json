@@ -202,7 +202,8 @@
     "tabs": {
       "recommended": "Recommended",
       "library": "Library",
-      "categories": "Categories"
+      "categories": "Categories",
+      "collections": "Collections"
     },
     "resume": "Resume",
     "category": "Category",
@@ -213,7 +214,8 @@
     "featured": "Featured",
     "genreFilter": "Genre:",
     "removeFilter": "Remove filter",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "noCollections": "No collections in this library."
   },
   "music": {
     "library": {
@@ -284,7 +286,10 @@
     "playTitle": "Play {{title}}",
     "cast": "Cast",
     "endsAt": "Ends at {{time}}",
-    "related": "More like this"
+    "related": "More like this",
+    "movieCount_one": "{{count}} movie",
+    "movieCount_other": "{{count}} movies",
+    "collectionMovies": "Movies in this collection"
   },
   "stats": {
     "title": "My stats",

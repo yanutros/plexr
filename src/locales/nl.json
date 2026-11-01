@@ -202,7 +202,8 @@
     "tabs": {
       "recommended": "Aanbevolen",
       "library": "Bibliotheek",
-      "categories": "Categorieën"
+      "categories": "Categorieën",
+      "collections": "Collecties"
     },
     "resume": "Hervatten",
     "category": "Categorie",
@@ -213,7 +214,8 @@
     "featured": "Uitgelicht",
     "genreFilter": "Genre:",
     "removeFilter": "Filter wissen",
-    "loading": "Laden…"
+    "loading": "Laden…",
+    "noCollections": "Geen collecties in deze bibliotheek."
   },
   "music": {
     "library": {
@@ -284,7 +286,10 @@
     "playTitle": "{{title}} afspelen",
     "cast": "Cast",
     "endsAt": "Eindigt om {{time}}",
-    "related": "Meer zoals dit"
+    "related": "Meer zoals dit",
+    "movieCount_one": "{{count}} film",
+    "movieCount_other": "{{count}} films",
+    "collectionMovies": "Films in deze collectie"
   },
   "stats": {
     "title": "Mijn statistieken",

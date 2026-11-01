@@ -27,7 +27,9 @@
     "noMusic": "‘{{title}}’ bevat geen muziek",
     "track": "Nummer {{id}}",
     "noPlayableFile": "Geen afspeelbaar bestand voor ‘{{title}}’",
-    "episodeLine": "S{{season}} · A{{episode}} — {{title}}"
+    "episodeLine": "S{{season}} · A{{episode}} — {{title}}",
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items"
   },
   "admin": {
     "adminOnly": "Alleen de beheerder van de Plex-server kan dit doen",

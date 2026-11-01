@@ -68,6 +68,8 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       <h4>🗂️ Il range par catégories</h4>
       Chaque genre devient une grande carte colorée avec un éventail des affiches les mieux notées. Un clic
       filtre la bibliothèque.
+      Les bibliothèques de films ont aussi leurs **collections** (sagas, univers…) : chacune ouvre sa page, avec
+      ses films dans l'ordre de sortie et un bouton qui lance le premier pas encore vu.
     </td>
     <td valign="top">
       <h4>🎵 Il joue votre musique</h4>

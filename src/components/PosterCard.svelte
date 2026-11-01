@@ -20,6 +20,8 @@
       ? `${t("posterCard.episodeCode", { season: item.parentIndex ?? 0, episode: item.index ?? 0 })}${wide ? ` — ${item.title}` : ""}`
       : item.kind === "season"
         ? (item.showTitle ?? "")
+        : item.kind === "collection"
+        ? (item.subtitle ?? "")
         : String(item.year ?? ""),
   );
 

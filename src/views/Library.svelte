@@ -20,15 +20,18 @@
   let {
     sectionKey,
     title,
+    kind = "",
     initialTab = "recommended",
-  }: { sectionKey: string; title: string; initialTab?: "recommended" | "library" | "categories" } = $props();
+  }: { sectionKey: string; title: string; kind?: string; initialTab?: "recommended" | "library" | "collections" | "categories" } = $props();
 
-  type Tab = "recommended" | "library" | "categories";
-  const TABS: { id: Tab; label: string }[] = [
+  type Tab = "recommended" | "library" | "collections" | "categories";
+  // Collections : seulement dans les bibliothèques de films, comme dans Plex.
+  const TABS = $derived<{ id: Tab; label: string }[]>([
     { id: "recommended", label: t("library.tabs.recommended") },
     { id: "library", label: t("library.tabs.library") },
+    ...(kind === "movie" ? [{ id: "collections" as Tab, label: t("library.tabs.collections") }] : []),
     { id: "categories", label: t("library.tabs.categories") },
-  ];
+  ]);
   const PAGE_SIZE = 120;
 
   let tab = $state<Tab>("recommended");
@@ -85,6 +88,9 @@
   let genre = $state<Genre | null>(null);
   let sentinel = $state<HTMLElement>();
 
+  // --- Collections ---
+  let collections = $state<Item[] | null>(null);
+
   // --- Catégories ---
   let genres = $state<Genre[] | null>(null);
 
@@ -94,6 +100,7 @@
     ...restHubs.map((h) => ({ title: h.title, cards: h.items.map((i) => fromItem(i, h.title)) })),
   ].filter((r) => r.cards.length));
   const tvItems = $derived(items.map((i) => fromItem(i, title)));
+  const tvCollections = $derived((collections ?? []).map((i) => fromItem(i, t("library.tabs.collections"))));
   const tvGenres = $derived<TvCard[]>(
     (genres ?? []).map((g) => ({
       key: g.id,
@@ -139,6 +146,12 @@
     tab = next;
     error = null;
     if (next === "library" && !items.length) loadMore();
+    if (next === "collections" && !collections) {
+      api.collections(sectionKey).then(
+        (c) => (collections = c),
+        (e) => (error = errorText(e)),
+      );
+    }
     if (next === "categories" && !genres) {
       api.genres(sectionKey).then(
         (g) => (genres = g),
@@ -202,6 +215,8 @@
       {#if error}<p class="error">{error}</p>{/if}
       {#if tab === "library"}
         <TvGrid cards={tvItems} onEnd={loadMore} />
+      {:else if tab === "collections"}
+        <TvGrid cards={tvCollections} />
       {:else}
         <TvGrid cards={tvGenres} />
       {/if}
@@ -256,6 +271,16 @@
     <div class="grid">
       {#each items as item (item.ratingKey)}<PosterCard {item} />{/each}
     </div>
+  {:else if tab === "collections"}
+    {#if !collections}
+      <div class="grid">{#each Array(12) as _, i (i)}<div class="skeleton poster-skeleton"></div>{/each}</div>
+    {:else if !collections.length}
+      <p class="muted">{t("library.noCollections")}</p>
+    {:else}
+      <div class="grid">
+        {#each collections as item (item.ratingKey)}<PosterCard {item} />{/each}
+      </div>
+    {/if}
   {:else if !genres}
     <div class="categories">
       {#each Array(6) as _, i (i)}<div class="skeleton tile-skeleton"></div>{/each}
@@ -288,6 +313,11 @@
     margin: 0;
     color: var(--text);
     font: inherit;
+  }
+
+  .poster-skeleton {
+    aspect-ratio: 2 / 3;
+    border-radius: var(--radius);
   }
 
   .head {

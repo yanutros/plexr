@@ -30,7 +30,12 @@
       audioStream = detail.audioTracks.find((tr) => tr.selected)?.id ?? detail.audioTracks[0]?.id ?? null;
       subtitleStream = detail.subtitleTracks.find((tr) => tr.selected)?.id ?? 0;
       if (detail.kind === "movie" || detail.kind === "show") api.related(ratingKey).then((r) => (related = r), () => {});
-      children = detail.kind === "show" || detail.kind === "season" ? await api.children(ratingKey) : [];
+      children =
+        detail.kind === "show" || detail.kind === "season"
+          ? await api.children(ratingKey)
+          : detail.kind === "collection"
+            ? await api.collectionItems(ratingKey)
+            : [];
     } catch (e) {
       error = errorText(e);
     }
@@ -55,7 +60,11 @@
   }
 
   // Pour une saison : premier épisode non vu.
-  const nextUp = $derived(item?.kind === "season" ? (children.find((c) => !c.watched) ?? children[0]) : undefined);
+  // Pour une saison : premier épisode non vu ; pour une collection : premier film non vu (ordre de sortie).
+  const nextUp = $derived(
+    item?.kind === "season" || item?.kind === "collection" ? (children.find((c) => !c.watched) ?? children[0]) : undefined,
+  );
+  const collection = $derived(item?.kind === "collection");
   const progress = $derived(
     item?.viewOffsetMs && item.durationMs ? Math.min(100, (item.viewOffsetMs / item.durationMs) * 100) : 0,
   );
@@ -68,7 +77,13 @@
   // Fond du film, ou de la saison pour une série et ses épisodes (Plex reprend celui de la série
   // quand la saison n'a pas le sien), en haute définition : plus soigné que l'image d'un épisode,
   // gardée en dernier recours.
-  const heroArt = $derived(item?.backdropHd ?? item?.backdrop ?? (item?.kind === "episode" ? item.thumb : item?.poster));
+  const heroArt = $derived(
+    item?.backdropHd ??
+      item?.backdrop ??
+      // Une collection sans fond prend celui de son premier film.
+      (item?.kind === "collection" ? children.find((c) => c.backdrop)?.backdrop : undefined) ??
+      (item?.kind === "episode" ? item.thumb : item?.poster),
+  );
   // Heure de fin si la lecture démarre maintenant (reprise comprise), comme dans Jellyfin.
   const endsAt = $derived.by(() => {
     if (!item?.playable || !item.durationMs) return null;
@@ -136,6 +151,8 @@
           {/if}
           {#if item.kind === "show" || item.kind === "season"}
             <span>{t(item.kind === "show" ? "item.seasonCount" : "item.episodeCount", { count: children.length })}</span>
+          {:else if collection}
+            <span>{t("item.movieCount", { count: children.length })}</span>
           {/if}
           {#if item.contentRating}<span class="badge outline">{item.contentRating}</span>{/if}
           {#if item.rating}<span class="rating"><Icon name="star" size={14} filled /> {item.rating.toFixed(1)}</span>{/if}
@@ -156,9 +173,11 @@
             {/if}
           {:else if nextUp}
             <button class="btn primary big" onclick={() => start(nextUp!.ratingKey)}>
-              <Icon name="play" size={18} filled /> {t("item.episodeNumber", { number: nextUp.index ?? "" })}
+              <Icon name="play" size={18} filled />
+              {collection ? t("item.playTitle", { title: nextUp.title }) : t("item.episodeNumber", { number: nextUp.index ?? "" })}
             </button>
           {/if}
+          {#if !collection}
           <button
             class="btn round big"
             class:on={item.watched}
@@ -171,6 +190,7 @@
             <button class="btn round big" onclick={() => (nav.editing = item)} title={t("item.editInfo")}>
               <Icon name="edit" size={18} />
             </button>
+          {/if}
           {/if}
         </div>
 
@@ -235,7 +255,12 @@
       </div>
     {/if}
 
-    {#if item.kind === "show" && children.length}
+    {#if collection && children.length}
+      <h2 class="row-title">{t("item.collectionMovies")}</h2>
+      <div class="grid">
+        {#each children as movie (movie.ratingKey)}<PosterCard item={movie} />{/each}
+      </div>
+    {:else if item.kind === "show" && children.length}
       <h2 class="row-title">{t("item.seasons")}</h2>
       <div class="grid">
         {#each children as season (season.ratingKey)}<PosterCard item={season} />{/each}

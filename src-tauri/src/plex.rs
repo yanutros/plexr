@@ -94,6 +94,23 @@ pub struct Resource {
 
 /// Logo d'un film ou d'une série sur le service de métadonnées de Plex, quand le serveur n'en a
 /// pas (ses métadonnées sont plus anciennes ou moins complètes). Adresse publique de l'image.
+/// Booléen que Plex envoie tantôt tel quel (playlists), tantôt en texte « 1 » / « 0 » (collections).
+fn flag<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::Error> {
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Flag {
+        Bool(bool),
+        Num(i64),
+        Text(String),
+    }
+    Ok(match Option::<Flag>::deserialize(d)? {
+        Some(Flag::Bool(b)) => b,
+        Some(Flag::Num(n)) => n != 0,
+        Some(Flag::Text(t)) => t == "1" || t.eq_ignore_ascii_case("true"),
+        None => false,
+    })
+}
+
 pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str) -> Result<Option<String>> {
     let id = guid.rsplit('/').next().unwrap_or_default();
     if id.is_empty() || !id.chars().all(|c| c.is_ascii_alphanumeric()) {
@@ -306,8 +323,11 @@ struct RawMetadata {
     view_count: Option<u32>,
     leaf_count: Option<u32>,
     viewed_leaf_count: Option<u32>,
+    /// Nombre d'éléments d'une collection.
+    child_count: Option<u32>,
     content_rating: Option<String>,
     /// Playlist intelligente (générée par Plex selon des règles).
+    #[serde(deserialize_with = "flag")]
     smart: bool,
     audience_rating: Option<f32>,
     tagline: Option<String>,
@@ -615,6 +635,10 @@ impl PlexServer {
             )),
             "season" | "album" => m.parent_title.clone(),
             "track" => m.original_title.clone().or_else(|| m.grandparent_title.clone()),
+            "collection" => m.child_count.map(|n| {
+                let key = if n == 1 { "plex.itemCount_one" } else { "plex.itemCount_other" };
+                crate::i18n::tr_with(key, &[("count", &n.to_string())])
+            }),
             "playlist" => m.leaf_count.map(|n| {
                 // Singulier pour 1 (et pour 0 en français, comme avant).
                 let one = n == 1 || (n == 0 && crate::i18n::language() == "fr");
@@ -628,7 +652,7 @@ impl PlexServer {
             "show" | "season" => m.leaf_count.is_some() && m.leaf_count == m.viewed_leaf_count,
             _ => m.view_count.unwrap_or(0) > 0,
         };
-        let unwatched_count = m.leaf_count.filter(|_| !music).map(|l| l.saturating_sub(m.viewed_leaf_count.unwrap_or(0)));
+        let unwatched_count = m.leaf_count.filter(|_| !music && m.kind != "collection").map(|l| l.saturating_sub(m.viewed_leaf_count.unwrap_or(0)));
         let (show_title, show_key) = match m.kind.as_str() {
             "episode" => (m.grandparent_title.clone(), m.grandparent_rating_key.clone()),
             "season" | "album" => (m.parent_title.clone(), m.parent_rating_key.clone()),
@@ -935,6 +959,20 @@ impl PlexServer {
             subtitle_tracks,
             item: self.to_item(m),
         })
+    }
+
+    /// Collections d'une bibliothèque (« 28 … plus tard », « Batman »…), par titre.
+    pub async fn collections(&self, key: &str) -> Result<Vec<Item>> {
+        let c = self.container(&format!("/library/sections/{key}/collections?sort=titleSort")).await?;
+        Ok(self.to_items(c.metadata))
+    }
+
+    /// Films d'une collection, du plus ancien au plus récent (l'ordre d'une saga).
+    pub async fn collection_items(&self, rating_key: &str) -> Result<Vec<Item>> {
+        let c = self.container(&format!("/library/collections/{rating_key}/children")).await?;
+        let mut items = self.to_items(c.metadata);
+        items.sort_by_key(|i| i.year.unwrap_or(i32::MAX));
+        Ok(items)
     }
 
     /// « Plus de ce genre » : les titres que Plex associe à un film ou une série (films / séries associés).

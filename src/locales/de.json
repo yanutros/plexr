@@ -202,7 +202,8 @@
     "tabs": {
       "recommended": "Empfohlen",
       "library": "Mediathek",
-      "categories": "Kategorien"
+      "categories": "Kategorien",
+      "collections": "Sammlungen"
     },
     "resume": "Fortsetzen",
     "category": "Kategorie",
@@ -213,7 +214,8 @@
     "featured": "Highlights",
     "genreFilter": "Genre:",
     "removeFilter": "Filter entfernen",
-    "loading": "Wird geladen…"
+    "loading": "Wird geladen…",
+    "noCollections": "Keine Sammlungen in dieser Mediathek."
   },
   "music": {
     "library": {
@@ -284,7 +286,10 @@
     "playTitle": "{{title}} abspielen",
     "cast": "Besetzung",
     "endsAt": "Endet um {{time}}",
-    "related": "Mehr davon"
+    "related": "Mehr davon",
+    "movieCount_one": "{{count}} Film",
+    "movieCount_other": "{{count}} Filme",
+    "collectionMovies": "Filme der Sammlung"
   },
   "stats": {
     "title": "Meine Statistiken",

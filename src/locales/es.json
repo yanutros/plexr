@@ -202,7 +202,8 @@
     "tabs": {
       "recommended": "Recomendado",
       "library": "Biblioteca",
-      "categories": "Categorías"
+      "categories": "Categorías",
+      "collections": "Colecciones"
     },
     "resume": "Reanudar",
     "category": "Categoría",
@@ -213,7 +214,8 @@
     "featured": "Destacado",
     "genreFilter": "Género:",
     "removeFilter": "Quitar el filtro",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "noCollections": "No hay colecciones en esta biblioteca."
   },
   "music": {
     "library": {
@@ -284,7 +286,10 @@
     "playTitle": "Reproducir {{title}}",
     "cast": "Reparto",
     "endsAt": "Termina a las {{time}}",
-    "related": "Más como esto"
+    "related": "Más como esto",
+    "movieCount_one": "{{count}} película",
+    "movieCount_other": "{{count}} películas",
+    "collectionMovies": "Películas de la colección"
   },
   "stats": {
     "title": "Mis estadísticas",

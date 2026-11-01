@@ -3,7 +3,7 @@ import type { Item, SeerrMedia } from "./api";
 export type View =
   | { name: "home" }
   | { name: "libraries" }
-  | { name: "section"; key: string; title: string; kind: string; tab?: "recommended" | "library" | "categories" }
+  | { name: "section"; key: string; title: string; kind: string; tab?: "recommended" | "library" | "collections" | "categories" }
   | { name: "item"; ratingKey: string }
   | { name: "search"; query: string }
   | { name: "discover" }

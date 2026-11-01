@@ -202,7 +202,8 @@
     "tabs": {
       "recommended": "Recommandé",
       "library": "Bibliothèque",
-      "categories": "Catégories"
+      "categories": "Catégories",
+      "collections": "Collections"
     },
     "resume": "Reprendre",
     "category": "Catégorie",
@@ -213,7 +214,8 @@
     "featured": "À la une",
     "genreFilter": "Genre :",
     "removeFilter": "Retirer le filtre",
-    "loading": "Chargement…"
+    "loading": "Chargement…",
+    "noCollections": "Aucune collection dans cette bibliothèque."
   },
   "music": {
     "library": {
@@ -284,7 +286,10 @@
     "playTitle": "Lire {{title}}",
     "cast": "Distribution",
     "endsAt": "Se termine à {{time}}",
-    "related": "Plus de ce genre"
+    "related": "Plus de ce genre",
+    "movieCount_one": "{{count}} film",
+    "movieCount_other": "{{count}} films",
+    "collectionMovies": "Films de la collection"
   },
   "stats": {
     "title": "Mes statistiques",
