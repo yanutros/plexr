@@ -40,6 +40,8 @@ struct AppState {
     remote_logos: Mutex<std::collections::HashMap<String, Option<String>>>,
     /// Requêtes de logos en ligne simultanées.
     logo_slots: tokio::sync::Semaphore,
+    /// « Changer de serveur » : retour à l'écran de choix Plex / Jellyfin, connexions gardées.
+    choosing: std::sync::atomic::AtomicBool,
 }
 
 impl AppState {
@@ -83,7 +85,9 @@ impl AppState {
         }
         let c = self.cfg();
         let url = c.seerr_url.ok_or_else(|| anyhow!(crate::i18n::tr("app.seerrNotConfigured")))?;
-        let s = Arc::new(Seerr::connect(&url, c.plex_token, c.seerr_cookies.as_deref()).await?);
+        // La session Seerr d'un compte Jellyfin ne sert qu'avec le serveur Jellyfin.
+        let cookies = c.seerr_cookies.as_deref().filter(|_| c.server.as_ref().is_some_and(|s| s.is_jellyfin()));
+        let s = Arc::new(Seerr::connect(&url, c.plex_token.clone(), cookies).await?);
         *slot = Some(s.clone());
         Ok(s)
     }
@@ -117,6 +121,11 @@ impl AppState {
 #[serde(rename_all = "camelCase")]
 struct Session {
     logged_in: bool,
+    /// Connexions gardées pour l'écran de choix : compte Plex, serveur Jellyfin (nom, adresse).
+    plex_remembered: bool,
+    jellyfin_remembered: Option<RememberedServer>,
+    /// « plex », « jellyfin » ou « both ».
+    server_kinds: String,
     /// « plex » ou « jellyfin ».
     server_kind: &'static str,
     server_name: Option<String>,
@@ -128,11 +137,64 @@ struct Session {
     tmdb: bool,
 }
 
+#[derive(Serialize)]
+struct RememberedServer {
+    name: String,
+    url: String,
+}
+
+/// Une connexion Jellyfin gardée ne sert plus au-delà de 30 jours sans utilisation.
+const JELLYFIN_REMEMBER_SECS: u64 = 30 * 24 * 3600;
+
+fn now_secs() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+}
+
+/// Connexion Jellyfin gardée et encore récente.
+fn remembered_jellyfin(c: &Config) -> Option<SavedServer> {
+    let at = c.jellyfin_saved_at?;
+    c.jellyfin_saved.clone().filter(|_| now_secs().saturating_sub(at) < JELLYFIN_REMEMBER_SECS)
+}
+
+/// Serveurs utilisés. Sans choix enregistré : d'après les connexions gardées.
+fn server_kinds(c: &Config) -> String {
+    c.server_kinds.clone().unwrap_or_else(|| {
+        let jellyfin = remembered_jellyfin(c).is_some() || c.server.as_ref().is_some_and(|s| s.is_jellyfin());
+        match (c.plex_token.is_some(), jellyfin) {
+            (true, false) => "plex",
+            (false, true) => "jellyfin",
+            _ => "both",
+        }
+        .to_string()
+    })
+}
+
+/// Première connexion : le type de serveur choisi devient celui de Plexr (modifiable dans les Réglages).
+fn remember_server_kinds(c: &mut Config) {
+    if c.server_kinds.is_none() {
+        c.server_kinds = Some(server_kinds(c));
+    }
+}
+
+/// Réglages : « plex », « jellyfin » ou « both ».
+#[tauri::command]
+fn set_server_kinds(state: State<'_, AppState>, kinds: String) -> CmdResult<()> {
+    if !matches!(kinds.as_str(), "plex" | "jellyfin" | "both") {
+        return Err(anyhow!("{kinds}").into());
+    }
+    state.update_cfg(|c| c.server_kinds = Some(kinds))?;
+    Ok(())
+}
+
 #[tauri::command]
 fn get_session(state: State<'_, AppState>) -> Session {
     let c = state.cfg();
+    let choosing = state.choosing.load(std::sync::atomic::Ordering::Relaxed);
     Session {
-        logged_in: c.plex_token.is_some() || c.server.as_ref().is_some_and(|s| s.is_jellyfin()),
+        logged_in: !choosing && (c.plex_token.is_some() || c.server.as_ref().is_some_and(|s| s.is_jellyfin())),
+        plex_remembered: c.plex_token.is_some(),
+        server_kinds: server_kinds(&c),
+        jellyfin_remembered: remembered_jellyfin(&c).map(|s| RememberedServer { name: s.name, url: s.uri }),
         server_kind: if c.server.as_ref().is_some_and(|s| s.is_jellyfin()) { "jellyfin" } else { "plex" },
         server_name: c.server.map(|s| s.name),
         seerr_url: c.seerr_url,
@@ -179,8 +241,14 @@ async fn plex_poll_login(state: State<'_, AppState>, pin_id: u64) -> CmdResult<b
     };
     state.update_cfg(|c| {
         c.plex_token = Some(token);
-        c.server = None;
+        // Un serveur Jellyfin en cours reste gardé pour y revenir.
+        if let Some(s) = c.server.take().filter(|s| s.is_jellyfin()) {
+            c.jellyfin_saved = Some(s);
+            c.jellyfin_saved_at = Some(now_secs());
+        }
+        remember_server_kinds(c);
     })?;
+    state.choosing.store(false, std::sync::atomic::Ordering::Relaxed);
     *state.seerr.lock().await = None;
     Ok(true)
 }
@@ -196,8 +264,56 @@ fn save_jellyfin(state: &AppState, base: String, login: jellyfin::Login) -> anyh
         kind: "jellyfin".into(),
         user_id: Some(login.user_id),
     };
-    state.update_cfg(|c| c.server = Some(saved))?;
+    state.update_cfg(|c| {
+        c.jellyfin_saved = Some(saved.clone());
+        c.jellyfin_saved_at = Some(now_secs());
+        c.server = Some(saved);
+        remember_server_kinds(c);
+    })?;
+    state.choosing.store(false, std::sync::atomic::Ordering::Relaxed);
     Ok(name)
+}
+
+/// Écran de choix : Plex avec le compte déjà connecté (on passe au choix du serveur Plex).
+#[tauri::command]
+fn resume_plex(state: State<'_, AppState>) -> CmdResult<()> {
+    if state.cfg().plex_token.is_none() {
+        return Err(anyhow!(crate::i18n::tr("app.notLoggedIn")).into());
+    }
+    state.choosing.store(false, std::sync::atomic::Ordering::Relaxed);
+    Ok(())
+}
+
+/// Écran de choix : retour au serveur Jellyfin gardé, après vérification que la session vit encore.
+#[tauri::command]
+async fn resume_jellyfin(state: State<'_, AppState>) -> CmdResult<()> {
+    let c = state.cfg();
+    let saved = remembered_jellyfin(&c).ok_or_else(|| anyhow!(crate::i18n::tr("jellyfin.sessionExpired")))?;
+    let server = jellyfin::JellyfinServer {
+        http: state.http.clone(),
+        base: saved.uri.clone(),
+        token: saved.token.clone(),
+        user_id: saved.user_id.clone().unwrap_or_default(),
+        client_id: c.client_id,
+    };
+    if let Err(e) = server.account().await {
+        // Jeton refusé (session fermée dans Jellyfin) : il faut se reconnecter.
+        let refused = e.downcast_ref::<reqwest::Error>().and_then(|e| e.status()).is_some_and(|s| s.as_u16() == 401);
+        if refused {
+            state.update_cfg(|c| {
+                c.jellyfin_saved = None;
+                c.jellyfin_saved_at = None;
+            })?;
+            return Err(anyhow!(crate::i18n::tr("jellyfin.sessionExpired")).into());
+        }
+        return Err(e.into());
+    }
+    state.update_cfg(|c| {
+        c.jellyfin_saved_at = Some(now_secs());
+        c.server = Some(saved);
+    })?;
+    state.choosing.store(false, std::sync::atomic::Ordering::Relaxed);
+    Ok(())
 }
 
 /// Connexion à un serveur Jellyfin par identifiant et mot de passe.
@@ -237,9 +353,17 @@ async fn jellyfin_quick_poll(state: State<'_, AppState>, url: String, secret: St
 
 #[tauri::command]
 async fn plex_logout(state: State<'_, AppState>) -> CmdResult<()> {
+    // Les sessions Jellyfin (serveur en cours et connexion gardée) sont fermées côté serveur.
+    let c = state.cfg();
+    for s in c.server.iter().chain(c.jellyfin_saved.iter()).filter(|s| s.is_jellyfin()) {
+        jellyfin::logout(&state.http, &s.uri, &c.client_id, &s.token).await;
+    }
+    state.choosing.store(false, std::sync::atomic::Ordering::Relaxed);
     state.update_cfg(|c| {
         c.plex_token = None;
         c.server = None;
+        c.jellyfin_saved = None;
+        c.jellyfin_saved_at = None;
         // La session Seerr d'un compte Jellyfin part avec lui.
         c.seerr_cookies = None;
     })?;
@@ -247,9 +371,19 @@ async fn plex_logout(state: State<'_, AppState>) -> CmdResult<()> {
     Ok(())
 }
 
+/// « Changer de serveur » : retour à l'écran de choix Plex / Jellyfin, sans perdre les connexions.
 #[tauri::command]
-fn plex_forget_server(state: State<'_, AppState>) -> CmdResult<()> {
-    state.update_cfg(|c| c.server = None)?;
+async fn plex_forget_server(state: State<'_, AppState>) -> CmdResult<()> {
+    *state.seerr.lock().await = None;
+    state.update_cfg(|c| {
+        if let Some(s) = c.server.take().filter(|s| s.is_jellyfin()) {
+            c.jellyfin_saved = Some(s);
+            c.jellyfin_saved_at = Some(now_secs());
+        }
+    })?;
+    // Plex seulement : directement la liste de ses serveurs, sans écran de choix.
+    let plex_only = server_kinds(&state.cfg()) == "plex";
+    state.choosing.store(!plex_only, std::sync::atomic::Ordering::Relaxed);
     Ok(())
 }
 
@@ -1096,6 +1230,7 @@ pub fn run() {
                 relay: Mutex::new(None),
                 remote_logos: Mutex::new(Default::default()),
                 logo_slots: tokio::sync::Semaphore::new(4),
+                choosing: Default::default(),
             });
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
@@ -1114,6 +1249,9 @@ pub fn run() {
             plex_poll_login,
             plex_logout,
             plex_forget_server,
+            resume_plex,
+            resume_jellyfin,
+            set_server_kinds,
             plex_servers,
             plex_select_server,
             plex_sections,

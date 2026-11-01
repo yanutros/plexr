@@ -3,10 +3,17 @@ import { device } from "./device";
 import { nav } from "./nav.svelte";
 import { t } from "./i18n";
 
+export type ServerKinds = "plex" | "jellyfin" | "both";
+
 export interface Session {
   loggedIn: boolean;
   /** Serveur de médias : Plex ou Jellyfin. */
   serverKind: "plex" | "jellyfin";
+  /** Connexions gardées, pour revenir sans se reconnecter (écran de choix). */
+  plexRemembered: boolean;
+  jellyfinRemembered: { name: string; url: string } | null;
+  /** Serveurs utilisés : un seul (plus d'écran de choix), ou les deux. */
+  serverKinds: ServerKinds;
   serverName: string | null;
   seerrUrl: string | null;
   mpvPath: string | null;
@@ -323,6 +330,9 @@ export const api = {
   jellyfinQuickPoll: (url: string, secret: string) => invoke<boolean>("jellyfin_quick_poll", { url, secret }),
   logout: () => invoke<void>("plex_logout"),
   forgetServer: () => invoke<void>("plex_forget_server"),
+  resumePlex: () => invoke<void>("resume_plex"),
+  resumeJellyfin: () => invoke<void>("resume_jellyfin"),
+  setServerKinds: (kinds: ServerKinds) => invoke<void>("set_server_kinds", { kinds }),
   servers: () => invoke<ServerSummary[]>("plex_servers"),
   selectServer: (machineId: string) => invoke<string>("plex_select_server", { machineId }),
 

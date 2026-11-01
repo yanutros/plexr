@@ -131,6 +131,7 @@
       "recentlyPlayed": "Recently Played",
       "playlists": "Playlists"
     },
-    "quickConnectOff": "Quick Connect is disabled on this Jellyfin server (Dashboard → General)."
+    "quickConnectOff": "Quick Connect is disabled on this Jellyfin server (Dashboard → General).",
+    "sessionExpired": "Jellyfin session expired: sign in again."
   }
 }

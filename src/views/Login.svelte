@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
-  import { api, errorText, type LoginPin } from "../lib/api";
+  import { onDestroy, onMount } from "svelte";
+  import { api, errorText, type LoginPin, type Session } from "../lib/api";
   import { device } from "../lib/device";
   import { t } from "../lib/i18n";
 
@@ -39,10 +39,49 @@
     }
   }
 
+  // Connexions gardées : on revient à Plex ou au serveur Jellyfin sans se reconnecter.
+  let remembered = $state<Pick<Session, "plexRemembered" | "jellyfinRemembered" | "serverKinds"> | null>(null);
+  let resuming = $state(false);
+  onMount(() => {
+    api.session().then((s) => {
+      remembered = s;
+      // Un seul type de serveur utilisé (Réglages → Compte) : on va droit à sa connexion.
+      if (s.serverKinds === "plex") choosePlex();
+      else if (s.serverKinds === "jellyfin") otherJellyfin();
+    }, () => {});
+  });
+
   // Plex : sur téléviseur, pas de navigateur, le code s'affiche tout de suite.
-  function choosePlex() {
-    if (device.tv) login("link");
+  async function choosePlex() {
+    if (remembered?.plexRemembered) {
+      await api.resumePlex();
+      onDone();
+    } else if (device.tv) login("link");
     else server = "plex";
+  }
+
+  async function chooseJellyfin() {
+    const saved = remembered?.jellyfinRemembered;
+    if (!saved) return (server = "jellyfin");
+    resuming = true;
+    error = null;
+    try {
+      await api.resumeJellyfin();
+      onDone();
+    } catch (e) {
+      // Session fermée ou serveur injoignable : le formulaire, avec l'adresse déjà remplie.
+      jfUrl = saved.url;
+      server = "jellyfin";
+      error = errorText(e);
+    } finally {
+      resuming = false;
+    }
+  }
+
+  /** Jellyfin, avec un autre compte ou un autre serveur que celui gardé. */
+  function otherJellyfin() {
+    jfUrl = remembered?.jellyfinRemembered?.url ?? "";
+    server = "jellyfin";
   }
 
   // --- Jellyfin : adresse du serveur, identifiant, mot de passe ---
@@ -115,14 +154,37 @@
       <p>{t("login.chooseServer")}</p>
       <div class="servers">
         <button class="server-btn" onclick={choosePlex}>
+          <svg class="server-icon" viewBox="0 0 512 512" aria-hidden="true">
+            <rect width="512" height="512" rx="96" fill="#282a2d" />
+            <path d="M150 64h120l112 192-112 192H150l112-192z" fill="#ebaf00" />
+          </svg>
           <span class="server-name">Plex</span>
-          <span class="muted small">{t("login.plexHint")}</span>
+          <span class="muted small">{remembered?.plexRemembered ? t("login.connected") : t("login.plexHint")}</span>
         </button>
-        <button class="server-btn" onclick={() => (server = "jellyfin")}>
+        <button class="server-btn" onclick={chooseJellyfin} disabled={resuming}>
+          <!-- Logo Jellyfin (CC BY-SA 4.0, projet Jellyfin). -->
+          <svg class="server-icon" viewBox="0 0 512 512" aria-hidden="true">
+            <defs>
+              <linearGradient id="jf-gradient" x1="110.25" y1="213.3" x2="496.14" y2="436.09" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#aa5cc3" />
+                <stop offset="1" stop-color="#00a4dc" />
+              </linearGradient>
+            </defs>
+            <rect width="512" height="512" rx="96" fill="#282a2d" />
+            <g transform="translate(51 51) scale(0.8)">
+              <path d="M256 201.62c-20.44 0-86.23 119.29-76.2 139.43s142.48 19.92 152.4 0-55.73-139.42-76.2-139.43z" fill="url(#jf-gradient)" />
+              <path d="M256 23.3c-61.56 0-259.82 359.48-229.63 420.1s429.63 60 459.26 0S317.56 23.3 256 23.3zm150.51 367.46c-19.4 38.9-281.15 39.37-300.79 0S215.71 115.48 256.12 115.48s169.79 236.38 150.39 275.28z" fill="url(#jf-gradient)" />
+            </g>
+          </svg>
           <span class="server-name">Jellyfin</span>
-          <span class="muted small">{t("login.jellyfinHint")}</span>
+          <span class="muted small">
+            {resuming ? t("login.connecting") : (remembered?.jellyfinRemembered?.name ?? t("login.jellyfinHint"))}
+          </span>
         </button>
       </div>
+      {#if remembered?.jellyfinRemembered}
+        <button class="btn link-btn" onclick={otherJellyfin}>{t("login.otherAccount")} · Jellyfin</button>
+      {/if}
     {:else if server === "jellyfin" && quickCode}
       <p>{t("login.quickConnectHint")}</p>
       <div class="code">{#each quickCode.split("") as c, i (i)}<span>{c}</span>{/each}</div>
@@ -267,6 +329,18 @@
   .server-name {
     font-size: 22px;
     font-weight: 800;
+  }
+
+  .server-icon {
+    width: 64px;
+    height: 64px;
+    justify-self: center;
+    margin-bottom: 4px;
+  }
+
+  .link-btn {
+    margin-top: 10px;
+    font-size: 13px;
   }
 
   .jf {

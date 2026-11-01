@@ -43,6 +43,10 @@
     for (const c of name) h = (h * 31 + c.charCodeAt(0)) % 360;
     return h;
   }
+
+  // Les deux types de serveur sont utilisés : on peut revenir à l'écran de choix Plex / Jellyfin.
+  let bothKinds = $state(false);
+  api.session().then((s) => (bothKinds = s.serverKinds === "both"), () => {});
 </script>
 
 <div class="picker">
@@ -83,7 +87,10 @@
   </div>
 
   {#if error}<p class="error">{error}</p>{/if}
-  <button class="btn logout" onclick={() => api.logout().then(onDone)}>{t("servers.switchAccount")}</button>
+  <div class="row logout">
+    {#if bothKinds}<button class="btn" onclick={() => api.forgetServer().then(onDone)}>{t("servers.chooseKind")}</button>{/if}
+    <button class="btn" onclick={() => api.logout().then(onDone)}>{t("servers.switchAccount")}</button>
+  </div>
 </div>
 
 <style>
@@ -204,5 +211,9 @@
 
   .logout {
     margin-top: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
   }
 </style>

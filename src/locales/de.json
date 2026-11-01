@@ -29,7 +29,10 @@
       "checkUpdates": "Nach Updates suchen",
       "checking": "Suche…",
       "upToDate": "Plexr ist auf dem neuesten Stand ({{version}})",
-      "releaseNotes": "Versionshinweise"
+      "releaseNotes": "Versionshinweise",
+      "serverKinds": "Medienserver",
+      "bothKinds": "Beide",
+      "serverKindsHint": "Mit nur einem fragt Plexr nicht mehr nach Plex oder Jellyfin. Mit beiden bietet „Server wechseln“ die Wahl an, ohne die Anmeldungen zu verlieren."
     },
     "services": {
       "seerrConnected": "Mit deinem Plex-Konto bei Seerr angemeldet",
@@ -135,7 +138,9 @@
     "connecting": "Anmeldung…",
     "back": "Zurück",
     "quickConnect": "Mit Quick Connect",
-    "quickConnectHint": "Öffne in Jellyfin dein Profil → Quick Connect und gib diesen Code ein:"
+    "quickConnectHint": "Öffne in Jellyfin dein Profil → Quick Connect und gib diesen Code ein:",
+    "connected": "Angemeldet",
+    "otherAccount": "Anderes Konto"
   },
   "servers": {
     "title": "Wähle einen Server",
@@ -145,7 +150,8 @@
     "mine": "Mein Server",
     "sharedBy": "Geteilt von {{owner}}",
     "shared": "Geteilt",
-    "switchAccount": "Konto wechseln"
+    "switchAccount": "Konto wechseln",
+    "chooseKind": "Plex oder Jellyfin"
   },
   "search": {
     "hint": "Gib den Titel eines Films, einer Serie oder einen Künstler ein.",

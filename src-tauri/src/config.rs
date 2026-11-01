@@ -10,6 +10,13 @@ pub struct Config {
     pub client_id: String,
     pub plex_token: Option<String>,
     pub server: Option<SavedServer>,
+    /// Serveurs utilisés : « plex », « jellyfin » ou « both » (écran de choix à chaque changement).
+    /// Vide : fixé à la première connexion.
+    pub server_kinds: Option<String>,
+    /// Dernière connexion Jellyfin, gardée pour y revenir sans se reconnecter (30 jours au plus).
+    pub jellyfin_saved: Option<SavedServer>,
+    /// Date de la dernière utilisation de `jellyfin_saved` (secondes depuis 1970).
+    pub jellyfin_saved_at: Option<u64>,
     /// Seerr s'ouvre avec le compte Plex de l'utilisateur, ou son compte Jellyfin.
     pub seerr_url: Option<String>,
     /// Cookies de session Seerr d'un compte Jellyfin (le mot de passe n'est jamais gardé).

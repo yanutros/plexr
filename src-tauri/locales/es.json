@@ -131,6 +131,7 @@
       "recentlyPlayed": "Escuchado recientemente",
       "playlists": "Listas"
     },
-    "quickConnectOff": "Quick Connect está desactivado en este servidor Jellyfin (Panel → General)."
+    "quickConnectOff": "Quick Connect está desactivado en este servidor Jellyfin (Panel → General).",
+    "sessionExpired": "La sesión de Jellyfin ha caducado: vuelve a iniciar sesión."
   }
 }

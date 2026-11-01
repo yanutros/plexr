@@ -29,7 +29,10 @@
       "checkUpdates": "Zoeken naar updates",
       "checking": "Zoeken…",
       "upToDate": "Plexr is up-to-date ({{version}})",
-      "releaseNotes": "Release-opmerkingen"
+      "releaseNotes": "Release-opmerkingen",
+      "serverKinds": "Mediaservers",
+      "bothKinds": "Beide",
+      "serverKindsHint": "Met één vraagt Plexr niet meer om te kiezen tussen Plex en Jellyfin. Met beide biedt „Andere server” de keuze, zonder de aanmeldingen kwijt te raken."
     },
     "services": {
       "seerrConnected": "Verbonden met Seerr via je Plex-account",
@@ -135,7 +138,9 @@
     "connecting": "Aanmelden…",
     "back": "Terug",
     "quickConnect": "Met Quick Connect",
-    "quickConnectHint": "Open in Jellyfin je profiel → Quick Connect en voer deze code in:"
+    "quickConnectHint": "Open in Jellyfin je profiel → Quick Connect en voer deze code in:",
+    "connected": "Aangemeld",
+    "otherAccount": "Ander account"
   },
   "servers": {
     "title": "Kies een server",
@@ -145,7 +150,8 @@
     "mine": "Mijn server",
     "sharedBy": "Gedeeld door {{owner}}",
     "shared": "Gedeeld",
-    "switchAccount": "Ander account"
+    "switchAccount": "Ander account",
+    "chooseKind": "Plex of Jellyfin"
   },
   "search": {
     "hint": "Typ de titel van een film of serie, of een artiest.",

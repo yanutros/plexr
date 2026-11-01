@@ -123,6 +123,15 @@ pub async fn quick_connect_poll(http: &Client, base: &str, client_id: &str, secr
     Ok(Some(Login { token: auth.access_token, user_id: auth.user.id, server_id: auth.server_id, server_name: name }))
 }
 
+/// Ferme la session côté serveur : le jeton ne sert plus (Se déconnecter).
+pub async fn logout(http: &Client, base: &str, client_id: &str, token: &str) {
+    let _ = http
+        .post(format!("{base}/Sessions/Logout"))
+        .header("Authorization", authorization(client_id, Some(token)))
+        .send()
+        .await;
+}
+
 /// Nom du serveur, et vérification que l'adresse est bien celle d'un serveur Jellyfin.
 async fn server_name(http: &Client, base: &str) -> Result<String> {
     let info: PublicInfo = http

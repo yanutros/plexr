@@ -4,7 +4,7 @@
   import { listen } from "@tauri-apps/api/event";
   import QrCode from "../components/QrCode.svelte";
   import { applyInvite, decodeInvite, encodeInvite, readQrImage, type InviteStatus } from "../lib/invite";
-  import { api, errorText, tracearrLogin, type Account, type Pref, type Section, type Session } from "../lib/api";
+  import { api, errorText, tracearrLogin, type Account, type Pref, type Section, type ServerKinds, type Session } from "../lib/api";
   import { go, nav, toast } from "../lib/nav.svelte";
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import { device } from "../lib/device";
@@ -258,6 +258,27 @@
     toast(t("settings.interface.menuReset"));
   }
 
+  // Serveurs utilisés : choisir Plex ou Jellyfin seul y bascule aussitôt (connexion gardée si possible).
+  let serverKinds = $state<ServerKinds>("both");
+  $effect.pre(() => {
+    serverKinds = session.serverKinds;
+  });
+  async function chooseKinds(kinds: ServerKinds) {
+    serverKinds = kinds;
+    await api.setServerKinds(kinds);
+    if (kinds === "both" || kinds === session.serverKind) return onChange();
+    if (kinds === "jellyfin") {
+      try {
+        await api.resumeJellyfin();
+        return onChange();
+      } catch {
+        // Pas de connexion Jellyfin gardée : l'écran de connexion Jellyfin.
+      }
+    }
+    await api.forgetServer();
+    onChange();
+  }
+
   async function changeServer() {
     // Oublier le serveur ramène à l'écran de choix.
     await api.forgetServer();
@@ -380,6 +401,23 @@
           <button class="btn" onclick={changeServer}>{t("settings.account.changeServer")}</button>
           <button class="btn" onclick={logout}><Icon name="logout" size={16} /> {t("settings.account.logout")}</button>
         </div>
+      </section>
+      <section class="card">
+        <h2>{t("settings.account.serverKinds")}</h2>
+        <div class="languages" role="radiogroup" aria-label={t("settings.account.serverKinds")}>
+          {#each [{ id: "plex", label: "Plex" }, { id: "jellyfin", label: "Jellyfin" }, { id: "both", label: t("settings.account.bothKinds") }] as k (k.id)}
+            <button
+              class="btn"
+              class:primary={serverKinds === k.id}
+              role="radio"
+              aria-checked={serverKinds === k.id}
+              onclick={() => serverKinds !== k.id && chooseKinds(k.id as ServerKinds)}
+            >
+              {k.label}
+            </button>
+          {/each}
+        </div>
+        <p class="muted small">{t("settings.account.serverKindsHint")}</p>
       </section>
       <section class="card">
         <p>{t("settings.account.version", { version })}</p>

@@ -360,6 +360,12 @@ machine), puis ajouté à la version avec `gh release upload`.
    Continuer à regarder » et musique fonctionnent comme avec Plex ; la carte Compte des Réglages montre le nom,
    la photo de profil et le rôle du compte Jellyfin. Seerr se connecte avec le compte Jellyfin ;
    Tracearr garde sa connexion par compte plex.tv.
+   L'écran de choix montre les deux services avec leur icône. Plexr retient ensuite les serveurs utilisés
+   (**Réglages → Compte → Serveurs de médias** : Plex, Jellyfin ou les deux) : avec un seul, il ne repose plus la
+   question. Avec les deux, **Changer de serveur** ramène au choix sans perdre les connexions : le compte Plex reste
+   connecté, et la dernière connexion Jellyfin est gardée 30 jours sans utilisation (vérifiée auprès du serveur à
+   chaque retour ; le mot de passe n'est jamais enregistré). **Se déconnecter** efface tout et ferme aussi les
+   sessions Jellyfin sur le serveur.
 2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
    teste ses adresses et garde la plus rapide (locale, distante, puis relais), et la revérifie à chaque lancement.
    Si le routeur ou le DNS bloque les adresses locales `*.plex.direct` (protection contre le « DNS rebinding »),
@@ -571,7 +577,8 @@ d'auteur. Plexr est fourni **sans aucune garantie**.
 
 Les bibliothèques utilisées gardent leur propre licence (Tauri, Svelte et qrcode-generator sous MIT, jsQR et
 hls.js sous Apache-2.0, les polices Bebas Neue, Cinzel, Orbitron, Fredoka, Playfair Display et Creepster sous
-SIL Open Font License via Fontsource, notamment) ; mpv est un
+SIL Open Font License via Fontsource, notamment ; le logo Jellyfin de l'écran de connexion sous CC BY-SA 4.0,
+projet Jellyfin) ; Plex est une marque de Plex, Inc., dont l'icône ne sert qu'à désigner le service ; mpv est un
 programme séparé, lancé par Plexr, et reste sous sa licence. L'installeur Windows en inclut une version
 compilée par [mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake), sous GPL, dont le code source
 est disponible sur [github.com/mpv-player/mpv](https://github.com/mpv-player/mpv).
