@@ -94,6 +94,29 @@ pub struct Resource {
 
 /// Logo d'un film ou d'une série sur le service de métadonnées de Plex, quand le serveur n'en a
 /// pas (ses métadonnées sont plus anciennes ou moins complètes). Adresse publique de l'image.
+/// Titre d'épisode générique (« Épisode 6 », « Episode #1.6 »…) : il répète le code « S1 E6 ».
+fn generic_episode_title(title: &str) -> bool {
+    let t = title.trim().to_lowercase();
+    let rest = ["épisode", "episode", "episodio", "folge", "aflevering", "ep.", "ep", "e"]
+        .iter()
+        .find_map(|p| t.strip_prefix(p))
+        .map(|r| r.trim_start().trim_start_matches('#').trim());
+    matches!(rest, Some(r) if !r.is_empty() && r.chars().all(|c| c.is_ascii_digit() || c == '.' || c == 'x'))
+}
+
+/// « S1 · E6 — Titre », ou « S1 · E6 » seul quand le titre n'apprend rien.
+fn episode_line(season: u32, episode: u32, title: &str) -> String {
+    let code = [("season", season.to_string()), ("episode", episode.to_string())];
+    if generic_episode_title(title) {
+        format!("S{season} · E{episode}")
+    } else {
+        crate::i18n::tr_with(
+            "plex.episodeLine",
+            &[("season", code[0].1.as_str()), ("episode", code[1].1.as_str()), ("title", title)],
+        )
+    }
+}
+
 /// Booléen que Plex envoie tantôt tel quel (playlists), tantôt en texte « 1 » / « 0 » (collections).
 fn flag<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::Error> {
     #[derive(Deserialize)]
@@ -1057,14 +1080,7 @@ impl PlexServer {
         let (title, subtitle_line) = match (m.kind.as_str(), &m.grandparent_title) {
             ("episode", Some(show)) => (
                 show.clone(),
-                Some(crate::i18n::tr_with(
-                    "plex.episodeLine",
-                    &[
-                        ("season", &m.parent_index.unwrap_or(0).to_string()),
-                        ("episode", &m.index.unwrap_or(0).to_string()),
-                        ("title", &m.title),
-                    ],
-                )),
+                Some(episode_line(m.parent_index.unwrap_or(0), m.index.unwrap_or(0), &m.title)),
             ),
             _ => (m.title.clone(), m.year.map(|y| y.to_string())),
         };
@@ -1111,14 +1127,7 @@ impl PlexServer {
         let (title, subtitle_line) = match (m.kind.as_str(), &m.grandparent_title) {
             ("episode", Some(show)) => (
                 show.clone(),
-                Some(crate::i18n::tr_with(
-                    "plex.episodeLine",
-                    &[
-                        ("season", &m.parent_index.unwrap_or(0).to_string()),
-                        ("episode", &m.index.unwrap_or(0).to_string()),
-                        ("title", &m.title),
-                    ],
-                )),
+                Some(episode_line(m.parent_index.unwrap_or(0), m.index.unwrap_or(0), &m.title)),
             ),
             _ => (m.title.clone(), m.year.map(|y| y.to_string())),
         };

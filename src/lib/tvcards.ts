@@ -1,6 +1,6 @@
 // Jaquettes de l'interface TV : une seule forme de données pour les rangées et les grilles,
 // quelle que soit l'origine (Plex, Seerr, catégories).
-import { errorText, formatDuration, type Item, type SeerrMedia } from "./api";
+import { episodeTitle, errorText, formatDuration, type Item, type SeerrMedia } from "./api";
 import { go, toast } from "./nav.svelte";
 import { play, playMusic } from "./player.svelte";
 import { t } from "./i18n";
@@ -39,7 +39,11 @@ const fail = (e: unknown) => toast(errorText(e), true);
 export function fromItem(item: Item, eyebrow: string, resume = false): TvCard {
   const music = MUSIC.has(item.kind);
   const parts: string[] = [];
-  if (item.kind === "episode") parts.push(t("tv.episodeLine", { season: item.parentIndex ?? "", episode: item.index ?? "", title: item.title }));
+  if (item.kind === "episode") {
+    const title = episodeTitle(item.title);
+    const code = { season: item.parentIndex ?? "", episode: item.index ?? "" };
+    parts.push(title ? t("tv.episodeLine", { ...code, title }) : t("posterCard.episodeCode", code));
+  }
   else if (music && item.subtitle) parts.push(item.subtitle);
   if (item.kind !== "episode" && item.year) parts.push(String(item.year));
   if (item.kind !== "episode" && item.genres.length) parts.push(item.genres.slice(0, 2).join(", "));

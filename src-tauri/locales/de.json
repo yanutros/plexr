@@ -27,7 +27,7 @@
     "noMusic": "„{{title}}“ enthält keine Musik",
     "track": "Titel {{id}}",
     "noPlayableFile": "Keine abspielbare Datei für „{{title}}“",
-    "episodeLine": "S{{season}} · F{{episode}} – {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} – {{title}}",
     "itemCount_one": "{{count}} Titel",
     "itemCount_other": "{{count}} Titel"
   },
@@ -37,7 +37,7 @@
     "notFound": "Element {{id}} nicht gefunden",
     "notEditable": "Diese Art von Element kann nicht bearbeitet werden",
     "libraryNotFound": "Mediathek für dieses Element nicht gefunden",
-    "episodeLine": "S{{season}} · F{{episode}} – {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} – {{title}}",
     "fields": {
       "title": "Titel",
       "titleSort": "Sortiertitel",
@@ -84,7 +84,7 @@
     "error": "Tracearr: {{message}}",
     "notSetUp": "Dieses Tracearr ist noch nicht eingerichtet: Sein Admin muss sich zuerst dort anmelden",
     "replied": "Tracearr hat mit {{status}} für {{path}} geantwortet",
-    "episodeLine": "S{{season}} · F{{episode}} – {{title}}"
+    "episodeLine": "S{{season}} · E{{episode}} – {{title}}"
   },
   "update": {
     "invalidName": "ungültiger Paketname",

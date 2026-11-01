@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { errorText, isMusic, type Item } from "../lib/api";
+  import { episodeTitle, errorText, isMusic, type Item } from "../lib/api";
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play, playMusic } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
@@ -17,7 +17,7 @@
     music
       ? (item.subtitle ?? "")
       : item.kind === "episode"
-      ? `${t("posterCard.episodeCode", { season: item.parentIndex ?? 0, episode: item.index ?? 0 })}${wide ? ` — ${item.title}` : ""}`
+      ? `${t("posterCard.episodeCode", { season: item.parentIndex ?? 0, episode: item.index ?? 0 })}${wide && episodeTitle(item.title) ? ` — ${episodeTitle(item.title)}` : ""}`
       : item.kind === "season"
         ? (item.showTitle ?? "")
         : item.kind === "collection"

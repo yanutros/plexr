@@ -27,7 +27,7 @@
     "noMusic": "« {{title}} » ne contient pas de musique",
     "track": "Piste {{id}}",
     "noPlayableFile": "Aucun fichier lisible pour « {{title}} »",
-    "episodeLine": "S{{season}} · É{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "itemCount_one": "{{count}} élément",
     "itemCount_other": "{{count}} éléments"
   },
@@ -37,7 +37,7 @@
     "notFound": "Élément {{id}} introuvable",
     "notEditable": "Ce type d'élément ne se modifie pas",
     "libraryNotFound": "Bibliothèque introuvable pour cet élément",
-    "episodeLine": "S{{season}} · É{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "fields": {
       "title": "Titre",
       "titleSort": "Titre pour le tri",
@@ -84,7 +84,7 @@
     "error": "Tracearr : {{message}}",
     "notSetUp": "Ce Tracearr n'est pas encore configuré : son administrateur doit d'abord s'y connecter",
     "replied": "Tracearr a répondu {{status}} pour {{path}}",
-    "episodeLine": "S{{season}} · É{{episode}} — {{title}}"
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}"
   },
   "update": {
     "invalidName": "nom de paquet invalide",

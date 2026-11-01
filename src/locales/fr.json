@@ -372,7 +372,7 @@
       "moreActions": "Plus d'actions",
       "movie": "Film",
       "show": "Série",
-      "episodeCode": "S{{season}} É{{episode}}",
+      "episodeCode": "S{{season}} E{{episode}}",
       "remaining": "{{time}} restantes",
       "nowPlaying": "En cours de lecture",
       "playback": "Lecture",
@@ -459,7 +459,7 @@
     "request": "Demander"
   },
   "posterCard": {
-    "episodeCode": "S{{season}} · É{{episode}}",
+    "episodeCode": "S{{season}} · E{{episode}}",
     "openTitle": "Ouvrir {{title}}"
   },
   "format": {
@@ -475,7 +475,7 @@
     "partialFailure": "Une partie de la configuration a échoué."
   },
   "tv": {
-    "episodeLine": "S{{season}} · É{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "remaining": "{{time}} restantes",
     "toRequest": "À demander",
     "show": "Série",

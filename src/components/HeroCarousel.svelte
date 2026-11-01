@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import { errorText, formatDuration, type Item } from "../lib/api";
+  import { episodeTitle, errorText, formatDuration, type Item } from "../lib/api";
   import { go, toast } from "../lib/nav.svelte";
   import { play } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
@@ -81,7 +81,11 @@
         <h1><TitleLogo logo={featured.logo} guid={featured.logoGuid} genres={featured.genres} title={featured.showTitle ?? featured.title} /></h1>
         <div class="meta">
           {#if featured.kind === "episode"}
-            <span>{t("hero.episodeLine", { season: featured.parentIndex ?? "", episode: featured.index ?? "", title: featured.title })}</span>
+            <span>
+              {episodeTitle(featured.title)
+                ? t("hero.episodeLine", { season: featured.parentIndex ?? "", episode: featured.index ?? "", title: episodeTitle(featured.title) ?? "" })
+                : t("item.seasonEpisode", { season: featured.parentIndex ?? "", episode: featured.index ?? "" })}
+            </span>
           {:else if featured.year}
             <span>{featured.year}</span>
           {/if}

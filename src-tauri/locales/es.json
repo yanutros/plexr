@@ -27,7 +27,7 @@
     "noMusic": "«{{title}}» no contiene música",
     "track": "Pista {{id}}",
     "noPlayableFile": "No hay ningún archivo reproducible para «{{title}}»",
-    "episodeLine": "T{{season}} · E{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "itemCount_one": "{{count}} elemento",
     "itemCount_other": "{{count}} elementos"
   },
@@ -37,7 +37,7 @@
     "notFound": "No se encuentra el elemento {{id}}",
     "notEditable": "Este tipo de elemento no se puede editar",
     "libraryNotFound": "No se encuentra la biblioteca de este elemento",
-    "episodeLine": "T{{season}} · E{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "fields": {
       "title": "Título",
       "titleSort": "Título para ordenar",
@@ -84,7 +84,7 @@
     "error": "Tracearr: {{message}}",
     "notSetUp": "Este Tracearr aún no está configurado: su administrador tiene que iniciar sesión en él primero",
     "replied": "Tracearr ha respondido {{status}} para {{path}}",
-    "episodeLine": "T{{season}} · E{{episode}} — {{title}}"
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}"
   },
   "update": {
     "invalidName": "nombre de paquete no válido",

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { errorText, formatDuration, type Item } from "../lib/api";
+  import { episodeTitle, errorText, formatDuration, type Item } from "../lib/api";
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
@@ -90,7 +90,7 @@
             <h3><TitleLogo logo={item.logo} guid={item.logoGuid} genres={item.genres} title={item.showTitle ?? item.title} /></h3>
             <div class="sub">
               {#if item.kind === "episode"}
-                <span class="ep">{t("common.c1.episodeCode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</span> · {item.title}
+                <span class="ep">{t("common.c1.episodeCode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</span>{#if episodeTitle(item.title)} · {episodeTitle(item.title)}{/if}
               {:else if item.year}
                 {item.year}{#if item.genres.length} · {item.genres.slice(0, 2).join(" · ")}{/if}
               {/if}

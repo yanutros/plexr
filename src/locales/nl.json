@@ -372,7 +372,7 @@
       "moreActions": "Meer acties",
       "movie": "Film",
       "show": "Serie",
-      "episodeCode": "S{{season}} A{{episode}}",
+      "episodeCode": "S{{season}} E{{episode}}",
       "remaining": "Nog {{time}}",
       "nowPlaying": "Nu aan het afspelen",
       "playback": "Afspelen",
@@ -459,7 +459,7 @@
     "request": "Aanvragen"
   },
   "posterCard": {
-    "episodeCode": "S{{season}} · A{{episode}}",
+    "episodeCode": "S{{season}} · E{{episode}}",
     "openTitle": "{{title}} openen"
   },
   "format": {
@@ -475,7 +475,7 @@
     "partialFailure": "Een deel van de instelling is mislukt."
   },
   "tv": {
-    "episodeLine": "S{{season}} · A{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "remaining": "Nog {{time}}",
     "toRequest": "Om aan te vragen",
     "show": "Serie",

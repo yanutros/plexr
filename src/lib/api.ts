@@ -436,6 +436,16 @@ export function seerrStatusLabel(status: number): string | null {
   }
 }
 
+/**
+ * Titre d'un épisode, sauf s'il n'apprend rien : certaines séries mal reconnues par Plex n'ont qu'un
+ * titre générique (« Épisode 6 », « Episode #1.6 »…) qui répète le code « S1 E6 » déjà affiché.
+ */
+export function episodeTitle(title: string | null | undefined): string | null {
+  const t = title?.trim();
+  if (!t || /^(?:[ée]pisod(?:e|io)|folge|aflevering|ep\.?|e)\s*#?\s*\d+(?:[.x]\d+)?$/i.test(t)) return null;
+  return t;
+}
+
 export function formatDuration(ms: number | null): string {
   if (!ms) return "";
   const min = Math.round(ms / 60000);

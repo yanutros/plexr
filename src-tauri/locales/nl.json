@@ -27,7 +27,7 @@
     "noMusic": "‘{{title}}’ bevat geen muziek",
     "track": "Nummer {{id}}",
     "noPlayableFile": "Geen afspeelbaar bestand voor ‘{{title}}’",
-    "episodeLine": "S{{season}} · A{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items"
   },
@@ -37,7 +37,7 @@
     "notFound": "Item {{id}} niet gevonden",
     "notEditable": "Dit type item kan niet worden bewerkt",
     "libraryNotFound": "Bibliotheek niet gevonden voor dit item",
-    "episodeLine": "S{{season}} · A{{episode}} — {{title}}",
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}",
     "fields": {
       "title": "Titel",
       "titleSort": "Sorteertitel",
@@ -84,7 +84,7 @@
     "error": "Tracearr: {{message}}",
     "notSetUp": "Deze Tracearr is nog niet ingesteld: de beheerder moet eerst inloggen",
     "replied": "Tracearr antwoordde {{status}} voor {{path}}",
-    "episodeLine": "S{{season}} · A{{episode}} — {{title}}"
+    "episodeLine": "S{{season}} · E{{episode}} — {{title}}"
   },
   "update": {
     "invalidName": "ongeldige pakketnaam",
