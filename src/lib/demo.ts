@@ -26,6 +26,7 @@ function item(p: Partial<Item> & Pick<Item, "kind" | "title">): Item {
     summary: null,
     poster: null,
     logo: null,
+    logoGuid: null,
     thumb: null,
     backdrop: null,
     index: null,

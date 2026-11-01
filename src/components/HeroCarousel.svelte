@@ -78,7 +78,7 @@
     {#key featured.ratingKey}
       <div class="hero-body">
         {#if eyebrow?.(featured)}<div class="eyebrow">{eyebrow(featured)}</div>{/if}
-        <h1><TitleLogo logo={featured.logo} title={featured.showTitle ?? featured.title} /></h1>
+        <h1><TitleLogo logo={featured.logo} guid={featured.logoGuid} genres={featured.genres} title={featured.showTitle ?? featured.title} /></h1>
         <div class="meta">
           {#if featured.kind === "episode"}
             <span>{t("hero.episodeLine", { season: featured.parentIndex ?? "", episode: featured.index ?? "", title: featured.title })}</span>

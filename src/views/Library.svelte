@@ -104,6 +104,8 @@
       eyebrow: t("library.category"),
       title: genreLabel(g.title),
       logo: null,
+      logoGuid: null,
+      genres: [],
       line: t("library.titleCount", { count: g.count }),
       summary: null,
       backdrop: g.backdrop,

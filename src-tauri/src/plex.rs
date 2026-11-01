@@ -92,6 +92,31 @@ pub struct Resource {
     pub connections: Vec<Connection>,
 }
 
+/// Logo d'un film ou d'une série sur le service de métadonnées de Plex, quand le serveur n'en a
+/// pas (ses métadonnées sont plus anciennes ou moins complètes). Adresse publique de l'image.
+pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str) -> Result<Option<String>> {
+    let id = guid.rsplit('/').next().unwrap_or_default();
+    if id.is_empty() || !id.chars().all(|c| c.is_ascii_alphanumeric()) {
+        return Ok(None);
+    }
+    let v: serde_json::Value = with_plex_headers(
+        http.get(format!("https://metadata.provider.plex.tv/library/metadata/{id}")),
+        client_id,
+        Some(token),
+    )
+    .send()
+    .await?
+    .error_for_status()?
+    .json()
+    .await?;
+    Ok(v["MediaContainer"]["Metadata"][0]["Image"]
+        .as_array()
+        .and_then(|images| images.iter().find(|i| i["type"] == "clearLogo"))
+        .and_then(|i| i["url"].as_str())
+        .filter(|u| u.starts_with("https://"))
+        .map(str::to_owned))
+}
+
 /// Photos des comptes Plex : celle de l'utilisateur et celles de ses amis (propriétaires des
 /// serveurs partagés), par identifiant. Facultatif : en cas d'échec, pas de photo.
 pub async fn avatars(http: &Client, client_id: &str, token: &str) -> (Option<String>, Vec<(u64, String)>) {
@@ -257,6 +282,10 @@ struct RawMetadata {
     original_title: Option<String>,
     parent_rating_key: Option<String>,
     grandparent_rating_key: Option<String>,
+    /// Identifiants Plex universels (« plex://movie/… ») du titre, de sa saison, de sa série.
+    guid: Option<String>,
+    parent_guid: Option<String>,
+    grandparent_guid: Option<String>,
     index: Option<u32>,
     parent_index: Option<u32>,
     duration: Option<u64>,
@@ -363,6 +392,8 @@ pub struct Item {
     pub poster: Option<String>,
     /// Logo officiel du titre (« clear logo », PNG transparent), quand Plex en a un.
     pub logo: Option<String>,
+    /// Sans logo sur le serveur : identifiant Plex (film ou série) pour le chercher en ligne.
+    pub logo_guid: Option<String>,
     /// Vignette propre à l'élément (image d'épisode en 16:9).
     pub thumb: Option<String>,
     pub backdrop: Option<String>,
@@ -603,6 +634,17 @@ impl PlexServer {
             thumb: m.thumb.as_ref().map(|p| self.image(p, 480, 270)),
             backdrop: m.art.as_ref().map(|p| self.image(p, 1600, 900)),
             logo: m.images.iter().find(|i| i.kind == "clearLogo").map(|i| self.logo(&i.url)),
+            logo_guid: if m.images.iter().any(|i| i.kind == "clearLogo") {
+                None
+            } else {
+                match m.kind.as_str() {
+                    "episode" => m.grandparent_guid.clone(),
+                    "season" => m.parent_guid.clone(),
+                    "movie" | "show" => m.guid.clone(),
+                    _ => None,
+                }
+                .filter(|g| g.starts_with("plex://"))
+            },
             playable: matches!(m.kind.as_str(), "movie" | "episode" | "track"),
             resolution: media.and_then(|x| x.video_resolution.clone()),
             genres: m.genre.into_iter().map(|g| g.tag).collect(),

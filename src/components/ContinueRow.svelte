@@ -86,7 +86,7 @@
           <div class="shade"></div>
           <div class="info">
             {#if item.kind === "episode"}<div class="eyebrow">{t("common.c1.show")}</div>{:else}<div class="eyebrow">{t("common.c1.movie")}</div>{/if}
-            <h3><TitleLogo logo={item.logo} title={item.showTitle ?? item.title} /></h3>
+            <h3><TitleLogo logo={item.logo} guid={item.logoGuid} genres={item.genres} title={item.showTitle ?? item.title} /></h3>
             <div class="sub">
               {#if item.kind === "episode"}
                 <span class="ep">{t("common.c1.episodeCode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</span> · {item.title}

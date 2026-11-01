@@ -82,7 +82,7 @@
   {#if current}
     <div class="spotlight">
       <div class="eyebrow">{current.eyebrow}</div>
-      <h1><TitleLogo logo={current.logo} title={current.title} /></h1>
+      <h1><TitleLogo logo={current.logo} guid={current.logoGuid} genres={current.genres} title={current.title} /></h1>
       {#if current.line}<div class="line">{current.line}</div>{/if}
       {#if current.summary}<p>{current.summary}</p>{/if}
     </div>

@@ -34,6 +34,8 @@ struct AppState {
     tracearr: tokio::sync::Mutex<Option<Arc<Tracearr>>>,
     player: Mutex<Option<PlayerControl>>,
     relay: Mutex<Option<relay::Relay>>,
+    /// Logos trouvés (ou non) sur le service en ligne de Plex, par identifiant.
+    remote_logos: Mutex<std::collections::HashMap<String, Option<String>>>,
 }
 
 impl AppState {
@@ -315,6 +317,19 @@ async fn plex_home(state: State<'_, AppState>) -> CmdResult<Home> {
 #[tauri::command]
 async fn plex_metadata(state: State<'_, AppState>, rating_key: String) -> CmdResult<ItemDetail> {
     Ok(state.server()?.metadata(&rating_key).await?)
+}
+
+/// Logo d'un titre absent du serveur, cherché sur le service en ligne de Plex (une fois par titre).
+#[tauri::command]
+async fn plex_remote_logo(state: State<'_, AppState>, guid: String) -> CmdResult<Option<String>> {
+    if let Some(known) = state.remote_logos.lock().unwrap().get(&guid) {
+        return Ok(known.clone());
+    }
+    let c = state.cfg();
+    let Some(token) = c.plex_token else { return Ok(None) };
+    let logo = plex::remote_logo(&state.http, &c.client_id, &token, &guid).await.unwrap_or(None);
+    state.remote_logos.lock().unwrap().insert(guid, logo.clone());
+    Ok(logo)
 }
 
 /// Films et séries où joue une personne (identifiant Plex de l'acteur), toutes bibliothèques confondues.
@@ -858,6 +873,7 @@ pub fn run() {
                 tracearr: tokio::sync::Mutex::new(None),
                 player: Mutex::new(None),
                 relay: Mutex::new(None),
+                remote_logos: Mutex::new(Default::default()),
             });
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
@@ -886,6 +902,7 @@ pub fn run() {
             plex_metadata,
             plex_children,
             plex_person_items,
+            plex_remote_logo,
             plex_search,
             plex_set_watched,
             plex_is_admin,

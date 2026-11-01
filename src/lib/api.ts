@@ -43,6 +43,8 @@ export interface Item {
   poster: string | null;
   /** Logo officiel du titre (PNG transparent), quand Plex en a un. */
   logo: string | null;
+  /** Sans logo sur le serveur : identifiant Plex pour le chercher en ligne (lib/logos.ts). */
+  logoGuid: string | null;
   thumb: string | null;
   backdrop: string | null;
   index: number | null;
@@ -331,6 +333,7 @@ export const api = {
   metadata: (ratingKey: string) => invoke<ItemDetail>("plex_metadata", { ratingKey }),
   children: (ratingKey: string) => invoke<Item[]>("plex_children", { ratingKey }),
   personItems: (id: number) => invoke<Item[]>("plex_person_items", { id }),
+  remoteLogo: (guid: string) => invoke<string | null>("plex_remote_logo", { guid }),
   search: (query: string) => invoke<Item[]>("plex_search", { query }),
   setWatched: (ratingKey: string, watched: boolean) => invoke<void>("plex_set_watched", { ratingKey, watched }),
 

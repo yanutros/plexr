@@ -55,7 +55,8 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       Accueil et bibliothèques avec un bandeau qui fait défiler cinq titres, puis un « Continuer à regarder »
       façon plateforme de streaming : grandes affiches, et celle survolée s'ouvre en grand avec sa scène, son
       épisode, sa progression et le bouton Reprendre. Puis de grands panneaux « À la une » et les rangées de Plex.
-      Les titres s'affichent avec leur logo officiel quand Plex en a un, comme dans Jellyfin.
+      Les titres s'affichent avec leur logo officiel, comme dans Jellyfin : celui du serveur, sinon celui du
+      service en ligne de Plex ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
     </td>
   </tr>
   <tr>
@@ -474,6 +475,7 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | `src/views/` | pages : accueil, bibliothèques, fiches, musique, découverte, statistiques, réglages |
 | `src/components/` | bandeau, cartes, lecteur vidéo, barre de musique… |
 | `src/lib/demo.ts` | mode démo (bibliothèque fictive) |
+| `src/components/TitleLogo.svelte`, `src/lib/logos.ts` | logos des titres : serveur, service en ligne de Plex, sinon titre stylisé selon le genre |
 | `src/lib/i18n.ts`, `src/locales/`, `src-tauri/src/i18n.rs`, `src-tauri/locales/` | traductions (voir ci-dessus) |
 | `src/lib/theme.ts`, `src-tauri/icons/themes/` | couleurs de l'interface et icônes assorties ; `docs/logo.html?theme=…` et `docs/tv-banner.html?theme=…` les produisent |
 | `src/components/UpdateDialog.svelte`, `src/lib/markdown.ts` | fenêtre « Nouvelle version disponible » et mise en forme des nouveautés |
@@ -522,7 +524,8 @@ En résumé, chacun peut utiliser, étudier, modifier et redistribuer Plexr, y c
 d'auteur. Plexr est fourni **sans aucune garantie**.
 
 Les bibliothèques utilisées gardent leur propre licence (Tauri, Svelte et qrcode-generator sous MIT, jsQR et
-hls.js sous Apache-2.0, notamment) ; mpv est un
+hls.js sous Apache-2.0, les polices Bebas Neue, Cinzel, Orbitron, Fredoka, Playfair Display et Creepster sous
+SIL Open Font License via Fontsource, notamment) ; mpv est un
 programme séparé, lancé par Plexr, et reste sous sa licence. L'installeur Windows en inclut une version
 compilée par [mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake), sous GPL, dont le code source
 est disponible sur [github.com/mpv-player/mpv](https://github.com/mpv-player/mpv).

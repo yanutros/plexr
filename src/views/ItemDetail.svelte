@@ -92,7 +92,13 @@
           </button>
         {/if}
         <!-- Le logo représente le film ou la série : un épisode garde son titre. -->
-        <h1><TitleLogo logo={item.kind === "episode" ? null : item.logo} title={item.title} /></h1>
+        <h1><TitleLogo
+            logo={item.kind === "episode" ? null : item.logo}
+            guid={item.kind === "episode" ? null : item.logoGuid}
+            genres={item.genres}
+            styled={item.kind !== "episode"}
+            title={item.title}
+          /></h1>
         {#if item.kind === "episode"}
           <div class="line">{t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</div>
         {:else if item.tagline}
