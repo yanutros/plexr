@@ -112,7 +112,7 @@
     }
   },
   "login": {
-    "tagline": "Je Plex-client, met Seerr-verzoeken ingebouwd.",
+    "tagline": "Je client voor Plex en Jellyfin, met ingebouwde Seerr-verzoeken.",
     "goTo": "Ga op je telefoon of computer naar",
     "enterCode": "en voer deze code in:",
     "autoConnect": "Je wordt automatisch ingelogd zodra de code is bevestigd.",
@@ -122,7 +122,16 @@
     "restart": "Opnieuw beginnen",
     "useCode": "Code gebruiken",
     "signIn": "Inloggen met Plex",
-    "withCode": "Met een code ({{site}})"
+    "withCode": "Met een code ({{site}})",
+    "chooseServer": "Waar staan je films, series en muziek?",
+    "plexHint": "Plex-account",
+    "jellyfinHint": "Jellyfin-server",
+    "jellyfinUrl": "Adres van de Jellyfin-server",
+    "username": "Gebruikersnaam",
+    "password": "Wachtwoord",
+    "connect": "Aanmelden",
+    "connecting": "Aanmelden…",
+    "back": "Terug"
   },
   "servers": {
     "title": "Kies een server",

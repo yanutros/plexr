@@ -1,0 +1,86 @@
+//! Couche commune aux serveurs de médias : Plex ou Jellyfin, vus par l'interface de la même façon
+//! (bibliothèques, rangées, fiches, lecture…, dans les types de `plex.rs`). Les fonctions propres
+//! à Plex (réglages du serveur, lecteur mpv, invitations) passent toujours par `PlexServer`.
+
+use anyhow::{anyhow, Result};
+
+use crate::jellyfin::JellyfinServer;
+use crate::plex::{Adjacent, Genre, Hub, Item, ItemDetail, Page, PlayInfo, PlexServer, QueueTrack, Section, WebStream};
+
+#[derive(Clone)]
+pub enum MediaServer {
+    Plex(PlexServer),
+    Jellyfin(JellyfinServer),
+}
+
+/// Fonction pas encore disponible avec Jellyfin (étape 2 du support de Jellyfin).
+fn not_yet<T>() -> Result<T> {
+    Err(anyhow!(crate::i18n::tr("jellyfin.notYet")))
+}
+
+/// Une méthode par fonction commune : Plex la fait déjà ; Jellyfin, au fur et à mesure.
+macro_rules! common {
+    ($( fn $name:ident(&self $(, $arg:ident : $ty:ty)* ) -> $ret:ty; )*) => {
+        impl MediaServer {
+            $(
+                pub async fn $name(&self $(, $arg: $ty)*) -> Result<$ret> {
+                    match self {
+                        Self::Plex(p) => p.$name($($arg),*).await,
+                        Self::Jellyfin(_) => not_yet(),
+                    }
+                }
+            )*
+        }
+    };
+}
+
+common! {
+    fn section_items(&self, key: &str, start: u32, size: u32, kind: Option<u32>, genre: Option<&str>, sort: Option<&str>) -> Page;
+    fn person_items(&self, id: u64) -> Vec<Item>;
+    fn on_deck(&self) -> Vec<Item>;
+    fn recently_added(&self) -> Vec<Item>;
+    fn genres(&self, key: &str) -> Vec<Genre>;
+    fn section_hubs(&self, key: &str) -> Vec<Hub>;
+    fn playlists(&self, section: &str) -> Vec<Item>;
+    fn adjacent(&self, rating_key: &str) -> Adjacent;
+    fn tracks(&self, rating_key: &str) -> Vec<Item>;
+    fn queue(&self, rating_key: &str) -> Vec<QueueTrack>;
+    fn metadata(&self, rating_key: &str) -> ItemDetail;
+    fn collections(&self, key: &str) -> Vec<Item>;
+    fn collection_items(&self, rating_key: &str) -> Vec<Item>;
+    fn related(&self, rating_key: &str) -> Vec<Item>;
+    fn children(&self, rating_key: &str) -> Vec<Item>;
+    fn search(&self, query: &str) -> Vec<Item>;
+    fn web_stream(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>, session: &str) -> WebStream;
+    fn stop_transcode(&self, session: &str) -> ();
+    fn play_info(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>) -> PlayInfo;
+    fn timeline(&self, rating_key: &str, state: &str, time_ms: u64, duration_ms: u64) -> ();
+    fn rate(&self, rating_key: &str, rating: Option<f32>) -> ();
+    fn remove_from_continue(&self, rating_key: &str) -> ();
+    fn set_watched(&self, rating_key: &str, watched: bool) -> ();
+}
+
+impl MediaServer {
+    pub async fn sections(&self) -> Result<Vec<Section>> {
+        match self {
+            Self::Plex(p) => p.sections().await,
+            Self::Jellyfin(j) => j.sections().await,
+        }
+    }
+
+    /// Le compte administre-t-il le serveur (édition des fiches, réglages) ? Plex seulement, pour l'instant.
+    pub async fn is_admin(&self) -> bool {
+        match self {
+            Self::Plex(p) => p.is_admin().await,
+            Self::Jellyfin(_) => false,
+        }
+    }
+
+    /// Le serveur Plex, pour ce qui n'existe que chez lui.
+    pub fn plex(self) -> Result<PlexServer> {
+        match self {
+            Self::Plex(p) => Ok(p),
+            Self::Jellyfin(_) => not_yet(),
+        }
+    }
+}

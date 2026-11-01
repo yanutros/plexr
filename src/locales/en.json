@@ -112,7 +112,7 @@
     }
   },
   "login": {
-    "tagline": "Your Plex client, with Seerr requests built in.",
+    "tagline": "Your Plex and Jellyfin client, with Seerr requests built in.",
     "goTo": "On your phone or computer, go to",
     "enterCode": "and enter this code:",
     "autoConnect": "You'll be signed in automatically as soon as the code is confirmed.",
@@ -122,7 +122,16 @@
     "restart": "Start over",
     "useCode": "Use a code",
     "signIn": "Sign in with Plex",
-    "withCode": "With a code ({{site}})"
+    "withCode": "With a code ({{site}})",
+    "chooseServer": "Where are your movies, shows and music?",
+    "plexHint": "Plex account",
+    "jellyfinHint": "Jellyfin server",
+    "jellyfinUrl": "Jellyfin server address",
+    "username": "Username",
+    "password": "Password",
+    "connect": "Sign in",
+    "connecting": "Signing in…",
+    "back": "Back"
   },
   "servers": {
     "title": "Choose a server",

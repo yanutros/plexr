@@ -114,5 +114,11 @@
   },
   "tmdb": {
     "invalidKey": "Esta clave de TMDB no es válida."
+  },
+  "jellyfin": {
+    "notYet": "Todavía no disponible con Jellyfin.",
+    "unreachable": "Ningún servidor accesible en esta dirección.",
+    "notJellyfin": "Esta dirección no responde como un servidor Jellyfin.",
+    "badCredentials": "Usuario o contraseña incorrectos."
   }
 }

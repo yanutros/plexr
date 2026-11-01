@@ -1,6 +1,8 @@
 mod config;
 mod error;
 mod i18n;
+mod jellyfin;
+mod media;
 mod player;
 mod plex;
 mod plex_admin;
@@ -51,10 +53,26 @@ impl AppState {
         config.save(&self.config_path)
     }
 
-    fn server(&self) -> anyhow::Result<PlexServer> {
+    /// Serveur de médias choisi : Plex ou Jellyfin (voir media.rs).
+    fn server(&self) -> anyhow::Result<media::MediaServer> {
         let c = self.cfg();
         let s = c.server.ok_or_else(|| anyhow!(crate::i18n::tr("app.noServer")))?;
-        Ok(PlexServer { http: self.http.clone(), base: s.uri, token: s.token, client_id: c.client_id })
+        Ok(if s.is_jellyfin() {
+            media::MediaServer::Jellyfin(jellyfin::JellyfinServer {
+                http: self.http.clone(),
+                base: s.uri,
+                token: s.token,
+                user_id: s.user_id.unwrap_or_default(),
+                client_id: c.client_id,
+            })
+        } else {
+            media::MediaServer::Plex(PlexServer { http: self.http.clone(), base: s.uri, token: s.token, client_id: c.client_id })
+        })
+    }
+
+    /// Serveur Plex, pour ce qui n'existe que chez lui (lecteur mpv, réglages du serveur, édition).
+    fn plex(&self) -> anyhow::Result<PlexServer> {
+        self.server()?.plex()
     }
 
     /// Session Seerr ouverte à la demande, puis réutilisée.
@@ -99,6 +117,8 @@ impl AppState {
 #[serde(rename_all = "camelCase")]
 struct Session {
     logged_in: bool,
+    /// « plex » ou « jellyfin ».
+    server_kind: &'static str,
     server_name: Option<String>,
     seerr_url: Option<String>,
     mpv_path: Option<String>,
@@ -112,7 +132,8 @@ struct Session {
 fn get_session(state: State<'_, AppState>) -> Session {
     let c = state.cfg();
     Session {
-        logged_in: c.plex_token.is_some(),
+        logged_in: c.plex_token.is_some() || c.server.as_ref().is_some_and(|s| s.is_jellyfin()),
+        server_kind: if c.server.as_ref().is_some_and(|s| s.is_jellyfin()) { "jellyfin" } else { "plex" },
         server_name: c.server.map(|s| s.name),
         seerr_url: c.seerr_url,
         mpv_path: c.mpv_path,
@@ -162,6 +183,25 @@ async fn plex_poll_login(state: State<'_, AppState>, pin_id: u64) -> CmdResult<b
     })?;
     *state.seerr.lock().await = None;
     Ok(true)
+}
+
+/// Connexion à un serveur Jellyfin (adresse, identifiant, mot de passe) : il devient le serveur de Plexr.
+#[tauri::command]
+async fn jellyfin_login(state: State<'_, AppState>, url: String, username: String, password: String) -> CmdResult<String> {
+    let base = jellyfin::normalize_url(&url);
+    let client_id = state.cfg().client_id;
+    let login = jellyfin::login(&state.http, &base, &client_id, username.trim(), &password).await?;
+    let name = login.server_name.clone();
+    let saved = SavedServer {
+        name: login.server_name,
+        machine_id: login.server_id,
+        uri: base,
+        token: login.token,
+        kind: "jellyfin".into(),
+        user_id: Some(login.user_id),
+    };
+    state.update_cfg(|c| c.server = Some(saved))?;
+    Ok(name)
 }
 
 #[tauri::command]
@@ -229,7 +269,14 @@ async fn plex_select_server(state: State<'_, AppState>, machine_id: String) -> C
         .ok_or_else(|| anyhow!(crate::i18n::tr("app.serverNotFound")))?;
     let uri = plex::pick_connection(&state.http, &c.client_id, &res).await?;
     let name = res.name.clone();
-    let saved = SavedServer { name: res.name, machine_id, uri, token: res.access_token.unwrap_or(token) };
+    let saved = SavedServer {
+        name: res.name,
+        machine_id,
+        uri,
+        token: res.access_token.unwrap_or(token),
+        kind: String::new(),
+        user_id: None,
+    };
     state.update_cfg(|c| c.server = Some(saved))?;
     Ok(name)
 }
@@ -239,6 +286,9 @@ async fn plex_select_server(state: State<'_, AppState>, machine_id: String) -> C
 async fn refresh_connection(state: &AppState) -> anyhow::Result<()> {
     let c = state.cfg();
     let (Some(token), Some(saved)) = (c.plex_token, c.server) else { return Ok(()) };
+    if saved.is_jellyfin() {
+        return Ok(());
+    }
     let Some(res) = plex::servers(&state.http, &c.client_id, &token)
         .await?
         .into_iter()
@@ -424,7 +474,7 @@ async fn plex_account(state: State<'_, AppState>) -> CmdResult<Account> {
 
 #[tauri::command]
 async fn plex_edit_info(state: State<'_, AppState>, rating_key: String) -> CmdResult<EditInfo> {
-    Ok(state.server()?.edit_info(&rating_key).await?)
+    Ok(state.plex()?.edit_info(&rating_key).await?)
 }
 
 #[tauri::command]
@@ -434,52 +484,52 @@ async fn plex_edit(
     changes: Vec<FieldChange>,
     genres: Option<Vec<String>>,
 ) -> CmdResult<()> {
-    Ok(state.server()?.edit(&rating_key, changes, genres).await?)
+    Ok(state.plex()?.edit(&rating_key, changes, genres).await?)
 }
 
 #[tauri::command]
 async fn plex_images(state: State<'_, AppState>, rating_key: String, kind: String) -> CmdResult<Vec<ImageChoice>> {
-    Ok(state.server()?.images(&rating_key, &kind).await?)
+    Ok(state.plex()?.images(&rating_key, &kind).await?)
 }
 
 #[tauri::command]
 async fn plex_set_image(state: State<'_, AppState>, rating_key: String, kind: String, url: String) -> CmdResult<()> {
-    Ok(state.server()?.set_image(&rating_key, &kind, &url).await?)
+    Ok(state.plex()?.set_image(&rating_key, &kind, &url).await?)
 }
 
 #[tauri::command]
 async fn plex_refresh_metadata(state: State<'_, AppState>, rating_key: String) -> CmdResult<()> {
-    Ok(state.server()?.refresh_metadata(&rating_key).await?)
+    Ok(state.plex()?.refresh_metadata(&rating_key).await?)
 }
 
 #[tauri::command]
 async fn plex_analyze(state: State<'_, AppState>, rating_key: String) -> CmdResult<()> {
-    Ok(state.server()?.analyze(&rating_key).await?)
+    Ok(state.plex()?.analyze(&rating_key).await?)
 }
 
 #[tauri::command]
 async fn plex_prefs(state: State<'_, AppState>) -> CmdResult<Vec<Pref>> {
-    Ok(state.server()?.prefs().await?)
+    Ok(state.plex()?.prefs().await?)
 }
 
 #[tauri::command]
 async fn plex_set_prefs(state: State<'_, AppState>, changes: HashMap<String, String>) -> CmdResult<()> {
-    Ok(state.server()?.set_prefs(changes).await?)
+    Ok(state.plex()?.set_prefs(changes).await?)
 }
 
 #[tauri::command]
 async fn plex_sessions(state: State<'_, AppState>) -> CmdResult<Vec<ServerSession>> {
-    Ok(state.server()?.sessions().await?)
+    Ok(state.plex()?.sessions().await?)
 }
 
 #[tauri::command]
 async fn plex_scan_section(state: State<'_, AppState>, key: String) -> CmdResult<()> {
-    Ok(state.server()?.scan_section(&key).await?)
+    Ok(state.plex()?.scan_section(&key).await?)
 }
 
 #[tauri::command]
 async fn plex_empty_trash(state: State<'_, AppState>, key: String) -> CmdResult<()> {
-    Ok(state.server()?.empty_trash(&key).await?)
+    Ok(state.plex()?.empty_trash(&key).await?)
 }
 
 // ---------- Lecture ----------
@@ -522,7 +572,7 @@ async fn play(
     subtitle_stream: Option<u64>,
     from_start: Option<bool>,
 ) -> CmdResult<NowPlaying> {
-    let server = state.server()?;
+    let server = state.plex()?;
     let mut info = server.play_info(&rating_key, audio_stream, subtitle_stream).await?;
     if from_start == Some(true) {
         info.offset_ms = 0;
@@ -562,7 +612,7 @@ fn platform() -> &'static str {
 
 /// Construit une file de lecture musicale (voir `play_music`) sans la lancer.
 async fn build_queue(
-    server: &PlexServer,
+    server: &media::MediaServer,
     rating_key: &str,
     keys: Option<Vec<String>>,
     start: Option<String>,
@@ -696,6 +746,7 @@ async fn play_music(
 ) -> CmdResult<MusicQueue> {
     let server = state.server()?;
     let (tracks, index) = build_queue(&server, &rating_key, keys, start, shuffle).await?;
+    let server = server.plex()?;
     let mpv = player::find_mpv(state.cfg().mpv_path.as_deref())?;
     stop_player(&state);
 
@@ -804,7 +855,7 @@ async fn tracearr_poll_login(state: State<'_, AppState>, handle: String) -> CmdR
 #[tauri::command]
 async fn tracearr_dashboard(state: State<'_, AppState>, timezone: String) -> CmdResult<Dashboard> {
     let t = state.tracearr().await?;
-    let plex = state.server().ok();
+    let plex = state.plex().ok();
     match t.dashboard(plex.as_ref(), &timezone).await {
         Ok(d) => {
             state.save_tracearr_cookies(&t)?;
@@ -1001,6 +1052,7 @@ pub fn run() {
             open_url,
             set_mpv_path,
             plex_start_login,
+            jellyfin_login,
             plex_poll_login,
             plex_logout,
             plex_forget_server,

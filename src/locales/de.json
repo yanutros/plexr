@@ -112,7 +112,7 @@
     }
   },
   "login": {
-    "tagline": "Dein Plex-Client, mit integrierten Seerr-Anfragen.",
+    "tagline": "Dein Client für Plex und Jellyfin, mit integrierten Seerr-Anfragen.",
     "goTo": "Öffne auf deinem Handy oder Computer",
     "enterCode": "und gib diesen Code ein:",
     "autoConnect": "Du wirst automatisch angemeldet, sobald der Code bestätigt ist.",
@@ -122,7 +122,16 @@
     "restart": "Neu starten",
     "useCode": "Code verwenden",
     "signIn": "Mit Plex anmelden",
-    "withCode": "Mit Code ({{site}})"
+    "withCode": "Mit Code ({{site}})",
+    "chooseServer": "Wo sind deine Filme, Serien und Musik?",
+    "plexHint": "Plex-Konto",
+    "jellyfinHint": "Jellyfin-Server",
+    "jellyfinUrl": "Adresse des Jellyfin-Servers",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "connect": "Anmelden",
+    "connecting": "Anmeldung…",
+    "back": "Zurück"
   },
   "servers": {
     "title": "Wähle einen Server",

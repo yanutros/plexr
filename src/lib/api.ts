@@ -5,6 +5,8 @@ import { t } from "./i18n";
 
 export interface Session {
   loggedIn: boolean;
+  /** Serveur de médias : Plex ou Jellyfin. */
+  serverKind: "plex" | "jellyfin";
   serverName: string | null;
   seerrUrl: string | null;
   mpvPath: string | null;
@@ -313,6 +315,8 @@ export const api = {
   /** `link` : code court pour plex.tv/link, sans ouvrir de navigateur (téléviseurs). */
   startLogin: (link = false) => invoke<LoginPin>("plex_start_login", { link }),
   pollLogin: (pinId: number) => invoke<boolean>("plex_poll_login", { pinId }),
+  jellyfinLogin: (url: string, username: string, password: string) =>
+    invoke<string>("jellyfin_login", { url, username, password }),
   logout: () => invoke<void>("plex_logout"),
   forgetServer: () => invoke<void>("plex_forget_server"),
   servers: () => invoke<ServerSummary[]>("plex_servers"),

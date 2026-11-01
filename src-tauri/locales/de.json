@@ -114,5 +114,11 @@
   },
   "tmdb": {
     "invalidKey": "Dieser TMDB-Schlüssel wird nicht akzeptiert."
+  },
+  "jellyfin": {
+    "notYet": "Mit Jellyfin noch nicht verfügbar.",
+    "unreachable": "Unter dieser Adresse ist kein Server erreichbar.",
+    "notJellyfin": "Diese Adresse antwortet nicht wie ein Jellyfin-Server.",
+    "badCredentials": "Falscher Benutzername oder falsches Passwort."
   }
 }

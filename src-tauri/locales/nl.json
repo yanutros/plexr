@@ -114,5 +114,11 @@
   },
   "tmdb": {
     "invalidKey": "Deze TMDB-sleutel wordt niet geaccepteerd."
+  },
+  "jellyfin": {
+    "notYet": "Nog niet beschikbaar met Jellyfin.",
+    "unreachable": "Geen server bereikbaar op dit adres.",
+    "notJellyfin": "Dit adres antwoordt niet als een Jellyfin-server.",
+    "badCredentials": "Onjuiste gebruikersnaam of wachtwoord."
   }
 }

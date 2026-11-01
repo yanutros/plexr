@@ -26,6 +26,18 @@ pub struct SavedServer {
     pub machine_id: String,
     pub uri: String,
     pub token: String,
+    /// « jellyfin », ou vide pour Plex (les configurations d'avant Jellyfin n'ont pas ce champ).
+    #[serde(default)]
+    pub kind: String,
+    /// Jellyfin : identifiant de l'utilisateur connecté.
+    #[serde(default)]
+    pub user_id: Option<String>,
+}
+
+impl SavedServer {
+    pub fn is_jellyfin(&self) -> bool {
+        self.kind == "jellyfin"
+    }
 }
 
 impl Config {

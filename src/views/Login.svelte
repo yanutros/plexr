@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy } from "svelte";
   import { api, errorText, type LoginPin } from "../lib/api";
   import { device } from "../lib/device";
   import { t } from "../lib/i18n";
 
   let { onDone }: { onDone: () => void } = $props();
 
+  // D'abord le choix du serveur : Plex ou Jellyfin.
+  let server = $state<"plex" | "jellyfin" | null>(null);
   let pin = $state<LoginPin | null>(null);
   let mode = $state<"browser" | "link">("browser");
   let error = $state<string | null>(null);
@@ -14,6 +16,7 @@
   // Deux façons de se connecter : valider dans le navigateur de l'appareil, ou saisir un code
   // sur plex.tv/link depuis un téléphone (indispensable sur téléviseur).
   async function login(next: "browser" | "link") {
+    server = "plex";
     mode = next;
     error = null;
     clearInterval(timer);
@@ -36,10 +39,39 @@
     }
   }
 
-  onMount(() => {
-    // Sur téléviseur, pas de navigateur : le code s'affiche tout de suite.
+  // Plex : sur téléviseur, pas de navigateur, le code s'affiche tout de suite.
+  function choosePlex() {
     if (device.tv) login("link");
-  });
+    else server = "plex";
+  }
+
+  // --- Jellyfin : adresse du serveur, identifiant, mot de passe ---
+  let jfUrl = $state("");
+  let jfUser = $state("");
+  let jfPassword = $state("");
+  let jfBusy = $state(false);
+
+  async function loginJellyfin(e: SubmitEvent) {
+    e.preventDefault();
+    jfBusy = true;
+    error = null;
+    try {
+      await api.jellyfinLogin(jfUrl, jfUser, jfPassword);
+      onDone();
+    } catch (err) {
+      error = errorText(err);
+    } finally {
+      jfBusy = false;
+    }
+  }
+
+  function back() {
+    clearInterval(timer);
+    server = null;
+    pin = null;
+    error = null;
+  }
+
 
   onDestroy(() => clearInterval(timer));
 </script>
@@ -52,7 +84,30 @@
     <h1>Plexr</h1>
     <p class="muted">{t("login.tagline")}</p>
 
-    {#if pin && mode === "link"}
+    {#if server === null}
+      <!-- Le serveur de médias : Plex ou Jellyfin. -->
+      <p>{t("login.chooseServer")}</p>
+      <div class="servers">
+        <button class="server-btn" onclick={choosePlex}>
+          <span class="server-name">Plex</span>
+          <span class="muted small">{t("login.plexHint")}</span>
+        </button>
+        <button class="server-btn" onclick={() => (server = "jellyfin")}>
+          <span class="server-name">Jellyfin</span>
+          <span class="muted small">{t("login.jellyfinHint")}</span>
+        </button>
+      </div>
+    {:else if server === "jellyfin"}
+      <form class="jf" onsubmit={loginJellyfin}>
+        <label>{t("login.jellyfinUrl")} <input bind:value={jfUrl} placeholder="http://192.168.1.10:8096" autocomplete="url" spellcheck="false" required /></label>
+        <label>{t("login.username")} <input bind:value={jfUser} autocomplete="username" spellcheck="false" required /></label>
+        <label>{t("login.password")} <input type="password" bind:value={jfPassword} autocomplete="current-password" /></label>
+        <div class="row">
+          <button type="button" class="btn" onclick={back}>{t("login.back")}</button>
+          <button type="submit" class="btn primary" disabled={jfBusy}>{jfBusy ? t("login.connecting") : t("login.connect")}</button>
+        </div>
+      </form>
+    {:else if pin && mode === "link"}
       <p>{t("login.goTo")}</p>
       <p class="site">plex.tv/link</p>
       <p>{t("login.enterCode")}</p>
@@ -72,6 +127,7 @@
       <div class="row">
         <button class="btn primary" onclick={() => login("browser")}>{t("login.signIn")}</button>
         <button class="btn" onclick={() => login("link")}>{t("login.withCode", { site: "plex.tv/link" })}</button>
+        <button class="btn" onclick={back}>{t("login.back")}</button>
       </div>
     {/if}
     {#if error}<p class="error">{error}</p>{/if}
@@ -148,6 +204,51 @@
   }
 
   .small {
+    font-size: 13px;
+  }
+
+  .servers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .server-btn {
+    display: grid;
+    gap: 6px;
+    padding: 22px 18px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg-elev);
+    text-align: center;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .server-btn:hover,
+  .server-btn:focus-visible {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .server-name {
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .jf {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    margin-top: 14px;
+    text-align: left;
+  }
+
+  .jf label {
+    display: grid;
+    gap: 6px;
+    color: var(--text-dim);
     font-size: 13px;
   }
 </style>
