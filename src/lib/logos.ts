@@ -1,14 +1,17 @@
-// Logos de secours : quand le serveur n'a pas le logo d'un titre, on le demande une seule fois au
-// service en ligne de Plex (voir plex_remote_logo) ; les titres affichés plusieurs fois le partagent.
+// Logos du service en ligne de Plex (voir plex_remote_logo), demandés une seule fois par titre : celui
+// dans la langue de l'interface passe avant celui du serveur (souvent en anglais), qui passe avant le
+// logo anglais en ligne.
 import { api } from "./api";
 
 const cache = new Map<string, Promise<string | null>>();
 
-export function remoteLogo(guid: string): Promise<string | null> {
-  let logo = cache.get(guid);
+/** `fallback` : accepter le logo anglais à défaut de logo dans la langue de l'interface. */
+export function remoteLogo(guid: string, fallback = true): Promise<string | null> {
+  const key = `${guid}|${fallback}`;
+  let logo = cache.get(key);
   if (!logo) {
-    logo = api.remoteLogo(guid).catch(() => null);
-    cache.set(guid, logo);
+    logo = api.remoteLogo(guid, fallback).catch(() => null);
+    cache.set(key, logo);
   }
   return logo;
 }

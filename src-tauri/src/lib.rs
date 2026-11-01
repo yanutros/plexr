@@ -321,14 +321,16 @@ async fn plex_metadata(state: State<'_, AppState>, rating_key: String) -> CmdRes
 
 /// Logo d'un titre absent du serveur, cherché sur le service en ligne de Plex (une fois par titre).
 #[tauri::command]
-async fn plex_remote_logo(state: State<'_, AppState>, guid: String) -> CmdResult<Option<String>> {
-    if let Some(known) = state.remote_logos.lock().unwrap().get(&guid) {
+async fn plex_remote_logo(state: State<'_, AppState>, guid: String, fallback: Option<bool>) -> CmdResult<Option<String>> {
+    let fallback = fallback.unwrap_or(true);
+    let cache_key = format!("{guid}|{fallback}");
+    if let Some(known) = state.remote_logos.lock().unwrap().get(&cache_key) {
         return Ok(known.clone());
     }
     let c = state.cfg();
     let Some(token) = c.plex_token else { return Ok(None) };
-    let logo = plex::remote_logo(&state.http, &c.client_id, &token, &guid).await.unwrap_or(None);
-    state.remote_logos.lock().unwrap().insert(guid, logo.clone());
+    let logo = plex::remote_logo(&state.http, &c.client_id, &token, &guid, fallback).await.unwrap_or(None);
+    state.remote_logos.lock().unwrap().insert(cache_key, logo.clone());
     Ok(logo)
 }
 

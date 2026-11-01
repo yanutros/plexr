@@ -134,15 +134,21 @@ fn flag<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::
     })
 }
 
-pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str) -> Result<Option<String>> {
+/// Logo d'un titre sur le service en ligne de Plex. `fallback` : à défaut de logo dans la langue de
+/// l'interface, celui en anglais (souvent le seul, comme sur Jellyfin) ; sans `fallback`, seulement
+/// un logo traduit (pour remplacer celui du serveur, souvent en anglais).
+pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str, fallback: bool) -> Result<Option<String>> {
     let id = guid.rsplit('/').next().unwrap_or_default();
     if id.is_empty() || !id.chars().all(|c| c.is_ascii_alphanumeric()) {
         return Ok(None);
     }
-    // Les logos sont rangés par langue : à défaut de logo dans celle de l'interface, celui en anglais
-    // (souvent le seul, comme sur Jellyfin).
     let ui = crate::i18n::language();
-    let langs: &[&str] = if ui == "en" { &["en"] } else { &[ui, "en"] };
+    let langs: &[&str] = match (ui == "en", fallback) {
+        (true, false) => &[],
+        (true, true) => &["en"],
+        (false, false) => &[ui],
+        (false, true) => &[ui, "en"],
+    };
     for lang in langs {
         // Sans `includeImages`, le service ne renvoie pas la liste des images (logos compris).
         let v: serde_json::Value = http
@@ -157,12 +163,13 @@ pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str
             .error_for_status()?
             .json()
             .await?;
-        let logo = v["MediaContainer"]["Metadata"][0]["Image"]
-            .as_array()
-            .and_then(|images| images.iter().find(|i| i["type"] == "clearLogo"))
-            .and_then(|i| i["url"].as_str())
-            .filter(|u| u.starts_with("https://"))
-            .map(str::to_owned);
+        let images = v["MediaContainer"]["Metadata"][0]["Image"].as_array().cloned().unwrap_or_default();
+        // Logo normal, sinon sa version large (c'est parfois la seule traduite, chez Fanart.tv).
+        let logo = ["clearLogo", "clearLogoWide"]
+            .iter()
+            .find_map(|kind| images.iter().find(|i| i["type"] == *kind).and_then(|i| i["url"].as_str()))
+            .map(|u| u.replacen("http://assets.fanart.tv/", "https://assets.fanart.tv/", 1))
+            .filter(|u| u.starts_with("https://"));
         if logo.is_some() {
             return Ok(logo);
         }
@@ -713,17 +720,13 @@ impl PlexServer {
             thumb: m.thumb.as_ref().map(|p| self.image(p, 480, 270)),
             backdrop: m.art.as_ref().map(|p| self.image(p, 1600, 900)),
             logo: m.images.iter().find(|i| i.kind == "clearLogo").map(|i| self.logo(&i.url)),
-            logo_guid: if m.images.iter().any(|i| i.kind == "clearLogo") {
-                None
-            } else {
-                match m.kind.as_str() {
-                    "episode" => m.grandparent_guid.clone(),
-                    "season" => m.parent_guid.clone(),
-                    "movie" | "show" => m.guid.clone(),
-                    _ => None,
-                }
-                .filter(|g| g.starts_with("plex://"))
-            },
+            logo_guid: match m.kind.as_str() {
+                "episode" => m.grandparent_guid.clone(),
+                "season" => m.parent_guid.clone(),
+                "movie" | "show" => m.guid.clone(),
+                _ => None,
+            }
+            .filter(|g| g.starts_with("plex://")),
             playable: matches!(m.kind.as_str(), "movie" | "episode" | "track"),
             resolution: media.and_then(|x| x.video_resolution.clone()),
             genres: m.genre.into_iter().map(|g| g.tag).collect(),

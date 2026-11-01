@@ -60,7 +60,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       d'origine, la note et l'heure de fin, le résumé dessous, puis deux panneaux — l'équipe d'un côté, la
       vidéo, l'audio et les sous-titres de l'autre — la distribution et « Plus de ce genre ».
       Les titres s'affichent avec leur logo officiel, comme dans Jellyfin : celui du serveur, sinon celui du
-      service en ligne de Plex (dans la langue de l'interface, sinon en anglais) ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
+      service en ligne de Plex — un logo dans la langue de l'interface passe avant celui du serveur, souvent en anglais ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
     </td>
   </tr>
   <tr>

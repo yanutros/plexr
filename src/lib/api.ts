@@ -338,7 +338,7 @@ export const api = {
   collections: (key: string) => invoke<Item[]>("plex_collections", { key }),
   collectionItems: (ratingKey: string) => invoke<Item[]>("plex_collection_items", { ratingKey }),
   personItems: (id: number) => invoke<Item[]>("plex_person_items", { id }),
-  remoteLogo: (guid: string) => invoke<string | null>("plex_remote_logo", { guid }),
+  remoteLogo: (guid: string, fallback = true) => invoke<string | null>("plex_remote_logo", { guid, fallback }),
   search: (query: string) => invoke<Item[]>("plex_search", { query }),
   setWatched: (ratingKey: string, watched: boolean) => invoke<void>("plex_set_watched", { ratingKey, watched }),
 

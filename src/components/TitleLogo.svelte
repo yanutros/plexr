@@ -24,16 +24,17 @@
   let fetched = $state<string | null>(null);
   let failed = $state(false);
 
+  // Avec un logo du serveur, on cherche seulement sa version traduite ; sans, n'importe lequel.
   $effect(() => {
     fetched = null;
     failed = false;
-    if (logo || !guid) return;
+    if (!guid) return;
     let current = true;
-    remoteLogo(guid).then((url) => current && (fetched = url));
+    remoteLogo(guid, !logo).then((url) => current && (fetched = url));
     return () => (current = false);
   });
 
-  const src = $derived(logo ?? fetched);
+  const src = $derived(fetched ?? logo);
 </script>
 
 {#if src && !failed}
