@@ -10,7 +10,7 @@
   import { device } from "../lib/device";
   import { forgetRemoteLogos } from "../lib/logos";
   import { getVersion } from "@tauri-apps/api/app";
-  import { checkForUpdate, update } from "../lib/update.svelte";
+  import { checkForUpdate, showReleaseNotes, update } from "../lib/update.svelte";
   import { applyTheme, savedTheme, THEME_COLORS, THEMES, type Theme } from "../lib/theme";
   import Icon, { type IconName } from "../components/Icon.svelte";
   import ServerPrefs from "../components/ServerPrefs.svelte";
@@ -299,6 +299,14 @@
   let version = $state("");
   getVersion().then((v) => (version = v), () => {});
 
+  async function openNotes() {
+    try {
+      await showReleaseNotes();
+    } catch (e) {
+      toast(errorText(e), true);
+    }
+  }
+
   async function checkUpdates() {
     try {
       if (!(await checkForUpdate())) toast(t("settings.account.upToDate", { version }));
@@ -371,6 +379,10 @@
           <button class="btn" disabled={update.checking} onclick={checkUpdates}>
             <Icon name="restart" size={16} />
             {update.checking ? t("settings.account.checking") : t("settings.account.checkUpdates")}
+          </button>
+          <button class="btn" disabled={update.checking} onclick={openNotes}>
+            <Icon name="library" size={16} />
+            {t("settings.account.releaseNotes")}
           </button>
         </div>
       </section>

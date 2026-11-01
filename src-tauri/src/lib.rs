@@ -36,6 +36,8 @@ struct AppState {
     relay: Mutex<Option<relay::Relay>>,
     /// Logos trouvés (ou non) sur le service en ligne de Plex, par identifiant.
     remote_logos: Mutex<std::collections::HashMap<String, Option<String>>>,
+    /// Requêtes de logos en ligne simultanées.
+    logo_slots: tokio::sync::Semaphore,
 }
 
 impl AppState {
@@ -332,9 +334,15 @@ async fn plex_remote_logo(state: State<'_, AppState>, guid: String, fallback: Op
     }
     let c = state.cfg();
     let Some(token) = c.plex_token else { return Ok(None) };
-    let logo = plex::remote_logo(&state.http, &c.client_id, &token, &guid, fallback, c.tmdb_key.as_deref())
-        .await
-        .unwrap_or(None);
+    // Peu de requêtes à la fois : le service de Plex refuse les rafales (l'accueil en demande des dizaines).
+    let _slot = state.logo_slots.acquire().await;
+    if let Some(known) = state.remote_logos.lock().unwrap().get(&cache_key) {
+        return Ok(known.clone());
+    }
+    // Un échec (réseau, limite de requêtes) n'est pas retenu : le logo sera redemandé plus tard.
+    let Ok(logo) = plex::remote_logo(&state.http, &c.client_id, &token, &guid, fallback, c.tmdb_key.as_deref()).await else {
+        return Ok(None);
+    };
     state.remote_logos.lock().unwrap().insert(cache_key, logo.clone());
     Ok(logo)
 }
@@ -886,6 +894,12 @@ fn set_app_icon(app: AppHandle, theme: String) -> CmdResult<()> {
 
 // ---------- Mises à jour ----------
 
+/// Notes de version de la version installée.
+#[tauri::command]
+async fn release_notes(state: State<'_, AppState>) -> CmdResult<update::UpdateInfo> {
+    Ok(update::installed_notes(&state.http).await?)
+}
+
 #[tauri::command]
 async fn update_check(state: State<'_, AppState>) -> CmdResult<Option<update::UpdateInfo>> {
     Ok(update::check(&state.http).await?)
@@ -949,6 +963,7 @@ pub fn run() {
                 player: Mutex::new(None),
                 relay: Mutex::new(None),
                 remote_logos: Mutex::new(Default::default()),
+                logo_slots: tokio::sync::Semaphore::new(4),
             });
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
@@ -1023,6 +1038,7 @@ pub fn run() {
             tracearr_dashboard,
             tracearr_logout,
             update_check,
+            release_notes,
             update_install,
             relay_start,
             relay_status,

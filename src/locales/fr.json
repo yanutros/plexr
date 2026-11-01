@@ -28,7 +28,8 @@
       "version": "Plexr {{version}}",
       "checkUpdates": "Rechercher les mises à jour",
       "checking": "Recherche…",
-      "upToDate": "Plexr est à jour ({{version}})"
+      "upToDate": "Plexr est à jour ({{version}})",
+      "releaseNotes": "Notes de version"
     },
     "services": {
       "seerrConnected": "Connecté à Seerr avec ton compte Plex",
@@ -596,7 +597,8 @@
     "allReleases": "Toutes les versions",
     "later": "Plus tard",
     "downloading": "Téléchargement… {{percent}} %",
-    "update": "Mettre à jour"
+    "update": "Mettre à jour",
+    "notesTitle": "Notes de version"
   },
   "genres": {
     "actionAdventure": "Action & Aventure",

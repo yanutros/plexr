@@ -2,12 +2,26 @@
 // `update.info` est renseigné, la fenêtre « Nouvelle version disponible » s'affiche (UpdateDialog).
 import { api, type UpdateInfo } from "./api";
 
-export const update = $state({ info: null as UpdateInfo | null, checking: false });
+// `notesOnly` : la même fenêtre sert de rappel des nouveautés de la version installée.
+export const update = $state({ info: null as UpdateInfo | null, checking: false, notesOnly: false });
+
+/** Ouvre les notes de la version installée. */
+export async function showReleaseNotes() {
+  update.checking = true;
+  try {
+    const info = await api.releaseNotes();
+    update.notesOnly = true;
+    update.info = info;
+  } finally {
+    update.checking = false;
+  }
+}
 
 /** Cherche une nouvelle version ; renvoie `true` si une fenêtre de mise à jour s'ouvre. */
 export async function checkForUpdate(): Promise<boolean> {
   update.checking = true;
   try {
+    update.notesOnly = false;
     update.info = await api.updateCheck();
     return update.info !== null;
   } finally {

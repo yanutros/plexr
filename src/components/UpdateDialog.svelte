@@ -79,8 +79,8 @@
       <header>
         <span class="logo"><Icon name="play" size={18} filled /></span>
         <div class="titles">
-          <h2 id="update-title">{t("update.title")}</h2>
-          <p>Plexr {info.version}{#if date} · {date}{/if} — {t("update.current", { version: info.current })}</p>
+          <h2 id="update-title">{pending.notesOnly ? t("update.notesTitle") : t("update.title")}</h2>
+          <p>Plexr {info.version}{#if date}{" · "}{date}{/if}{#if !pending.notesOnly} — {t("update.current", { version: info.current })}{/if}</p>
         </div>
         <button class="close" onclick={() => (pending.info = null)} disabled={progress !== null} aria-label={t("update.close")}>
           <Icon name="x" size={18} />
@@ -107,10 +107,14 @@
           {t("update.allReleases")} <Icon name="external" size={14} />
         </button>
         <span class="spacer"></span>
-        <button class="btn" onclick={() => (pending.info = null)} disabled={progress !== null}>{t("update.later")}</button>
-        <button class="btn primary" bind:this={primary} onclick={update} disabled={progress !== null}>
-          {progress !== null ? t("update.downloading", { percent: Math.round(progress * 100) }) : t("update.update")}
-        </button>
+        {#if pending.notesOnly}
+          <button class="btn primary" bind:this={primary} onclick={() => (pending.info = null)}>{t("update.close")}</button>
+        {:else}
+          <button class="btn" onclick={() => (pending.info = null)} disabled={progress !== null}>{t("update.later")}</button>
+          <button class="btn primary" bind:this={primary} onclick={update} disabled={progress !== null}>
+            {progress !== null ? t("update.downloading", { percent: Math.round(progress * 100) }) : t("update.update")}
+          </button>
+        {/if}
       </footer>
     </div>
   </div>

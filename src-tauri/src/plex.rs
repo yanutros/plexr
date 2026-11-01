@@ -134,8 +134,8 @@ fn flag<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::
     })
 }
 
-/// Logo d'un titre, cherché en ligne : sur le service de Plex, puis sur TMDB si l'utilisateur a
-/// donné sa clé. `fallback` : à défaut de logo dans la langue de l'interface, celui en anglais (souvent
+/// Logo d'un titre, cherché en ligne : sur le service de Plex, puis — en dernier recours, sans aucun
+/// logo chez Plex — sur TMDB si l'utilisateur a donné sa clé. `fallback` : à défaut de logo dans la langue de l'interface, celui en anglais (souvent
 /// le seul, comme sur Jellyfin) ; sans `fallback`, seulement un logo traduit (pour remplacer celui du
 /// serveur, souvent en anglais).
 pub async fn remote_logo(
@@ -159,7 +159,7 @@ pub async fn remote_logo(
         langs.push("en");
     }
     let mut tmdb_id = None;
-    for (n, lang) in langs.iter().enumerate() {
+    for lang in &langs {
         // Sans `includeImages`, le service ne renvoie pas la liste des images (logos compris).
         let v: serde_json::Value = http
             .get(format!("https://metadata.provider.plex.tv/library/metadata/{id}?includeImages=1"))
@@ -187,19 +187,9 @@ pub async fn remote_logo(
         if logo.is_some() {
             return Ok(logo);
         }
-        // Rien chez Plex dans la langue de l'interface : TMDB, avant de se rabattre sur l'anglais.
-        if n == 0 || langs.len() == 1 {
-            if let (Some(key), Some(tid)) = (tmdb_key, tmdb_id.as_deref()) {
-                let kind = if guid.contains("/show/") { "tv" } else { "movie" };
-                let only_ui = ui != "en" && langs.len() > 1;
-                if let Some(logo) = tmdb_logo(http, key, kind, tid, ui, !only_ui && fallback).await {
-                    return Ok(Some(logo));
-                }
-            }
-        }
     }
-    // Plex n'a rien du tout : TMDB, toutes langues admises.
-    if let (true, Some(key), Some(tid)) = (fallback && ui != "en", tmdb_key, tmdb_id.as_deref()) {
+    // En dernier recours, quand Plex n'a aucun logo : TMDB (langue de l'interface, anglais, sans texte).
+    if let (true, Some(key), Some(tid)) = (fallback, tmdb_key, tmdb_id.as_deref()) {
         let kind = if guid.contains("/show/") { "tv" } else { "movie" };
         return Ok(tmdb_logo(http, key, kind, tid, ui, true).await);
     }

@@ -60,7 +60,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       d'origine, la note et l'heure de fin, le résumé dessous, puis deux panneaux — l'équipe d'un côté, la
       vidéo, l'audio et les sous-titres de l'autre — la distribution et « Plus de ce genre ».
       Les titres s'affichent avec leur logo officiel, comme dans Jellyfin : celui du serveur, sinon celui du
-      service en ligne de Plex — un logo dans la langue de l'interface passe avant celui du serveur, souvent en anglais —, voire de TMDB avec votre clé d'API gratuite (Réglages → Seerr et Tracearr) ; les épisodes et les saisons reprennent celui de leur série ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
+      service en ligne de Plex — un logo dans la langue de l'interface passe avant celui du serveur, souvent en anglais —, et en dernier recours de TMDB avec votre clé d'API gratuite (Réglages → Seerr et Tracearr) ; les épisodes et les saisons reprennent celui de leur série ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
     </td>
   </tr>
   <tr>
@@ -131,7 +131,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
     <td valign="top">
       <h4>🔄 Il se met à jour tout seul</h4>
       Au lancement, une fenêtre présente la nouvelle version, ses nouveautés et ses corrections (dans la langue
-      de l'interface) ; un clic télécharge et installe
+      de l'interface ; Réglages → Compte les rappelle pour la version installée) ; un clic télécharge et installe
       le bon paquet, y compris sur Android TV, où installer à la main est fastidieux.
     </td>
     <td valign="top">

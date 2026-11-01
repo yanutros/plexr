@@ -382,6 +382,7 @@ export const api = {
   tracearrLogout: () => invoke<void>("tracearr_logout"),
 
   updateCheck: () => invoke<UpdateInfo | null>("update_check"),
+  releaseNotes: () => invoke<UpdateInfo>("release_notes"),
   /** Sur Android, renvoie l'APK téléchargé, à confier à `PlexrDevice.installApk`. */
   updateInstall: (info: UpdateInfo) => invoke<string | null>("update_install", { info }),
 

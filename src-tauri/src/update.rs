@@ -72,6 +72,28 @@ fn request(http: &reqwest::Client, url: &str) -> reqwest::RequestBuilder {
     req
 }
 
+/// Notes de la version installée (le rappel des nouveautés, depuis les Réglages).
+pub async fn installed_notes(http: &reqwest::Client) -> Result<UpdateInfo> {
+    let current = env!("CARGO_PKG_VERSION").to_string();
+    let url = format!("https://api.github.com/repos/yanutros/plexr/releases/tags/v{current}");
+    let release: Release = request(http, &url)
+        .header("Accept", "application/vnd.github+json")
+        .send()
+        .await?
+        .error_for_status()?
+        .json()
+        .await?;
+    Ok(UpdateInfo {
+        version: current.clone(),
+        current,
+        notes: release.body.unwrap_or_default(),
+        date: release.published_at,
+        asset_url: String::new(),
+        asset_name: String::new(),
+        size: 0,
+    })
+}
+
 /// Version plus récente que celle-ci, s'il y en a une avec un paquet pour cet appareil.
 pub async fn check(http: &reqwest::Client) -> Result<Option<UpdateInfo>> {
     let mut current = env!("CARGO_PKG_VERSION").to_string();
