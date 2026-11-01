@@ -61,6 +61,8 @@ export interface Item {
   unwatchedCount: number | null;
   contentRating: string | null;
   rating: number | null;
+  /** Note de l'utilisateur, de 0 à 10 (5 étoiles = 10). */
+  userRating?: number | null;
   genres: string[];
   resolution: string | null;
   playable: boolean;
@@ -337,6 +339,10 @@ export const api = {
   metadata: (ratingKey: string) => invoke<ItemDetail>("plex_metadata", { ratingKey }),
   children: (ratingKey: string) => invoke<Item[]>("plex_children", { ratingKey }),
   related: (ratingKey: string) => invoke<Item[]>("plex_related", { ratingKey }),
+  rate: (ratingKey: string, rating: number | null) => invoke<void>("plex_rate", { ratingKey, rating }),
+  removeFromContinue: (ratingKey: string) => invoke<void>("plex_remove_from_continue", { ratingKey }),
+  watchlisted: (guid: string) => invoke<boolean>("plex_watchlisted", { guid }),
+  setWatchlist: (guid: string, on: boolean) => invoke<void>("plex_set_watchlist", { guid, on }),
   collections: (key: string) => invoke<Item[]>("plex_collections", { key }),
   collectionItems: (ratingKey: string) => invoke<Item[]>("plex_collection_items", { ratingKey }),
   personItems: (id: number) => invoke<Item[]>("plex_person_items", { id }),

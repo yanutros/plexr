@@ -654,5 +654,26 @@
     "titles_one": "{{count}} titel in je bibliotheken",
     "titles_other": "{{count}} titels in je bibliotheken",
     "none": "Niets in je bibliotheken."
+  },
+  "tvMenu": {
+    "resume": "Hervatten · nog {{time}}",
+    "restart": "Opnieuw beginnen",
+    "play": "Afspelen",
+    "shuffle": "Willekeurig",
+    "moreInfo": "Meer info",
+    "goToShow": "Naar de serie",
+    "goTo": "Naar {{name}}",
+    "goToAlbum": "Naar het album",
+    "addWatchlist": "Aan kijklijst toevoegen",
+    "removeWatchlist": "Van kijklijst verwijderen",
+    "watchlistAdded": "Aan kijklijst toegevoegd",
+    "watchlistRemoved": "Van kijklijst verwijderd",
+    "rate": "Beoordelen",
+    "rated": "Beoordelen · {{stars}}/5",
+    "clearRating": "Beoordeling verwijderen",
+    "ratingSaved": "Beoordeeld met {{stars}}/5",
+    "ratingCleared": "Beoordeling verwijderd",
+    "removeContinue": "Uit Verder kijken verwijderen",
+    "removedContinue": "Uit Verder kijken verwijderd"
   }
 }

@@ -654,5 +654,26 @@
     "titles_one": "{{count}} título en tus bibliotecas",
     "titles_other": "{{count}} títulos en tus bibliotecas",
     "none": "Nada en tus bibliotecas."
+  },
+  "tvMenu": {
+    "resume": "Reanudar · quedan {{time}}",
+    "restart": "Empezar de nuevo",
+    "play": "Reproducir",
+    "shuffle": "Aleatorio",
+    "moreInfo": "Más información",
+    "goToShow": "Ir a la serie",
+    "goTo": "Ir a {{name}}",
+    "goToAlbum": "Ir al álbum",
+    "addWatchlist": "Añadir a la lista de seguimiento",
+    "removeWatchlist": "Quitar de la lista de seguimiento",
+    "watchlistAdded": "Añadido a la lista de seguimiento",
+    "watchlistRemoved": "Quitado de la lista de seguimiento",
+    "rate": "Valorar",
+    "rated": "Valorar · {{stars}}/5",
+    "clearRating": "Quitar la valoración",
+    "ratingSaved": "Valorado {{stars}}/5",
+    "ratingCleared": "Valoración quitada",
+    "removeContinue": "Quitar de Seguir viendo",
+    "removedContinue": "Quitado de Seguir viendo"
   }
 }

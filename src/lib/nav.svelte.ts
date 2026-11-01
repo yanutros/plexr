@@ -19,6 +19,8 @@ export const nav = $state({
   requesting: null as SeerrMedia | null,
   /** Menu « ⋮ » ouvert sur une jaquette, à la position du clic. */
   menu: null as { item: Item; x: number; y: number } | null,
+  /** Téléviseur : menu d'un titre (appui long sur OK ou touche Menu), en panneau à droite. */
+  tvMenu: null as { item: Item } | null,
   /** Élément Plex dont la fenêtre de modification est ouverte. */
   editing: null as Item | null,
   /** Le compte connecté administre le serveur (édition, réglages). */

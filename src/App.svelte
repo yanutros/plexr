@@ -24,6 +24,7 @@
   import Icon from "./components/Icon.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import CardMenu from "./components/CardMenu.svelte";
+  import TvMenu from "./components/TvMenu.svelte";
   import EditDialog from "./components/EditDialog.svelte";
   import UpdateDialog from "./components/UpdateDialog.svelte";
   import QrCode from "./components/QrCode.svelte";
@@ -50,7 +51,8 @@
 
   // Bouton Retour (Android, souris) : il ferme d'abord ce qui est ouvert par-dessus la page.
   onBack(() => {
-    if (nav.menu) nav.menu = null;
+    if (nav.tvMenu) nav.tvMenu = null;
+    else if (nav.menu) nav.menu = null;
     else if (nav.editing) nav.editing = null;
     else if (nav.requesting) nav.requesting = null;
     else if (player.active && player.video) stop();
@@ -182,6 +184,9 @@
   <PlayerOverlay />
 {/if}
 
+{#if nav.tvMenu}
+  <TvMenu />
+{/if}
 {#if nav.menu}
   <CardMenu />
 {/if}

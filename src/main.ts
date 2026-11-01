@@ -21,7 +21,9 @@ async function start() {
   setupBackButton();
   // Sur téléviseur, les flèches de la télécommande déplacent le focus d'un élément à l'autre.
   if (device.tv) {
-    enableSpatialNavigation(() => false);
+    // Le menu d'un titre (TvMenu) gère lui-même ses flèches.
+    enableSpatialNavigation(() => !!document.querySelector(".tv-menu"));
+    (await import("./lib/longpress")).enableLongPress();
     (await import("./lib/sidebar.svelte")).collapseForTv();
   }
   // Téléphone : un onglet touché dans une bande qui défile (bibliothèques, musique, réglages)

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { menuable } from "../lib/longpress";
   import type { Snippet } from "svelte";
   import { moveFocus } from "../lib/spatial";
   import TitleLogo from "./TitleLogo.svelte";
@@ -103,6 +104,7 @@
                   tabindex={ri === row ? 0 : -1}
                   data-nav-default={ri === row && ci === col(ri) ? "" : undefined}
                   onclick={card.open}
+                  use:menuable={card.item}
                   aria-label={card.title}
                 >
                   {#if card.image}<img src={card.image} alt="" loading="lazy" decoding="async" />{/if}

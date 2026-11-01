@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { menuable } from "../lib/longpress";
   import { moveFocus } from "../lib/spatial";
   import type { TvCard } from "../lib/tvcards";
 
@@ -71,6 +72,7 @@
       data-index={i}
       data-nav-default={i === index ? "" : undefined}
       onclick={card.open}
+      use:menuable={card.item}
       aria-label={card.title}
     >
       <span class="img">

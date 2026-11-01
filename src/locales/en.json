@@ -654,5 +654,26 @@
     "titles_one": "{{count}} title in your libraries",
     "titles_other": "{{count}} titles in your libraries",
     "none": "Nothing in your libraries."
+  },
+  "tvMenu": {
+    "resume": "Resume · {{time}} left",
+    "restart": "Start over",
+    "play": "Play",
+    "shuffle": "Shuffle",
+    "moreInfo": "More info",
+    "goToShow": "Go to show",
+    "goTo": "Go to {{name}}",
+    "goToAlbum": "Go to album",
+    "addWatchlist": "Add to Watchlist",
+    "removeWatchlist": "Remove from Watchlist",
+    "watchlistAdded": "Added to Watchlist",
+    "watchlistRemoved": "Removed from Watchlist",
+    "rate": "Rate",
+    "rated": "Rate · {{stars}}/5",
+    "clearRating": "Clear rating",
+    "ratingSaved": "Rated {{stars}}/5",
+    "ratingCleared": "Rating cleared",
+    "removeContinue": "Remove from Continue Watching",
+    "removedContinue": "Removed from Continue Watching"
   }
 }

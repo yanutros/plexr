@@ -654,5 +654,26 @@
     "titles_one": "{{count}} Titel in deinen Mediatheken",
     "titles_other": "{{count}} Titel in deinen Mediatheken",
     "none": "Nichts in deinen Mediatheken."
+  },
+  "tvMenu": {
+    "resume": "Fortsetzen · noch {{time}}",
+    "restart": "Von vorne",
+    "play": "Abspielen",
+    "shuffle": "Zufallswiedergabe",
+    "moreInfo": "Mehr Infos",
+    "goToShow": "Zur Serie",
+    "goTo": "Zu {{name}}",
+    "goToAlbum": "Zum Album",
+    "addWatchlist": "Zur Merkliste hinzufügen",
+    "removeWatchlist": "Von der Merkliste entfernen",
+    "watchlistAdded": "Zur Merkliste hinzugefügt",
+    "watchlistRemoved": "Von der Merkliste entfernt",
+    "rate": "Bewerten",
+    "rated": "Bewerten · {{stars}}/5",
+    "clearRating": "Bewertung entfernen",
+    "ratingSaved": "Mit {{stars}}/5 bewertet",
+    "ratingCleared": "Bewertung entfernt",
+    "removeContinue": "Aus „Weiterschauen“ entfernen",
+    "removedContinue": "Aus „Weiterschauen“ entfernt"
   }
 }

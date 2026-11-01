@@ -24,6 +24,8 @@ export interface TvCard {
   summary: string | null;
   backdrop: string | null;
   open: () => void;
+  /** Titre Plex derrière la jaquette : appui long sur OK ou touche Menu ouvrent son menu (TvMenu). */
+  item?: Item;
 }
 
 export interface TvRow {
@@ -71,6 +73,7 @@ export function fromItem(item: Item, eyebrow: string, resume = false): TvCard {
     summary: item.summary,
     backdrop: item.backdrop ?? item.thumb,
     open,
+    item,
   };
 }
 

@@ -379,6 +379,31 @@ async fn plex_search(state: State<'_, AppState>, query: String) -> CmdResult<Vec
 }
 
 #[tauri::command]
+async fn plex_rate(state: State<'_, AppState>, rating_key: String, rating: Option<f32>) -> CmdResult<()> {
+    Ok(state.server()?.rate(&rating_key, rating).await?)
+}
+
+#[tauri::command]
+async fn plex_remove_from_continue(state: State<'_, AppState>, rating_key: String) -> CmdResult<()> {
+    Ok(state.server()?.remove_from_continue(&rating_key).await?)
+}
+
+/// Liste de visionnage du compte Plex : état d'un titre (identifiant plex://).
+#[tauri::command]
+async fn plex_watchlisted(state: State<'_, AppState>, guid: String) -> CmdResult<bool> {
+    let c = state.cfg();
+    let Some(token) = c.plex_token else { return Ok(false) };
+    Ok(plex::watchlisted(&state.http, &c.client_id, &token, &guid).await?)
+}
+
+#[tauri::command]
+async fn plex_set_watchlist(state: State<'_, AppState>, guid: String, on: bool) -> CmdResult<()> {
+    let c = state.cfg();
+    let token = c.plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("app.notLoggedIn")))?;
+    Ok(plex::set_watchlist(&state.http, &c.client_id, &token, &guid, on).await?)
+}
+
+#[tauri::command]
 async fn plex_set_watched(state: State<'_, AppState>, rating_key: String, watched: bool) -> CmdResult<()> {
     Ok(state.server()?.set_watched(&rating_key, watched).await?)
 }
@@ -992,6 +1017,10 @@ pub fn run() {
             plex_metadata,
             plex_children,
             plex_related,
+            plex_rate,
+            plex_remove_from_continue,
+            plex_watchlisted,
+            plex_set_watchlist,
             plex_collections,
             plex_collection_items,
             plex_person_items,

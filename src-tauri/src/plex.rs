@@ -233,6 +233,45 @@ async fn tmdb_logo(http: &Client, key: &str, kind: &str, id: &str, ui: &str, any
     Some(format!("https://image.tmdb.org/t/p/w500{}", logo["file_path"].as_str()?))
 }
 
+/// Identifiant du service en ligne de Plex (« plex://movie/5d77… » → « 5d77… »).
+fn discover_id(guid: &str) -> Option<&str> {
+    let id = guid.rsplit('/').next()?;
+    (!id.is_empty() && id.chars().all(|c| c.is_ascii_alphanumeric())).then_some(id)
+}
+
+/// Le titre est-il dans la liste de visionnage du compte ?
+pub async fn watchlisted(http: &Client, client_id: &str, token: &str, guid: &str) -> Result<bool> {
+    let Some(id) = discover_id(guid) else { return Ok(false) };
+    let v: serde_json::Value = with_plex_headers(
+        http.get(format!("https://discover.provider.plex.tv/library/metadata/{id}/userState")),
+        client_id,
+        Some(token),
+    )
+    .send()
+    .await?
+    .error_for_status()?
+    .json()
+    .await?;
+    let state = &v["MediaContainer"]["UserState"];
+    let state = if state.is_array() { &state[0] } else { state };
+    Ok(state["watchlistedAt"].is_number() || state["watchlistedAt"].is_string())
+}
+
+/// Ajoute le titre à la liste de visionnage du compte, ou l'en retire.
+pub async fn set_watchlist(http: &Client, client_id: &str, token: &str, guid: &str, on: bool) -> Result<()> {
+    let id = discover_id(guid).ok_or_else(|| anyhow!("guid"))?;
+    let action = if on { "addToWatchlist" } else { "removeFromWatchlist" };
+    with_plex_headers(
+        http.put(format!("https://discover.provider.plex.tv/actions/{action}?ratingKey={id}")),
+        client_id,
+        Some(token),
+    )
+    .send()
+    .await?
+    .error_for_status()?;
+    Ok(())
+}
+
 /// Photos des comptes Plex : celle de l'utilisateur et celles de ses amis (propriétaires des
 /// serveurs partagés), par identifiant. Facultatif : en cas d'échec, pas de photo.
 pub async fn avatars(http: &Client, client_id: &str, token: &str) -> (Option<String>, Vec<(u64, String)>) {
@@ -416,6 +455,8 @@ struct RawMetadata {
     #[serde(deserialize_with = "flag")]
     smart: bool,
     audience_rating: Option<f32>,
+    /// Note donnée par l'utilisateur (0 à 10).
+    user_rating: Option<f32>,
     tagline: Option<String>,
     studio: Option<String>,
     originally_available_at: Option<String>,
@@ -534,6 +575,8 @@ pub struct Item {
     pub unwatched_count: Option<u32>,
     pub content_rating: Option<String>,
     pub rating: Option<f32>,
+    /// Note de l'utilisateur, de 0 à 10 (5 étoiles = 10).
+    pub user_rating: Option<f32>,
     pub genres: Vec<String>,
     pub resolution: Option<String>,
     pub playable: bool,
@@ -799,6 +842,7 @@ impl PlexServer {
             view_offset_ms: m.view_offset,
             content_rating: m.content_rating,
             rating: m.audience_rating,
+            user_rating: m.user_rating,
         }
     }
 
@@ -1255,6 +1299,28 @@ impl PlexServer {
         .send()
         .await?
         .error_for_status()?;
+        Ok(())
+    }
+
+    /// Note de l'utilisateur (0 à 10), ou `None` pour la retirer.
+    pub async fn rate(&self, rating_key: &str, rating: Option<f32>) -> Result<()> {
+        let value = rating.map_or("-1".to_string(), |r| r.clamp(0.0, 10.0).to_string());
+        self.request(
+            reqwest::Method::PUT,
+            &format!("/:/rate?key={rating_key}&identifier=com.plexapp.plugins.library&rating={value}"),
+        )
+        .send()
+        .await?
+        .error_for_status()?;
+        Ok(())
+    }
+
+    /// Retire un titre de « Continuer à regarder » sans toucher à sa progression ailleurs.
+    pub async fn remove_from_continue(&self, rating_key: &str) -> Result<()> {
+        self.request(reqwest::Method::PUT, &format!("/actions/removeFromContinueWatching?ratingKey={rating_key}"))
+            .send()
+            .await?
+            .error_for_status()?;
         Ok(())
     }
 
