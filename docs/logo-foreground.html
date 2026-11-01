@@ -1,0 +1,49 @@
+<!doctype html>
+<!-- Premier plan de l'icône adaptative d'Android (fond noir à part : ic_launcher_background) : le soleil seul,
+     réduit pour tenir dans la zone que le lanceur affiche (les deux tiers du centre). ?theme=… pour les autres
+     couleurs. Rendu à chaque densité (108, 162, 216, 324 et 432 px) :
+     msedge --headless=new --default-background-color=00000000 --window-size=432,432 --screenshot=… "docs/logo-foreground.html?px=432" -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      const THEMES = { rouge: "#e50914", vert: "#1db954", violet: "#aa5cc3" };
+      const t = THEMES[new URLSearchParams(location.search).get("theme")];
+      if (t) document.documentElement.style.setProperty("--sun", t);
+      // ?px=… : taille de l'image (Edge impose une fenêtre plus large que les petites densités).
+      document.documentElement.style.setProperty("--px", (new URLSearchParams(location.search).get("px") ?? "432") + "px");
+    </script>
+    <style>
+      :root {
+        --sun: #f5b700;
+      }
+
+      html,
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      svg {
+        display: block;
+        width: var(--px);
+        height: var(--px);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Le disque fait 43 % de la largeur. -->
+    <svg viewBox="-125.5 -125.5 763 763">
+      <defs>
+        <mask id="stripes">
+          <rect x="-200" y="-200" width="912" height="912" fill="#fff" />
+          <rect x="-200" y="282" width="912" height="12" fill="#000" />
+          <rect x="-200" y="318" width="912" height="18" fill="#000" />
+          <rect x="-200" y="360" width="912" height="24" fill="#000" />
+        </mask>
+      </defs>
+      <circle cx="256" cy="256" r="164" fill="var(--sun)" mask="url(#stripes)" />
+    </svg>
+  </body>
+</html>

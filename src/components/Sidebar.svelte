@@ -16,8 +16,8 @@
 
   let dragged = $state<string | null>(null);
 
-  // Ordinateur : carte du profil en bas (photo, nom, serveur), qui ouvre les Réglages.
-  const desk = !device.tv && !device.phone;
+  // Ordinateur et téléviseur : panneau flottant, carte du profil en bas (photo, nom, serveur) qui ouvre les Réglages.
+  const desk = !device.phone;
   let account = $state<Account | null>(null);
   let serverKind = $state<"plex" | "jellyfin">("plex");
   $effect(() => {
@@ -447,6 +447,12 @@
     border-radius: 18px;
     background: color-mix(in srgb, var(--bg-sidebar) 82%, transparent);
     backdrop-filter: blur(24px) saturate(1.4);
+  }
+
+  /* Téléviseur : pas de flou d'arrière-plan, coûteux pour son processeur graphique. */
+  :global(html.tv) .desk {
+    background: var(--bg-sidebar);
+    backdrop-filter: none;
   }
 
   .desk .item {

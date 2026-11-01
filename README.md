@@ -406,10 +406,10 @@ vidéo, les touches lecture / pause et suivant / précédent de la télécommand
 
 ### 🧭 Menu latéral
 
-Sur ordinateur, le menu est un panneau flottant aux coins arrondis, légèrement translucide ; la page ouverte est
+Sur ordinateur et sur téléviseur, le menu est un panneau flottant aux coins arrondis, légèrement translucide ; la page ouverte est
 marquée d'une barre lumineuse dans la couleur de l'interface. Il donne accès à la recherche, à l'accueil, aux
 bibliothèques, à Découvrir et aux statistiques ; en bas, la carte du profil (photo, nom, serveur Plex ou Jellyfin)
-ouvre les Réglages.
+ouvre les Réglages. Sur téléviseur, le fond reste opaque (pas de flou, plus léger pour le processeur graphique).
 
 Le bouton ☰ replie le menu pour ne garder que les icônes. Le crayon à côté de « Bibliothèques » permet de les
 réordonner par glisser-déposer et d'en masquer (elles passent sous « Plus »). Ces choix sont gardés sur
