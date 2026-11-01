@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { invoke } from "@tauri-apps/api/core";
   import { onMount, tick } from "svelte";
   import { listen } from "@tauri-apps/api/event";
   import QrCode from "../components/QrCode.svelte";
@@ -7,6 +8,7 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import { device } from "../lib/device";
+  import { forgetRemoteLogos } from "../lib/logos";
   import { getVersion } from "@tauri-apps/api/app";
   import { checkForUpdate, update } from "../lib/update.svelte";
   import { applyTheme, savedTheme, THEME_COLORS, THEMES, type Theme } from "../lib/theme";
@@ -52,6 +54,27 @@
   let seerrError = $state<string | null>(null);
   let tracearrBusy = $state(false);
   let tracearrError = $state<string | null>(null);
+
+  // --- TMDB : logos des titres que Plex n'a pas ---
+  let tmdbKey = $state("");
+  let tmdbBusy = $state(false);
+  let tmdbError = $state<string | null>(null);
+
+  async function saveTmdb(remove = false) {
+    tmdbBusy = true;
+    tmdbError = null;
+    try {
+      await api.tmdbConfigure(remove ? "" : tmdbKey);
+      forgetRemoteLogos();
+      tmdbKey = "";
+      toast(remove ? t("settings.tmdb.removed") : t("settings.tmdb.saved"));
+      onChange();
+    } catch (e) {
+      tmdbError = errorText(e);
+    } finally {
+      tmdbBusy = false;
+    }
+  }
 
   async function loadPrefs() {
     try {
@@ -460,6 +483,29 @@
           {/if}
         </div>
         {#if tracearrError}<p class="error">{tracearrError}</p>{/if}
+      </section>
+      <section class="card">
+        <h2>{t("settings.tmdb.title")}</h2>
+        <p class="muted">
+          {t("settings.tmdb.intro")}
+          <button class="link" onclick={() => invoke("open_url", { url: "https://www.themoviedb.org/settings/api" }).catch(() => {})}>
+            themoviedb.org
+          </button>
+        </p>
+        <label>
+          {t("settings.tmdb.key")}
+          <input bind:value={tmdbKey} placeholder={session.tmdb ? "••••••••••••" : ""} spellcheck="false" autocomplete="off" />
+        </label>
+        <div class="row">
+          <button class="btn primary" disabled={tmdbBusy || !tmdbKey.trim()} onclick={() => saveTmdb()}>
+            {tmdbBusy ? t("settings.services.connecting") : t("settings.tmdb.save")}
+          </button>
+          {#if session.tmdb}
+            <button class="btn" disabled={tmdbBusy} onclick={() => saveTmdb(true)}>{t("settings.tmdb.remove")}</button>
+            <span class="ok">● {t("settings.tmdb.active")}</span>
+          {/if}
+        </div>
+        {#if tmdbError}<p class="error">{tmdbError}</p>{/if}
       </section>
     {:else if page === "player"}
       <h1 class="title">{t("settings.menu.player")}</h1>
@@ -938,6 +984,15 @@
   }
 
   :global(html.phone) .invite,
+  .link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    text-decoration: underline;
+  }
+
   .pick-photo {
     justify-content: center;
     width: 100%;

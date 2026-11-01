@@ -111,5 +111,8 @@
     "connected": "Verbonden",
     "connecting": "Verbinden…",
     "failed": "Instellen mislukt."
+  },
+  "tmdb": {
+    "invalidKey": "Deze TMDB-sleutel wordt niet geaccepteerd."
   }
 }

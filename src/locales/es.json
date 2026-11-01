@@ -98,6 +98,16 @@
       "reorderHint": "Para reordenar u ocultar bibliotecas, haz clic en el lápiz junto a «Bibliotecas» en el menú.",
       "language": "Idioma",
       "languageAuto": "Automático"
+    },
+    "tmdb": {
+      "title": "Logotipos de títulos (TMDB)",
+      "intro": "Para las películas y series cuyo logotipo no tiene Plex, Plexr puede buscarlo en TMDB con tu propia clave de API gratuita: crea una cuenta y solicita una clave en los ajustes de API de",
+      "key": "Clave de API de TMDB",
+      "save": "Guardar",
+      "remove": "Quitar",
+      "active": "Clave guardada",
+      "saved": "Clave de TMDB guardada",
+      "removed": "Clave de TMDB quitada"
     }
   },
   "login": {

@@ -16,6 +16,8 @@ pub struct Config {
     pub tracearr_url: Option<String>,
     /// Cookies de session Tracearr (« nom=valeur; … »), valables 30 jours.
     pub tracearr_cookies: Option<String>,
+    /// Clé d'API TMDB de l'utilisateur (facultative) : logos des titres que Plex n'a pas.
+    pub tmdb_key: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

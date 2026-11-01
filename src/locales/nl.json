@@ -98,6 +98,16 @@
       "reorderHint": "Klik op het potlood naast ‘Bibliotheken’ in het menu om bibliotheken te verplaatsen of te verbergen.",
       "language": "Taal",
       "languageAuto": "Automatisch"
+    },
+    "tmdb": {
+      "title": "Titellogo's (TMDB)",
+      "intro": "Voor films en series waarvan Plex geen logo heeft, kan Plexr het op TMDB zoeken met je eigen gratis API-sleutel: maak een account en vraag een sleutel aan in de API-instellingen van",
+      "key": "TMDB-API-sleutel",
+      "save": "Opslaan",
+      "remove": "Verwijderen",
+      "active": "Sleutel opgeslagen",
+      "saved": "TMDB-sleutel opgeslagen",
+      "removed": "TMDB-sleutel verwijderd"
     }
   },
   "login": {

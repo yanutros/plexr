@@ -98,6 +98,16 @@
       "reorderHint": "Um Mediatheken neu anzuordnen oder auszublenden, klicke im Menü auf den Stift neben „Mediatheken“.",
       "language": "Sprache",
       "languageAuto": "Automatisch"
+    },
+    "tmdb": {
+      "title": "Titel-Logos (TMDB)",
+      "intro": "Für Filme und Serien, deren Logo Plex nicht hat, kann Plexr es mit deinem eigenen, kostenlosen API-Schlüssel bei TMDB suchen: Konto anlegen und einen Schlüssel in den API-Einstellungen anfordern auf",
+      "key": "TMDB-API-Schlüssel",
+      "save": "Speichern",
+      "remove": "Entfernen",
+      "active": "Schlüssel gespeichert",
+      "saved": "TMDB-Schlüssel gespeichert",
+      "removed": "TMDB-Schlüssel entfernt"
     }
   },
   "login": {

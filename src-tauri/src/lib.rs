@@ -102,6 +102,8 @@ struct Session {
     mpv_path: Option<String>,
     tracearr_url: Option<String>,
     tracearr_connected: bool,
+    /// Une clé TMDB est enregistrée (elle-même n'est jamais renvoyée à la page).
+    tmdb: bool,
 }
 
 #[tauri::command]
@@ -114,6 +116,7 @@ fn get_session(state: State<'_, AppState>) -> Session {
         mpv_path: c.mpv_path,
         tracearr_url: c.tracearr_url,
         tracearr_connected: c.tracearr_cookies.is_some(),
+        tmdb: c.tmdb_key.is_some(),
     }
 }
 
@@ -329,7 +332,9 @@ async fn plex_remote_logo(state: State<'_, AppState>, guid: String, fallback: Op
     }
     let c = state.cfg();
     let Some(token) = c.plex_token else { return Ok(None) };
-    let logo = plex::remote_logo(&state.http, &c.client_id, &token, &guid, fallback).await.unwrap_or(None);
+    let logo = plex::remote_logo(&state.http, &c.client_id, &token, &guid, fallback, c.tmdb_key.as_deref())
+        .await
+        .unwrap_or(None);
     state.remote_logos.lock().unwrap().insert(cache_key, logo.clone());
     Ok(logo)
 }
@@ -706,6 +711,20 @@ async fn seerr_configure(state: State<'_, AppState>, url: String) -> CmdResult<(
 // ---------- Tracearr ----------
 
 /// Enregistre l'adresse de Tracearr ; la session précédente est oubliée.
+/// Enregistre (après vérification) ou retire la clé TMDB ; les logos déjà cherchés le sont à nouveau.
+#[tauri::command]
+async fn tmdb_configure(state: State<'_, AppState>, key: String) -> CmdResult<()> {
+    let key = key.trim().to_string();
+    if !key.is_empty() {
+        plex::tmdb_check(&state.http, &key)
+            .await
+            .map_err(|_| anyhow!(crate::i18n::tr("tmdb.invalidKey")))?;
+    }
+    state.update_cfg(|c| c.tmdb_key = (!key.is_empty()).then_some(key))?;
+    state.remote_logos.lock().unwrap().clear();
+    Ok(())
+}
+
 #[tauri::command]
 async fn tracearr_configure(state: State<'_, AppState>, url: String) -> CmdResult<()> {
     let url = url.trim().trim_end_matches('/').to_string();
@@ -998,6 +1017,7 @@ pub fn run() {
             seerr_recent_requests,
             seerr_watchlist,
             tracearr_configure,
+            tmdb_configure,
             tracearr_start_login,
             tracearr_poll_login,
             tracearr_dashboard,

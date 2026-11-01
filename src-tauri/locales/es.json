@@ -111,5 +111,8 @@
     "connected": "Conectado",
     "connecting": "Conectando…",
     "failed": "La configuración ha fallado."
+  },
+  "tmdb": {
+    "invalidKey": "Esta clave de TMDB no es válida."
   }
 }

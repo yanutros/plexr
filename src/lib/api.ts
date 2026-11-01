@@ -10,6 +10,8 @@ export interface Session {
   mpvPath: string | null;
   tracearrUrl: string | null;
   tracearrConnected: boolean;
+  /** Une clé TMDB est enregistrée (logos des titres que Plex n'a pas). */
+  tmdb: boolean;
 }
 
 export interface LoginPin {
@@ -372,6 +374,7 @@ export const api = {
     invoke<void>("seerr_request", { mediaType, tmdbId, seasons }),
 
   tracearrConfigure: (url: string) => invoke<void>("tracearr_configure", { url }),
+  tmdbConfigure: (key: string) => invoke<void>("tmdb_configure", { key }),
   tracearrStartLogin: (open = true) => invoke<{ handle: string; authUrl: string }>("tracearr_start_login", { open }),
   tracearrPollLogin: (handle: string) => invoke<"waiting" | "done" | "expired">("tracearr_poll_login", { handle }),
   tracearrDashboard: () =>

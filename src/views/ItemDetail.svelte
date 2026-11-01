@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { api, errorText, formatDuration, isMusic, type Item, type ItemDetail } from "../lib/api";
+  import { api, episodeTitle, errorText, formatDuration, isMusic, type Item, type ItemDetail } from "../lib/api";
   import MusicDetail from "./MusicDetail.svelte";
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play, type PlayOptions } from "../lib/player.svelte";
@@ -125,23 +125,25 @@
   <div class="page detail" bind:this={root}>
     <section class="hero">
       <div class="hero-main">
-        {#if item.showKey}
-          <button class="show-link" onclick={() => go({ name: "item", ratingKey: item!.showKey! })}>
-            {item.showTitle}
-          </button>
-        {/if}
-        <!-- Le logo représente le film ou la série : un épisode garde son titre. -->
-        <h1><TitleLogo
-            logo={item.kind === "episode" ? null : item.logo}
-            guid={item.kind === "episode" ? null : item.logoGuid}
-            genres={item.genres}
-            styled={item.kind !== "episode"}
-            title={item.title}
-          /></h1>
-        {#if item.kind === "episode"}
-          <div class="line">{t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</div>
-        {:else if item.originalTitle}
-          <div class="line original">{item.originalTitle}</div>
+        {#if item.showKey && (item.kind === "episode" || item.kind === "season")}
+          <!-- Épisode ou saison : le logo de la série, qui y ramène, puis l'épisode ou la saison. -->
+          <h1>
+            <button class="show-logo" onclick={() => go({ name: "item", ratingKey: item!.showKey! })} title={item.showTitle ?? ""}>
+              <TitleLogo logo={null} guid={item.logoGuid} genres={item.genres} title={item.showTitle ?? item.title} />
+            </button>
+          </h1>
+          <div class="line">
+            {#if item.kind === "season"}
+              {item.title}
+            {:else if episodeTitle(item.title)}
+              {t("hero.episodeLine", { season: item.parentIndex ?? "", episode: item.index ?? "", title: episodeTitle(item.title) ?? "" })}
+            {:else}
+              {t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}
+            {/if}
+          </div>
+        {:else}
+          <h1><TitleLogo logo={item.logo} guid={item.logoGuid} genres={item.genres} title={item.title} /></h1>
+          {#if item.originalTitle}<div class="line original">{item.originalTitle}</div>{/if}
         {/if}
 
         <div class="meta">
@@ -403,19 +405,18 @@
     }
   }
 
-  .show-link {
+  .show-logo {
+    width: 100%;
     padding: 0;
     border: none;
     background: none;
-    color: #ffffffcc;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    text-shadow: 0 2px 12px #000;
+    color: inherit;
+    font: inherit;
+    transition: transform 0.2s var(--ease);
   }
 
-  .show-link:hover {
-    color: var(--accent);
+  .show-logo:hover {
+    transform: scale(1.02);
   }
 
   h1 {

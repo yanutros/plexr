@@ -111,5 +111,8 @@
     "connected": "Connected",
     "connecting": "Connecting…",
     "failed": "Setup failed."
+  },
+  "tmdb": {
+    "invalidKey": "This TMDB key was not accepted."
   }
 }

@@ -111,5 +111,8 @@
     "connected": "Verbunden",
     "connecting": "Verbinden…",
     "failed": "Einrichtung fehlgeschlagen."
+  },
+  "tmdb": {
+    "invalidKey": "Dieser TMDB-Schlüssel wird nicht akzeptiert."
   }
 }

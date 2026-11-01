@@ -5,6 +5,11 @@ import { api } from "./api";
 
 const cache = new Map<string, Promise<string | null>>();
 
+/** Après un changement de clé TMDB : les logos introuvables jusque-là sont cherchés à nouveau. */
+export function forgetRemoteLogos() {
+  cache.clear();
+}
+
 /** `fallback` : accepter le logo anglais à défaut de logo dans la langue de l'interface. */
 export function remoteLogo(guid: string, fallback = true): Promise<string | null> {
   const key = `${guid}|${fallback}`;

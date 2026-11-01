@@ -134,22 +134,32 @@ fn flag<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::
     })
 }
 
-/// Logo d'un titre sur le service en ligne de Plex. `fallback` : à défaut de logo dans la langue de
-/// l'interface, celui en anglais (souvent le seul, comme sur Jellyfin) ; sans `fallback`, seulement
-/// un logo traduit (pour remplacer celui du serveur, souvent en anglais).
-pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str, fallback: bool) -> Result<Option<String>> {
+/// Logo d'un titre, cherché en ligne : sur le service de Plex, puis sur TMDB si l'utilisateur a
+/// donné sa clé. `fallback` : à défaut de logo dans la langue de l'interface, celui en anglais (souvent
+/// le seul, comme sur Jellyfin) ; sans `fallback`, seulement un logo traduit (pour remplacer celui du
+/// serveur, souvent en anglais).
+pub async fn remote_logo(
+    http: &Client,
+    client_id: &str,
+    token: &str,
+    guid: &str,
+    fallback: bool,
+    tmdb_key: Option<&str>,
+) -> Result<Option<String>> {
     let id = guid.rsplit('/').next().unwrap_or_default();
     if id.is_empty() || !id.chars().all(|c| c.is_ascii_alphanumeric()) {
         return Ok(None);
     }
     let ui = crate::i18n::language();
-    let langs: &[&str] = match (ui == "en", fallback) {
-        (true, false) => &[],
-        (true, true) => &["en"],
-        (false, false) => &[ui],
-        (false, true) => &[ui, "en"],
-    };
-    for lang in langs {
+    let mut langs = vec![];
+    if ui != "en" {
+        langs.push(ui);
+    }
+    if fallback {
+        langs.push("en");
+    }
+    let mut tmdb_id = None;
+    for (n, lang) in langs.iter().enumerate() {
         // Sans `includeImages`, le service ne renvoie pas la liste des images (logos compris).
         let v: serde_json::Value = http
             .get(format!("https://metadata.provider.plex.tv/library/metadata/{id}?includeImages=1"))
@@ -163,7 +173,11 @@ pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str
             .error_for_status()?
             .json()
             .await?;
-        let images = v["MediaContainer"]["Metadata"][0]["Image"].as_array().cloned().unwrap_or_default();
+        let meta = &v["MediaContainer"]["Metadata"][0];
+        tmdb_id = tmdb_id.or_else(|| {
+            meta["Guid"].as_array()?.iter().find_map(|g| g["id"].as_str()?.strip_prefix("tmdb://").map(str::to_owned))
+        });
+        let images = meta["Image"].as_array().cloned().unwrap_or_default();
         // Logo normal, sinon sa version large (c'est parfois la seule traduite, chez Fanart.tv).
         let logo = ["clearLogo", "clearLogoWide"]
             .iter()
@@ -173,8 +187,60 @@ pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str
         if logo.is_some() {
             return Ok(logo);
         }
+        // Rien chez Plex dans la langue de l'interface : TMDB, avant de se rabattre sur l'anglais.
+        if n == 0 || langs.len() == 1 {
+            if let (Some(key), Some(tid)) = (tmdb_key, tmdb_id.as_deref()) {
+                let kind = if guid.contains("/show/") { "tv" } else { "movie" };
+                let only_ui = ui != "en" && langs.len() > 1;
+                if let Some(logo) = tmdb_logo(http, key, kind, tid, ui, !only_ui && fallback).await {
+                    return Ok(Some(logo));
+                }
+            }
+        }
+    }
+    // Plex n'a rien du tout : TMDB, toutes langues admises.
+    if let (true, Some(key), Some(tid)) = (fallback && ui != "en", tmdb_key, tmdb_id.as_deref()) {
+        let kind = if guid.contains("/show/") { "tv" } else { "movie" };
+        return Ok(tmdb_logo(http, key, kind, tid, ui, true).await);
     }
     Ok(None)
+}
+
+/// Requête TMDB avec la clé de l'utilisateur : clé d'API (v3) ou jeton d'accès en lecture (v4).
+fn tmdb_get(http: &Client, key: &str, path: &str) -> RequestBuilder {
+    let url = format!("https://api.themoviedb.org/3{path}");
+    if key.contains('.') {
+        http.get(url).bearer_auth(key)
+    } else {
+        let sep = if path.contains('?') { '&' } else { '?' };
+        http.get(format!("{url}{sep}api_key={key}"))
+    }
+}
+
+/// Vérifie une clé TMDB (avant de l'enregistrer).
+pub async fn tmdb_check(http: &Client, key: &str) -> Result<()> {
+    tmdb_get(http, key, "/configuration").send().await?.error_for_status()?;
+    Ok(())
+}
+
+/// Logo d'un film (`movie`) ou d'une série (`tv`) sur TMDB : dans la langue de l'interface, sinon
+/// (avec `any`) en anglais ou sans texte.
+async fn tmdb_logo(http: &Client, key: &str, kind: &str, id: &str, ui: &str, any: bool) -> Option<String> {
+    let v: serde_json::Value = tmdb_get(http, key, &format!("/{kind}/{id}/images?include_image_language={ui},en,null"))
+        .send()
+        .await
+        .ok()?
+        .error_for_status()
+        .ok()?
+        .json()
+        .await
+        .ok()?;
+    let logos = v["logos"].as_array()?;
+    let pick = |lang: Option<&str>| {
+        logos.iter().find(|l| l["iso_639_1"].as_str() == lang && l["file_path"].as_str().is_some_and(|p| !p.ends_with(".svg")))
+    };
+    let logo = pick(Some(ui)).or_else(|| if any { pick(Some("en")).or_else(|| pick(None)) } else { None })?;
+    Some(format!("https://image.tmdb.org/t/p/w500{}", logo["file_path"].as_str()?))
 }
 
 /// Photos des comptes Plex : celle de l'utilisateur et celles de ses amis (propriétaires des
