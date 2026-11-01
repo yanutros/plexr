@@ -24,6 +24,9 @@
   // format, légende en bas et vignette de l'affiche ou de la pochette dans le coin.
   let { panels }: { panels: Panel[] } = $props();
 
+  // Dès qu'un panneau a un sous-titre, tous gardent sa ligne : les visuels restent alignés.
+  const withSubtitle = $derived(panels.some((p) => p.subtitle));
+
   let scroller = $state<HTMLElement>();
   let atStart = $state(true);
   let atEnd = $state(false);
@@ -58,7 +61,7 @@
           <button class="head" onclick={p.onclick}>
             <span class="eyebrow">{p.eyebrow}</span>
             <span class="title">{p.title}</span>
-            {#if p.subtitle}<span class="subtitle">{p.subtitle}</span>{/if}
+            {#if withSubtitle}<span class="subtitle">{p.subtitle || " "}</span>{/if}
           </button>
           <div class="frame">
             <button class="art" onclick={p.onclick} aria-label={p.title}>
