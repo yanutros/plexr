@@ -72,6 +72,8 @@ export interface Track {
 
 export interface ItemDetail extends Item {
   tagline: string | null;
+  originalTitle: string | null;
+  backdropHd: string | null;
   studio: string | null;
   releaseDate: string | null;
   directors: string[];

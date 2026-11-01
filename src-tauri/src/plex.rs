@@ -99,22 +99,35 @@ pub async fn remote_logo(http: &Client, client_id: &str, token: &str, guid: &str
     if id.is_empty() || !id.chars().all(|c| c.is_ascii_alphanumeric()) {
         return Ok(None);
     }
-    let v: serde_json::Value = with_plex_headers(
-        http.get(format!("https://metadata.provider.plex.tv/library/metadata/{id}")),
-        client_id,
-        Some(token),
-    )
-    .send()
-    .await?
-    .error_for_status()?
-    .json()
-    .await?;
-    Ok(v["MediaContainer"]["Metadata"][0]["Image"]
-        .as_array()
-        .and_then(|images| images.iter().find(|i| i["type"] == "clearLogo"))
-        .and_then(|i| i["url"].as_str())
-        .filter(|u| u.starts_with("https://"))
-        .map(str::to_owned))
+    // Les logos sont rangés par langue : à défaut de logo dans celle de l'interface, celui en anglais
+    // (souvent le seul, comme sur Jellyfin).
+    let ui = crate::i18n::language();
+    let langs: &[&str] = if ui == "en" { &["en"] } else { &[ui, "en"] };
+    for lang in langs {
+        // Sans `includeImages`, le service ne renvoie pas la liste des images (logos compris).
+        let v: serde_json::Value = http
+            .get(format!("https://metadata.provider.plex.tv/library/metadata/{id}?includeImages=1"))
+            .header("Accept", "application/json")
+            .header("X-Plex-Product", PRODUCT)
+            .header("X-Plex-Client-Identifier", client_id)
+            .header("X-Plex-Language", *lang)
+            .header("X-Plex-Token", token)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+        let logo = v["MediaContainer"]["Metadata"][0]["Image"]
+            .as_array()
+            .and_then(|images| images.iter().find(|i| i["type"] == "clearLogo"))
+            .and_then(|i| i["url"].as_str())
+            .filter(|u| u.starts_with("https://"))
+            .map(str::to_owned);
+        if logo.is_some() {
+            return Ok(logo);
+        }
+    }
+    Ok(None)
 }
 
 /// Photos des comptes Plex : celle de l'utilisateur et celles de ses amis (propriétaires des
@@ -430,6 +443,10 @@ pub struct ItemDetail {
     #[serde(flatten)]
     pub item: Item,
     pub tagline: Option<String>,
+    /// Titre d'origine, s'il diffère du titre affiché (« Practical Magic » sous « Les Ensorceleuses »).
+    pub original_title: Option<String>,
+    /// Fond en haute définition, pour le bandeau plein écran de la fiche.
+    pub backdrop_hd: Option<String>,
     pub studio: Option<String>,
     pub release_date: Option<String>,
     pub directors: Vec<String>,
@@ -902,8 +919,12 @@ impl PlexServer {
             .take(30)
             .map(|r| CastMember { id: r.id, name: r.tag, role: r.role, photo: r.thumb })
             .collect();
+        let original_title = m.original_title.take().filter(|o| !o.trim().is_empty() && *o != m.title);
+        let backdrop_hd = m.art.as_ref().map(|p| self.image(p, 2560, 1440));
         Ok(ItemDetail {
             tagline: m.tagline.take(),
+            original_title,
+            backdrop_hd,
             studio: m.studio.take(),
             release_date: m.originally_available_at.take(),
             directors: std::mem::take(&mut m.director).into_iter().map(|t| t.tag).collect(),

@@ -66,8 +66,9 @@
       : null,
   );
   // Fond du film, ou de la saison pour une série et ses épisodes (Plex reprend celui de la série
-  // quand la saison n'a pas le sien) : plus soigné que l'image d'un épisode, gardée en dernier recours.
-  const heroArt = $derived(item?.backdrop ?? (item?.kind === "episode" ? item.thumb : item?.poster));
+  // quand la saison n'a pas le sien), en haute définition : plus soigné que l'image d'un épisode,
+  // gardée en dernier recours.
+  const heroArt = $derived(item?.backdropHd ?? item?.backdrop ?? (item?.kind === "episode" ? item.thumb : item?.poster));
   // Heure de fin si la lecture démarre maintenant (reprise comprise), comme dans Jellyfin.
   const endsAt = $derived.by(() => {
     if (!item?.playable || !item.durationMs) return null;
@@ -124,6 +125,8 @@
           /></h1>
         {#if item.kind === "episode"}
           <div class="line">{t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</div>
+        {:else if item.originalTitle}
+          <div class="line original">{item.originalTitle}</div>
         {/if}
 
         <div class="meta">
@@ -178,19 +181,19 @@
           </div>
         {/if}
       </div>
-
-      <!-- À droite, comme sur l'Apple TV : l'accroche et le résumé, dépliable. -->
-      {#if item.tagline || item.summary}
-        <div class="hero-side">
-          {#if item.tagline && item.kind !== "episode"}<p class="tagline">{item.tagline}</p>{/if}
-          {#if item.summary}
-            <button class="summary" class:open={summaryOpen} onclick={() => (summaryOpen = !summaryOpen)}>
-              {item.summary}
-            </button>
-          {/if}
-        </div>
-      {/if}
     </section>
+
+    <!-- Sous le bandeau, en pleine largeur : l'accroche et le résumé, dépliable. -->
+    {#if item.tagline || item.summary}
+      <section class="about">
+        {#if item.tagline && item.kind !== "episode"}<p class="tagline">{item.tagline}</p>{/if}
+        {#if item.summary}
+          <button class="summary" class:open={summaryOpen} onclick={() => (summaryOpen = !summaryOpen)}>
+            {item.summary}
+          </button>
+        {/if}
+      </section>
+    {/if}
 
     <!-- Deux panneaux, comme Jellyfin : l'équipe à gauche, les pistes à lire à droite. -->
     {#if hasCredits || hasMedia}
@@ -303,11 +306,17 @@
     pointer-events: none;
   }
 
+  /* Comme Jellyfin : l'image entière sur toute la largeur, centrée en haut, qui se fond dans le
+     noir vers le bas (une fenêtre haute ne la rogne plus sur les côtés). */
   .backdrop img {
+    display: block;
     width: 100%;
-    height: 100%;
+    height: auto;
+    min-height: 62%;
+    max-height: 100%;
     object-fit: cover;
-    object-position: center 20%;
+    object-position: center top;
+    mask-image: linear-gradient(#000 0%, #000 55%, transparent 100%);
     transform: scale(calc(1 + var(--fade) * 0.05));
     animation: unveil 1.2s var(--ease);
   }
@@ -319,14 +328,15 @@
     }
   }
 
-  /* Dégradés : lisibilité du texte en bas à gauche, puis voile qui s'épaissit au défilement. */
+  /* Dégradés : l'image reste intacte en haut, le bas s'assombrit sous le titre centré, puis un voile
+     s'épaissit au défilement. */
   .backdrop::after {
     content: "";
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(0deg, var(--bg) 0%, #000000b0 28%, transparent 60%),
-      linear-gradient(90deg, #000000c0 0%, #00000060 38%, transparent 70%),
+      linear-gradient(0deg, var(--bg) 0%, #000000c8 22%, #00000040 50%, transparent 70%),
+      linear-gradient(180deg, #00000080 0%, transparent 14%),
       rgb(0 0 0 / calc(var(--fade) * 0.72));
   }
 
@@ -335,25 +345,29 @@
     z-index: 1;
   }
 
+  /* Bandeau centré : le logo en très grand, puis les informations et les boutons dessous. */
   .hero {
     display: flex;
-    align-items: flex-end;
-    gap: 48px;
-    min-height: calc(100vh - 68px - 90px);
-    padding-bottom: 36px;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: calc(100vh - 68px - 120px);
+    padding-bottom: 28px;
+    text-align: center;
   }
 
   .hero-main {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 900px;
     animation: rise 0.7s 0.15s var(--ease) backwards;
   }
 
-  .hero-side {
-    flex: 0 1 460px;
-    min-width: 0;
-    padding-bottom: 6px;
+  .about {
+    max-width: 1100px;
+    margin-bottom: 28px;
     animation: rise 0.7s 0.3s var(--ease) backwards;
   }
 
@@ -380,8 +394,9 @@
   }
 
   h1 {
-    margin: 4px 0 8px;
-    font-size: 52px;
+    width: 100%;
+    margin: 4px 0 6px;
+    font-size: 72px;
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.05;
@@ -394,9 +409,16 @@
     font-weight: 600;
   }
 
+  .original {
+    margin-bottom: 2px;
+    color: #ffffffb0;
+    font-size: 15px;
+  }
+
   .meta {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
     gap: 8px 16px;
     margin-top: 14px;
@@ -416,6 +438,7 @@
 
   .actions {
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 12px;
     margin-top: 24px;
@@ -445,7 +468,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    max-width: 420px;
+    width: min(420px, 100%);
     margin-top: 18px;
     color: #ffffffb8;
     font-size: 13px;
@@ -488,8 +511,8 @@
     text-shadow: 0 1px 10px #000;
     cursor: pointer;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .summary.open {
@@ -704,7 +727,8 @@
     grid-auto-columns: 164px;
     gap: 16px;
     overflow-x: auto;
-    padding-bottom: 8px;
+    padding: 10px 10px 8px;
+    margin: -10px -10px 0;
   }
 
   .person {
@@ -770,12 +794,8 @@
     padding-bottom: 20px;
   }
 
-  :global(html.phone) .hero-side {
-    flex: none;
-  }
-
   :global(html.phone) h1 {
-    font-size: 30px;
+    font-size: 36px;
   }
 
   :global(html.phone) .meta {
@@ -830,11 +850,13 @@
 
   /* Logo du titre sur la fiche. */
   h1 {
-    --logo-h: 170px;
-    --logo-w: min(560px, 100%);
+    --logo-h: 230px;
+    --logo-w: min(760px, 100%);
+    --logo-pos: center bottom;
+    --logo-margin: 0 auto;
   }
 
   :global(html.phone) h1 {
-    --logo-h: 90px;
+    --logo-h: 120px;
   }
 </style>

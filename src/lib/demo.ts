@@ -248,6 +248,8 @@ function detail(key: string): ItemDetail {
   return {
     ...base,
     tagline: base.kind === "movie" ? MOVIE_DATA.find((m) => m[0] === base.title)?.[4] ?? null : null,
+    originalTitle: null,
+    backdropHd: base.backdrop,
     studio: "Studio Fictif",
     releaseDate: `${base.year}-03-14`,
     directors: base.kind === "movie" || base.kind === "episode" ? ["Claire Vasseur"] : [],

@@ -49,8 +49,9 @@
     display: block;
     max-width: var(--logo-w, min(440px, 80%));
     max-height: var(--logo-h, 120px);
+    margin: var(--logo-margin, 0);
     object-fit: contain;
-    object-position: left bottom;
+    object-position: var(--logo-pos, left bottom);
     filter: drop-shadow(0 2px 14px #000b);
   }
 
