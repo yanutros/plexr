@@ -178,7 +178,7 @@
 
   // Tablette et téléviseur : le téléphone envoie le code par le relais, tant que la page est ouverte.
   $effect(() => {
-    if (page !== "services" || !device.mobile) return;
+    if (page !== "services" || !device.mobile || device.phone) return;
     let closed = false;
     let unlisten: (() => void) | undefined;
     api.relayStart().then(
@@ -355,7 +355,20 @@
       <h1 class="title">{t("settings.menu.services")}</h1>
       <section class="card">
         <h2>{t("settings.invite.quickSetup")}</h2>
-        {#if device.mobile}
+        {#if device.phone}
+          <!-- Téléphone : l'invitation est souvent une capture reçue par message, choisie dans les photos. -->
+          <p class="muted">{t("settings.invite.photoHint")}</p>
+          <label class="btn primary pick-photo" class:disabled={applying?.step === "running"}>
+            <Icon name="image" size={18} /> {t("settings.invite.pickPhoto")}
+            <input type="file" accept="image/*" hidden onchange={onInviteImage} />
+          </label>
+          <div class="row">
+            <input class="grow" bind:value={pasted} placeholder="PLEXR-INVITE:…" spellcheck="false" />
+            <button class="btn" disabled={!pasted.trim() || applying?.step === "running"} onclick={() => runInvite(pasted, false)}>
+              {t("settings.invite.apply")}
+            </button>
+          </div>
+        {:else if device.mobile}
           <div class="phone-setup">
             {#if relayUrl}<QrCode text={relayUrl} size={190} />{:else}<div class="qr-wait skeleton"></div>{/if}
             <p class="muted">
@@ -925,6 +938,19 @@
   }
 
   :global(html.phone) .invite,
+  .pick-photo {
+    justify-content: center;
+    width: 100%;
+    height: 48px;
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+
+  .pick-photo.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
   :global(html.phone) .phone-setup {
     flex-direction: column;
     align-items: flex-start;

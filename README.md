@@ -144,6 +144,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       <h4>📱 Il tient dans la main</h4>
       Sur téléphone, une interface mobile : onglets en bas, bandeau et « Continuer à regarder » à la taille de
       l'écran, mini-lecteur façon Spotify et musique pilotable depuis la notification, même Plexr fermé.
+      En voiture, la bibliothèque musicale se parcourt et se lit depuis l'écran d'Android Auto.
       Sur tablette, l'interface de l'ordinateur adaptée au toucher.
     </td>
   </tr>
@@ -238,6 +239,15 @@ les bandes d'onglets, l'onglet touché se centre. Les vidéos passent en paysage
 une notification (pochette, titre, précédent / lecture / suivant, progression) qui la pilote aussi depuis l'écran
 de verrouillage et les boutons d'un casque Bluetooth. Fermer Plexr depuis les applications récentes l'arrête.
 Le mini-lecteur, façon Spotify, ouvre en plein écran la pochette, la progression et toutes les commandes.
+
+**Android Auto** : Plexr apparaît parmi les applications de musique de la voiture, avec quatre onglets —
+**Accueil** (ajouts récents), **Artistes** (avec une lecture aléatoire de toute la bibliothèque), **Albums** et
+**Playlists** — illustrés de leurs pochettes. Un album ou une playlist se lit d'un coup ou à partir d'un morceau,
+avec la file d'attente à l'écran ; « Joue … sur Plexr » lance un artiste, un album ou un morceau à la voix. La
+voiture lit elle-même la musique (ExoPlayer), même si Plexr n'est pas ouvert sur le téléphone : le compte et le
+serveur viennent de la configuration de Plexr, et hors du Wi-Fi l'adresse distante du serveur (ou le relais Plex)
+prend le relais. Les écoutes remontent dans l'historique de Plex. Une musique lancée sur le téléphone remplace
+celle de la voiture, et inversement.
 
 > [!NOTE]
 > **Lecture sur Android** : il n'y a pas de mpv. La vidéo est convertie à la volée par votre serveur Plex (flux
@@ -409,6 +419,8 @@ Chez l'utilisateur, la **Configuration rapide** de la même page l'applique : Pl
 connecte à Seerr avec le compte Plex et lance la connexion Tracearr.
 
 - **Sur ordinateur** : collez le code, ou importez l'image du QR code.
+- **Sur téléphone** : **Choisir le QR code dans mes photos** lit la capture reçue de l'administrateur (ou
+  collez le code).
 - **Sur téléviseur et tablette** : Plexr affiche son propre QR code. Scanné par un téléphone connecté au **même
   Wi-Fi**, il ouvre une page servie par Plexr lui-même, où l'on prend en photo le QR code de l'invitation (ou
   choisit l'image reçue, ou colle le code). La télé se configure aussitôt ; pour Tracearr, la page propose
@@ -485,7 +497,7 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | `src/lib/spatial.ts`, `src/lib/nav.svelte.ts` | navigation à la télécommande (flèches) et bouton Retour d'Android |
 | `src/components/TvRows.svelte`, `TvGrid.svelte`, `src/lib/tvcards.ts` | interface TV : rangées avec fiche en haut, grilles légères |
 | `src/lib/player.svelte.ts` | lecture : mpv sur ordinateur, lecteur HTML (HLS transcodé par Plex) sur Android |
-| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière, icônes par couleur), signature, détection du téléviseur et du téléphone, barres système, vidéo en paysage (`MainActivity.kt`), musique en arrière-plan et notification (`MediaService.kt`) |
+| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière, icônes par couleur), signature, détection du téléviseur et du téléphone, barres système, vidéo en paysage (`MainActivity.kt`), musique en arrière-plan, notification et Android Auto (`MediaService.kt`, bibliothèque lue auprès de Plex dans `PlexLibrary.kt`, pochettes servies à la voiture par `ArtProvider.kt`) |
 | `src/components/PhoneTabs.svelte`, `src/views/Libraries.svelte` | téléphone : barre d'onglets et liste des bibliothèques |
 | `src-tauri/tauri.conf.json`, `tauri.windows.conf.json` | configuration et paquets ; la fenêtre transparente n'est activée que sous Windows |
 | `.github/workflows/paquets.yml` | construction des paquets Windows, Linux et macOS (l'APK est construit à part) |

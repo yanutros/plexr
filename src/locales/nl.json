@@ -68,7 +68,9 @@
       "title": "Gebruikers uitnodigen",
       "intro": "Deel deze QR-code of deze code: Plexr haalt de adressen eruit en maakt verbinding met het Plex-account van ieder persoon.",
       "copyCode": "Code kopiëren",
-      "copyImage": "Afbeelding kopiëren"
+      "copyImage": "Afbeelding kopiëren",
+      "photoHint": "Kies in je foto's de schermafbeelding van de QR-code van de serverbeheerder, of plak de uitnodigingscode.",
+      "pickPhoto": "QR-code uit mijn foto's kiezen"
     },
     "player": {
       "saved": "mpv-pad opgeslagen",

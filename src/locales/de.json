@@ -68,7 +68,9 @@
       "title": "Nutzer einladen",
       "intro": "Teile diesen QR-Code oder diesen Code: Plexr liest daraus die Adressen und verbindet sich mit dem Plex-Konto der jeweiligen Person.",
       "copyCode": "Code kopieren",
-      "copyImage": "Bild kopieren"
+      "copyImage": "Bild kopieren",
+      "photoHint": "Wähle in deinen Fotos den Screenshot des QR-Codes vom Server-Admin oder füge seinen Einladungscode ein.",
+      "pickPhoto": "QR-Code aus meinen Fotos wählen"
     },
     "player": {
       "saved": "mpv-Pfad gespeichert",

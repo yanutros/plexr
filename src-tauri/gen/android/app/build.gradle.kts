@@ -100,6 +100,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-process:2.10.0")
     // Session média et notification de la musique en arrière-plan (MediaService.kt).
     implementation("androidx.media:media:1.7.0")
+    // Lecture lancée depuis Android Auto, quand la page n'est pas ouverte.
+    implementation("androidx.media3:media3-exoplayer:1.8.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.4")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")

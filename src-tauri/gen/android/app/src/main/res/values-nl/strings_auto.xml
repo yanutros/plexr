@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Menus d'Android Auto (PlexLibrary.kt, MediaService.kt). -->
+<resources>
+    <string name="auto_shuffle">"Willekeurig"</string>
+    <string name="auto_recent">"Start"</string>
+    <string name="auto_artists">"Artiesten"</string>
+    <string name="auto_albums">"Albums"</string>
+    <string name="auto_playlists">"Playlists"</string>
+    <string name="auto_sign_in">"Meld je aan bij Plex in Plexr op je telefoon."</string>
+    <string name="auto_unreachable">"Plex-server onbereikbaar."</string>
+    <string name="auto_nothing">"Niets om hier af te spelen."</string>
+</resources>
