@@ -259,7 +259,8 @@ celle de la voiture, et inversement.
 > [!NOTE]
 > **Lecture sur Android** : il n'y a pas de mpv. La vidéo est lue par ExoPlayer, le lecteur natif qu'utilisent
 > aussi Plex et Wholphin : le fichier d'origine (4K, HEVC, HDR compris) est décodé par l'appareil et affiché dans
-> sa propre couche, sous l'interface de lecture de Plexr — fluide même sur un téléviseur modeste. Les pistes audio
+> sa propre couche, sous l'interface de lecture de Plexr — fluide même sur un téléviseur modeste, au bon format
+> (bandes noires pour un film plus large que l'écran). Les pistes audio
 > et les sous-titres (intégrés ou externes) se choisissent pendant la lecture. Si l'appareil ne sait pas lire un
 > format, le serveur Plex le convertit à la volée (HLS, 1080p). La musique est lue directement. La reprise,
 > l'épisode suivant et la progression fonctionnent comme sur ordinateur.

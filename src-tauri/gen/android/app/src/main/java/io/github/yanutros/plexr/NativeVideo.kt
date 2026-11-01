@@ -5,7 +5,9 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.view.Gravity
 import android.view.SurfaceView
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.WebView
@@ -18,6 +20,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
+import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.SubtitleView
@@ -37,6 +40,8 @@ class NativeVideo(private val activity: Activity, private val webView: WebView) 
   private val handler = Handler(Looper.getMainLooper())
   private var player: ExoPlayer? = null
   private var surface: SurfaceView? = null
+  /** Noir profond derrière l'image, visible dans les bandes (format plus large que l'écran). */
+  private var black: View? = null
   private var subtitles: SubtitleView? = null
   /** Pistes demandées par la page, appliquées dès que le fichier est analysé. */
   private var wantedAudio: Int? = null
@@ -62,9 +67,12 @@ class NativeVideo(private val activity: Activity, private val webView: WebView) 
       setUserDefaultStyle()
       setUserDefaultTextSize()
     }
-    // Sous la page : la vidéo, puis ses sous-titres.
-    root.addView(sv, 0, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-    root.addView(st, 1, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    val bg = View(activity).apply { setBackgroundColor(Color.BLACK) }
+    // Sous la page : un fond noir, la vidéo, puis ses sous-titres.
+    root.addView(bg, 0, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    root.addView(sv, 1, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    root.addView(st, 2, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+    black = bg
     surface = sv
     subtitles = st
     webView.setBackgroundColor(Color.TRANSPARENT)
@@ -99,6 +107,7 @@ class NativeVideo(private val activity: Activity, private val webView: WebView) 
       override fun onCues(cueGroup: androidx.media3.common.text.CueGroup) {
         subtitles?.setCues(cueGroup.cues)
       }
+      override fun onVideoSizeChanged(videoSize: VideoSize) = fit(videoSize)
       override fun onIsPlayingChanged(isPlaying: Boolean) = send()
       override fun onPlaybackStateChanged(state: Int) {
         if (state == Player.STATE_ENDED) emit(JSONObject().put("ended", true)) else send()
@@ -133,6 +142,23 @@ class NativeVideo(private val activity: Activity, private val webView: WebView) 
     send()
   }
 
+  /**
+   * Garde le format de l'image (bandes noires en haut et en bas pour un film en 2.39:1, comme dans
+   * Plex) : la couche vidéo prend la plus grande taille qui tient dans l'écran, centrée.
+   */
+  private fun fit(size: VideoSize) {
+    val sv = surface ?: return
+    val root = sv.parent as? ViewGroup ?: return
+    if (size.width == 0 || size.height == 0 || root.width == 0 || root.height == 0) return
+    val ratio = size.width * size.pixelWidthHeightRatio / size.height
+    val (w, h) = if (root.width.toFloat() / root.height > ratio) {
+      (root.height * ratio).toInt() to root.height
+    } else {
+      root.width to (root.width / ratio).toInt()
+    }
+    sv.layoutParams = FrameLayout.LayoutParams(w, h, Gravity.CENTER)
+  }
+
   fun close() {
     handler.removeCallbacksAndMessages(null)
     player?.release()
@@ -140,6 +166,8 @@ class NativeVideo(private val activity: Activity, private val webView: WebView) 
     val root = webView.parent as? ViewGroup
     surface?.let { root?.removeView(it) }
     subtitles?.let { root?.removeView(it) }
+    black?.let { root?.removeView(it) }
+    black = null
     surface = null
     subtitles = null
     activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)

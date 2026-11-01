@@ -7,6 +7,18 @@ export const device = { os: "", mobile: false, tv: false, touch: false, phone: f
 
 type AndroidBridge = { isTv(): boolean; insets?(): string };
 
+/**
+ * Largeur de page fixe sur téléviseur. `force` : après une vidéo, le WebView garde une échelle de 1
+ * malgré la balise ; la faire passer par la largeur de l'écran puis revenir à 1280 px la recalcule.
+ */
+function setTvViewport(force = false) {
+  const meta = document.querySelector('meta[name="viewport"]');
+  if (!meta) return;
+  if (!force) return meta.setAttribute("content", `width=${TV_WIDTH}`);
+  meta.setAttribute("content", "width=device-width");
+  setTimeout(() => meta.setAttribute("content", `width=${TV_WIDTH}`), 120);
+}
+
 /** Classes posées sur <html> : `mobile`, `tv`, `touch`, `phone`. */
 export async function detectDevice() {
   device.os = (await invoke<string | null>("platform").catch(() => null)) ?? "";
@@ -19,7 +31,22 @@ export async function detectDevice() {
   device.tv = device.os === "android" && (androidTv ?? !device.touch);
   // Un téléviseur Full HD n'offre que 960 × 540 px à la page (densité ×2) : on l'affiche
   // comme un écran de 1280 px de large, que le WebView réduit pour tenir dans l'image.
-  if (device.tv) document.querySelector('meta[name="viewport"]')?.setAttribute("content", `width=${TV_WIDTH}`);
+  if (device.tv) {
+    setTvViewport();
+    // À la fin d'une vidéo (4K HDR notamment), le WebView remet l'échelle à 1 et la page apparaît
+    // agrandie : dès que la zone visible ne couvre plus les 1280 px de la page, on rétablit l'échelle.
+    let pending: ReturnType<typeof setTimeout> | undefined;
+    const check = () => {
+      clearTimeout(pending);
+      // Laisse le WebView finir son propre changement avant de corriger.
+      pending = setTimeout(() => {
+        if (Math.abs((window.visualViewport?.width ?? window.innerWidth) - TV_WIDTH) > 1) setTvViewport(true);
+      }, 400);
+    };
+    window.visualViewport?.addEventListener("resize", check);
+    window.addEventListener("resize", check);
+    document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && check());
+  }
   // Téléphone : petit écran tactile (le plus petit côté sous 600 px), avec une interface à part
   // (onglets en bas, rangées d'affiches). `?device=phone` l'impose (essais dans un navigateur).
   const forced = new URLSearchParams(location.search).get("device") === "phone";
