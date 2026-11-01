@@ -7,7 +7,7 @@
   import { onBack } from "../lib/nav.svelte";
   import Icon from "./Icon.svelte";
   import { locale, t } from "../lib/i18n";
-  import { checkForUpdate, update as pending } from "../lib/update.svelte";
+  import { checkForUpdate, releaseHighlights, update as pending } from "../lib/update.svelte";
 
   /**
    * Au lancement, si une nouvelle version est publiée, une fenêtre la présente par-dessus Plexr
@@ -21,6 +21,8 @@
   let primary = $state<HTMLButtonElement>();
 
   const RELEASES = "https://github.com/yanutros/plexr/releases";
+
+  const notes = $derived(info ? releaseHighlights(info.notes, locale) : "");
 
   const date = $derived(
     info?.date ? new Date(info.date).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" }) : null,
@@ -86,9 +88,9 @@
       </header>
 
       <div class="notes">
-        {#if info.notes.trim()}
+        {#if notes}
           <!-- Texte échappé par markdown() avant mise en forme. -->
-          {@html markdown(info.notes)}
+          {@html markdown(notes)}
         {:else}
           <p>{t("update.defaultNotes")}</p>
         {/if}

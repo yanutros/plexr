@@ -14,3 +14,19 @@ export async function checkForUpdate(): Promise<boolean> {
     update.checking = false;
   }
 }
+
+/**
+ * Notes de version telles qu'affichées dans Plexr : les nouveautés et les corrections seulement, sans
+ * la liste des paquets à télécharger (Plexr installe lui-même le bon). La release les donne en
+ * français puis en anglais (« ## 🌍 What's new (English) ») : on garde la langue de l'interface.
+ */
+export function releaseHighlights(notes: string, locale: string): string {
+  const sections = notes.split(/^(?=## )/m).filter((s) => s.trim());
+  const install = (s: string) => /^## .*(paquets|packages|downloads?|installation)/i.test(s);
+  const english = (s: string) => /^## .*english/i.test(s);
+  const kept = sections.filter((s) => !install(s));
+  const en = kept.filter(english).map((s) => s.replace(/^## [^\n]*\n/, ""));
+  const fr = kept.filter((s) => !english(s));
+  const chosen = locale.startsWith("fr") || !en.length ? fr : en;
+  return chosen.join("\n").trim();
+}

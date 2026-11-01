@@ -127,7 +127,8 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
   <tr>
     <td valign="top">
       <h4>🔄 Il se met à jour tout seul</h4>
-      Au lancement, une fenêtre présente la nouvelle version et ses nouveautés ; un clic télécharge et installe
+      Au lancement, une fenêtre présente la nouvelle version, ses nouveautés et ses corrections (dans la langue
+      de l'interface) ; un clic télécharge et installe
       le bon paquet, y compris sur Android TV, où installer à la main est fastidieux.
     </td>
     <td valign="top">
@@ -494,7 +495,7 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | `src/components/TitleLogo.svelte`, `src/lib/logos.ts` | logos des titres : serveur, service en ligne de Plex, sinon titre stylisé selon le genre |
 | `src/lib/i18n.ts`, `src/locales/`, `src-tauri/src/i18n.rs`, `src-tauri/locales/` | traductions (voir ci-dessus) |
 | `src/lib/theme.ts`, `src-tauri/icons/themes/` | couleurs de l'interface et icônes assorties ; `docs/logo.html?theme=…` et `docs/tv-banner.html?theme=…` les produisent |
-| `src/components/UpdateDialog.svelte`, `src/lib/markdown.ts` | fenêtre « Nouvelle version disponible » et mise en forme des nouveautés |
+| `src/components/UpdateDialog.svelte`, `src/lib/markdown.ts` | fenêtre « Nouvelle version disponible » et mise en forme des nouveautés ; `src/lib/update.svelte.ts` n'en garde que les sections Nouveautés / Corrections (ou What's new en anglais), sans les paquets |
 | `src/lib/invite.ts`, `src/components/QrCode.svelte` | codes d'invitation, QR codes (qrcode-generator) et lecture d'images (jsQR) |
 | `src/lib/device.ts` | type d'appareil (ordinateur, tablette tactile, téléviseur) et échelle de l'interface sur TV |
 | `src/lib/spatial.ts`, `src/lib/nav.svelte.ts` | navigation à la télécommande (flèches) et bouton Retour d'Android |
