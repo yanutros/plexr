@@ -6,7 +6,7 @@
     <string name="auto_artists">"Artiesten"</string>
     <string name="auto_albums">"Albums"</string>
     <string name="auto_playlists">"Playlists"</string>
-    <string name="auto_sign_in">"Meld je aan bij Plex in Plexr op je telefoon."</string>
+    <string name="auto_sign_in">"Meld je aan bij Plex in Maku op je telefoon."</string>
     <string name="auto_unreachable">"Plex-server onbereikbaar."</string>
     <string name="auto_nothing">"Niets om hier af te spelen."</string>
 </resources>

@@ -43,7 +43,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin + Send> IpcStream for T {}
 pub struct PlayerControl {
     commands: mpsc::UnboundedSender<Value>,
     _stop: oneshot::Sender<()>,
-    /// Processus mpv, pour l'arrêter tout de suite à la fermeture de Plexr (voir `kill_now`).
+    /// Processus mpv, pour l'arrêter tout de suite à la fermeture de Maku (voir `kill_now`).
     pid: Option<u32>,
 }
 
@@ -56,7 +56,7 @@ impl PlayerControl {
             .with_context(|| crate::i18n::tr("player.noPlayback"))
     }
 
-    /// Fermeture de Plexr : arrête mpv sur-le-champ (le suivi asynchrone n'en aurait plus le temps).
+    /// Fermeture de Maku : arrête mpv sur-le-champ (le suivi asynchrone n'en aurait plus le temps).
     pub fn kill_now(&self) {
         let Some(pid) = self.pid else { return };
         #[cfg(windows)]
@@ -78,9 +78,9 @@ impl PlayerControl {
     }
 }
 
-/// Windows : mpv est rattaché à un « objet tâche » de Plexr, fermé par Windows quand Plexr s'arrête
+/// Windows : mpv est rattaché à un « objet tâche » de Maku, fermé par Windows quand Maku s'arrête
 /// pour quelque raison que ce soit (fermeture, plantage, arrêt forcé) — et mpv avec lui. Sans cela,
-/// la musique continuait après la fermeture de Plexr, sans plus rien pour l'arrêter.
+/// la musique continuait après la fermeture de Maku, sans plus rien pour l'arrêter.
 #[cfg(windows)]
 fn tie_to_plexr(child: &Child) {
     use std::sync::OnceLock;
@@ -88,7 +88,7 @@ fn tie_to_plexr(child: &Child) {
         AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation, SetInformationJobObject,
         JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
     };
-    // L'objet tâche n'est jamais fermé explicitement : il l'est à la fin du processus de Plexr.
+    // L'objet tâche n'est jamais fermé explicitement : il l'est à la fin du processus de Maku.
     static JOB: OnceLock<isize> = OnceLock::new();
     let job = *JOB.get_or_init(|| unsafe {
         let job = CreateJobObjectW(std::ptr::null(), std::ptr::null());
@@ -270,7 +270,7 @@ pub fn launch(
                 .arg("--hwdec=auto-safe")
                 .arg(format!("--sid={}", info.sid));
             match wid {
-                // Vidéo incrustée : l'interface de Plexr fournit ses propres contrôles et raccourcis.
+                // Vidéo incrustée : l'interface de Maku fournit ses propres contrôles et raccourcis.
                 Some(hwnd) => {
                     cmd.arg(format!("--wid={hwnd}"))
                         .arg("--osc=no")
@@ -279,7 +279,7 @@ pub fn launch(
                         .arg("--input-vo-keyboard=no")
                         .arg("--input-cursor=no");
                 }
-                // Fenêtre mpv séparée (Linux, macOS) : on garde ses contrôles, Plexr la pilote aussi.
+                // Fenêtre mpv séparée (Linux, macOS) : on garde ses contrôles, Maku la pilote aussi.
                 None => {
                     cmd.arg("--fullscreen");
                 }

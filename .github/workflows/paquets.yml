@@ -1,4 +1,4 @@
-# Construit les paquets de Plexr pour Windows, Linux et macOS, puis les joint à une version
+# Construit les paquets de Maku pour Windows, Linux et macOS, puis les joint à une version
 # GitHub en brouillon. Se lance en poussant une étiquette « vX.Y.Z » ou à la main (onglet Actions).
 name: Paquets
 
@@ -56,16 +56,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v__VERSION__
-          releaseName: Plexr v__VERSION__
+          releaseName: Maku v__VERSION__
           releaseBody: |
-            Paquets de Plexr v__VERSION__.
+            Paquets de Maku v__VERSION__.
 
-            - **Windows** : `Plexr_…_x64-setup.exe` (ou le `.msi`).
-            - **Fedora / RHEL** : `Plexr-….x86_64.rpm` — `sudo dnf install ./Plexr-*.rpm` (installe aussi mpv).
-            - **Debian / Ubuntu** : `Plexr_…_amd64.deb` — `sudo apt install ./Plexr_*.deb`.
-            - **Autres Linux** : `Plexr_…_amd64.AppImage` (mpv à installer avec le gestionnaire de paquets).
-            - **macOS** : `Plexr_…_universal.dmg` (mpv : `brew install mpv`). L'application n'est pas signée :
-              au premier lancement, clic droit sur Plexr → Ouvrir.
+            - **Windows** : `Maku_…_x64-setup.exe` (ou le `.msi`).
+            - **Fedora / RHEL** : `Maku-….x86_64.rpm` — `sudo dnf install ./Maku-*.rpm` (installe aussi mpv).
+            - **Debian / Ubuntu** : `Maku_…_amd64.deb` — `sudo apt install ./Maku_*.deb`.
+            - **Autres Linux** : `Maku_…_amd64.AppImage` (mpv à installer avec le gestionnaire de paquets).
+            - **macOS** : `Maku_…_universal.dmg` (mpv : `brew install mpv`). L'application n'est pas signée :
+              au premier lancement, clic droit sur Maku → Ouvrir.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}

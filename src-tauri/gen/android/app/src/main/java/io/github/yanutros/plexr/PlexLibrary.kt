@@ -14,7 +14,7 @@ import java.net.URL
 import java.net.URLEncoder
 
 /**
- * Bibliothèque musicale vue depuis Android Auto, sans la page : Plexr peut être fermé quand la
+ * Bibliothèque musicale vue depuis Android Auto, sans la page : Maku peut être fermé quand la
  * voiture s'y connecte. Le compte et le serveur viennent du `config.json` écrit par la partie Rust
  * (même dossier que `app_config_dir`) ; le reste est lu directement auprès du serveur Plex.
  *
@@ -48,7 +48,7 @@ class PlexLibrary(private val context: Context) {
     return runCatching { JSONObject(file.readText()) }.getOrNull() ?: throw NotSignedIn()
   }
 
-  /** Adresse du serveur : celle enregistrée par Plexr, sinon une autre annoncée par plex.tv (en voiture, hors du Wi-Fi). */
+  /** Adresse du serveur : celle enregistrée par Maku, sinon une autre annoncée par plex.tv (en voiture, hors du Wi-Fi). */
   @Synchronized
   private fun server(): Server {
     server?.let { return it }
@@ -89,9 +89,9 @@ class PlexLibrary(private val context: Context) {
     conn.setRequestProperty("Accept", "application/json")
     conn.setRequestProperty("X-Plex-Token", token)
     conn.setRequestProperty("X-Plex-Client-Identifier", clientId)
-    conn.setRequestProperty("X-Plex-Product", "Plexr")
+    conn.setRequestProperty("X-Plex-Product", "Maku")
     conn.setRequestProperty("X-Plex-Platform", "Android")
-    conn.setRequestProperty("X-Plex-Device-Name", "Plexr (Android Auto)")
+    conn.setRequestProperty("X-Plex-Device-Name", "Maku (Android Auto)")
     try {
       if (conn.responseCode !in 200..299) throw java.io.IOException("HTTP ${conn.responseCode}")
       return conn.inputStream.bufferedReader().use { it.readText() }
@@ -237,7 +237,7 @@ class PlexLibrary(private val context: Context) {
     return metadata(path).mapNotNull(::track)
   }
 
-  /** Recherche vocale (« Joue … sur Plexr ») : le premier artiste, album ou morceau trouvé. */
+  /** Recherche vocale (« Joue … sur Maku ») : le premier artiste, album ou morceau trouvé. */
   fun search(query: String): Pair<List<Track>, Int> {
     if (query.isBlank()) return musicSections().firstOrNull()?.let { queue("shuffle:${it.first}") } ?: (emptyList<Track>() to 0)
     val hubs = container("/hubs/search?query=${enc(query)}&limit=5").optJSONArray("Hub") ?: JSONArray()

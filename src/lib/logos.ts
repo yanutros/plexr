@@ -17,7 +17,7 @@ export function remoteLogo(guid: string, fallback = true): Promise<string | null
   if (!logo) {
     logo = api.remoteLogo(guid, fallback).catch(() => null);
     cache.set(key, logo);
-    // Sans réponse, on redemandera : Plexr ne garde (côté Rust) que les absences de logo certaines.
+    // Sans réponse, on redemandera : Maku ne garde (côté Rust) que les absences de logo certaines.
     logo.then((url) => url === null && cache.delete(key));
   }
   return logo;

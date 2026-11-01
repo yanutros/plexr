@@ -243,7 +243,7 @@ export function enableSpatialNavigation(skip: () => boolean) {
     true,
   );
   // Toujours un élément sélectionné et visible : au chargement des pages (les données arrivent
-  // après coup), à la fin d'une lecture, au retour dans Plexr.
+  // après coup), à la fin d'une lecture, au retour dans Maku.
   let pending = 0;
   const later = () => {
     cancelAnimationFrame(pending);

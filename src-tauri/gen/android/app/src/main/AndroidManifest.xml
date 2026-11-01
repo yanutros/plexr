@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Android 17 : accès aux serveurs du réseau local (Jellyfin, Plex en local). -->
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
-    <!-- Mises à jour : Plexr télécharge le nouvel APK et le confie à l'installateur d'Android. -->
+    <!-- Mises à jour : Maku télécharge le nouvel APK et le confie à l'installateur d'Android. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Musique en arrière-plan, avec ses commandes dans la notification (MediaService.kt). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -28,7 +28,7 @@
             android:exported="true" />
 
         <!-- Une entrée de lanceur par couleur de thème, une seule active à la fois : l'icône et la
-             bannière TV suivent la couleur choisie dans Plexr (voir MainActivity.setIconTheme). -->
+             bannière TV suivent la couleur choisie dans Maku (voir MainActivity.setIconTheme). -->
         <activity-alias
             android:name=".IconJaune"
             android:targetActivity=".MainActivity"

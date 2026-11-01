@@ -169,7 +169,7 @@ fn server_kinds(c: &Config) -> String {
     })
 }
 
-/// Première connexion : le type de serveur choisi devient celui de Plexr (modifiable dans les Réglages).
+/// Première connexion : le type de serveur choisi devient celui de Maku (modifiable dans les Réglages).
 fn remember_server_kinds(c: &mut Config) {
     if c.server_kinds.is_none() {
         c.server_kinds = Some(server_kinds(c));
@@ -253,7 +253,7 @@ async fn plex_poll_login(state: State<'_, AppState>, pin_id: u64) -> CmdResult<b
     Ok(true)
 }
 
-/// Enregistre le serveur Jellyfin auquel on vient de se connecter : il devient le serveur de Plexr.
+/// Enregistre le serveur Jellyfin auquel on vient de se connecter : il devient le serveur de Maku.
 fn save_jellyfin(state: &AppState, base: String, login: jellyfin::Login) -> anyhow::Result<String> {
     let name = login.server_name.clone();
     let saved = SavedServer {
@@ -338,7 +338,7 @@ async fn jellyfin_quick_start(state: State<'_, AppState>, url: String) -> CmdRes
     Ok(QuickCode { code: qc.code, secret: qc.secret })
 }
 
-/// Le code Quick Connect est-il validé ? Si oui, Plexr se connecte (renvoie `true`).
+/// Le code Quick Connect est-il validé ? Si oui, Maku se connecte (renvoie `true`).
 #[tauri::command]
 async fn jellyfin_quick_poll(state: State<'_, AppState>, url: String, secret: String) -> CmdResult<bool> {
     let base = jellyfin::normalize_url(&url);
@@ -709,7 +709,7 @@ struct NowPlaying {
     session: String,
     title: String,
     subtitle: Option<String>,
-    /// Vidéo incrustée dans la fenêtre de Plexr (Windows) ; sinon, fenêtre mpv séparée.
+    /// Vidéo incrustée dans la fenêtre de Maku (Windows) ; sinon, fenêtre mpv séparée.
     embedded: bool,
 }
 
@@ -1171,7 +1171,7 @@ async fn update_check(state: State<'_, AppState>) -> CmdResult<Option<update::Up
     Ok(update::check(&state.http).await?)
 }
 
-/// Télécharge la nouvelle version et lance son installation. Sur ordinateur, Plexr se ferme si
+/// Télécharge la nouvelle version et lance son installation. Sur ordinateur, Maku se ferme si
 /// l'installeur le remplace ; sur Android, renvoie le fichier, que l'interface confie à Android.
 #[tauri::command]
 async fn update_install(app: AppHandle, info: update::UpdateInfo) -> CmdResult<Option<String>> {
@@ -1325,9 +1325,9 @@ pub fn run() {
             set_language,
         ])
         .build(tauri::generate_context!())
-        .expect("erreur au lancement de Plexr")
+        .expect("erreur au lancement de Maku")
         .run(|app, event| {
-            // Fermeture de Plexr : mpv (vidéo ou musique) s'arrête avec lui.
+            // Fermeture de Maku : mpv (vidéo ou musique) s'arrête avec lui.
             if let tauri::RunEvent::Exit = event {
                 if let Some(player) = app.state::<AppState>().player.lock().unwrap().take() {
                     player.kill_now();

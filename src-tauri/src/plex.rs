@@ -4,7 +4,7 @@ use reqwest::{Client, RequestBuilder};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-pub const PRODUCT: &str = "Plexr";
+pub const PRODUCT: &str = "Maku";
 const PLEX_TV: &str = "https://plex.tv/api/v2";
 
 /// En-têtes attendus par plex.tv et par les serveurs Plex.
@@ -15,7 +15,7 @@ pub fn with_plex_headers(rb: RequestBuilder, client_id: &str, token: Option<&str
         .header("X-Plex-Version", env!("CARGO_PKG_VERSION"))
         .header("X-Plex-Client-Identifier", client_id)
         .header("X-Plex-Platform", std::env::consts::OS)
-        .header("X-Plex-Device-Name", "Plexr (PC)")
+        .header("X-Plex-Device-Name", "Maku (PC)")
         // Titres des rangées (« Musique lue récemment »…) en français.
         // Titres des rangées, genres… dans la langue de l'interface.
         .header("X-Plex-Language", crate::i18n::language());
@@ -1196,7 +1196,7 @@ impl PlexServer {
              &fastSeek=1&directPlay=0&directStream=1&directStreamAudio=1&videoQuality=100&maxVideoBitrate=12000\
              &videoResolution=1920x1080&subtitles=burn&subtitleSize=100&audioBoost=100&location=lan\
              &session={session}&X-Plex-Session-Identifier={session}&X-Plex-Client-Identifier={cid}\
-             &X-Plex-Product=Plexr&X-Plex-Platform=Chrome&X-Plex-Device=Plexr&X-Plex-Token={token}",
+             &X-Plex-Product=Maku&X-Plex-Platform=Chrome&X-Plex-Device=Maku&X-Plex-Token={token}",
             base = self.base,
             cid = urlencoding::encode(&self.client_id),
             token = self.token,

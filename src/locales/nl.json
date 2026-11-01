@@ -25,14 +25,14 @@
       "server": "Server:",
       "changeServer": "Andere server",
       "logout": "Uitloggen",
-      "version": "Plexr {{version}}",
+      "version": "Maku {{version}}",
       "checkUpdates": "Zoeken naar updates",
       "checking": "Zoeken…",
-      "upToDate": "Plexr is up-to-date ({{version}})",
+      "upToDate": "Maku is up-to-date ({{version}})",
       "releaseNotes": "Release-opmerkingen",
       "serverKinds": "Mediaservers",
       "bothKinds": "Beide",
-      "serverKindsHint": "Met één vraagt Plexr niet meer om te kiezen tussen Plex en Jellyfin. Met beide biedt „Andere server” de keuze, zonder de aanmeldingen kwijt te raken."
+      "serverKindsHint": "Met één vraagt Maku niet meer om te kiezen tussen Plex en Jellyfin. Met beide biedt „Andere server” de keuze, zonder de aanmeldingen kwijt te raken."
     },
     "services": {
       "seerrConnected": "Verbonden met Seerr via je Plex-account",
@@ -72,7 +72,7 @@
       "stepTracearr": "Statistieken (Tracearr): {{status}}",
       "authorizeOnPhone": "autoriseren op de telefoon",
       "title": "Gebruikers uitnodigen",
-      "intro": "Deel deze QR-code of deze code: Plexr haalt de adressen eruit en maakt verbinding met het Plex-account van ieder persoon.",
+      "intro": "Deel deze QR-code of deze code: Maku haalt de adressen eruit en maakt verbinding met het Plex-account van ieder persoon.",
       "copyCode": "Code kopiëren",
       "copyImage": "Afbeelding kopiëren",
       "photoHint": "Kies in je foto's de schermafbeelding van de QR-code van de serverbeheerder, of plak de uitnodigingscode.",
@@ -107,7 +107,7 @@
     },
     "tmdb": {
       "title": "Titellogo's (TMDB)",
-      "intro": "Voor films en series waarvan Plex geen logo heeft, kan Plexr het op TMDB zoeken met je eigen gratis API-sleutel: maak een account en vraag een sleutel aan in de API-instellingen van",
+      "intro": "Voor films en series waarvan Plex geen logo heeft, kan Maku het op TMDB zoeken met je eigen gratis API-sleutel: maak een account en vraag een sleutel aan in de API-instellingen van",
       "key": "TMDB-API-sleutel",
       "save": "Opslaan",
       "remove": "Verwijderen",
@@ -193,7 +193,7 @@
       "runtime": "{{minutes}} minuten",
       "seasons_one": "{{count}} seizoen",
       "seasons_other": "{{count}} seizoenen",
-      "watchInPlexr": "Bekijken in Plexr",
+      "watchInPlexr": "Bekijken in Maku",
       "requestMoreSeasons": "Meer seizoenen aanvragen",
       "request": "Aanvragen",
       "trailer": "Trailer",
@@ -606,8 +606,8 @@
     "openAlbum": "Album openen"
   },
   "update": {
-    "allowInstall": "Sta Plexr toe apps te installeren en start de update opnieuw.",
-    "confirmInstall": "Bevestig de installatie: Plexr start opnieuw in de nieuwe versie.",
+    "allowInstall": "Sta Maku toe apps te installeren en start de update opnieuw.",
+    "confirmInstall": "Bevestig de installatie: Maku start opnieuw in de nieuwe versie.",
     "installStarted": "Installatie gestart.",
     "title": "Nieuwe versie beschikbaar",
     "current": "je hebt {{version}}",

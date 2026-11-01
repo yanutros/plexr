@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Plexr, le client Plex de bureau" width="100%" />
+  <img src="docs/banner.png" alt="Maku, le client Plex et Jellyfin" width="100%" />
 </p>
 
-<h3 align="center">Vos films, vos séries et votre musique Plex, dans une application de bureau rapide et soignée.</h3>
+<h3 align="center">Vos films, vos séries et votre musique Plex ou Jellyfin, dans une application rapide et soignée.</h3>
 
 <p align="center">
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white" />
@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <a href="#-ce-que-fait-plexr">Fonctionnalités</a> ·
+  <a href="#-ce-que-fait-maku">Fonctionnalités</a> ·
   <a href="#-aperçu">Aperçu</a> ·
   <a href="#-installer">Installer</a> ·
   <a href="#%EF%B8%8F-configurer">Configurer</a> ·
@@ -29,7 +29,9 @@
 
 ---
 
-Plexr est un client [Plex](https://www.plex.tv) pour PC, écrit en Rust avec [Tauri](https://tauri.app). La vidéo
+Maku (anciennement **Plexr**) est un client [Plex](https://www.plex.tv) et [Jellyfin](https://jellyfin.org) pour PC,
+écrit en Rust avec [Tauri](https://tauri.app). Son nom vient de 幕, « rideau » en japonais : celui qui s'ouvre sur la
+séance ; son logo, un soleil couchant rayé, prend la couleur choisie dans l'interface. La vidéo
 et la musique sont lues par [mpv](https://mpv.io), directement dans la fenêtre de l'application, et l'interface est
 pensée comme celle d'une box TV : grands visuels, bandeaux qui défilent, rien de superflu.
 
@@ -39,9 +41,9 @@ légère, pour rester fluide sur le matériel limité des téléviseurs.
 
 Il réunit aussi deux outils que l'on utilise souvent à côté de Plex : **Seerr** (Jellyseerr / Overseerr), pour
 demander un film ou une série absent de la bibliothèque, et **Tracearr**, pour suivre ses statistiques de
-visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe supplémentaire.
+visionnage. Tout se fait avec son compte Plex (ou Jellyfin) : aucune clé d'API à saisir.
 
-## ✨ Ce que fait Plexr
+## ✨ Ce que fait Maku
 
 <table>
   <tr>
@@ -123,7 +125,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
     </td>
     <td valign="top">
       <h4>🌍 Il parle votre langue</h4>
-      Français, anglais, espagnol, allemand et néerlandais : Plexr suit la langue du système, ou celle choisie dans
+      Français, anglais, espagnol, allemand et néerlandais : Maku suit la langue du système, ou celle choisie dans
       Réglages → Interface. Les fiches Seerr et les rangées de Plex arrivent dans la même langue.
     </td>
   </tr>
@@ -150,7 +152,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
     <td valign="top">
       <h4>📱 Il tient dans la main</h4>
       Sur téléphone, une interface mobile : onglets en bas, bandeau et « Continuer à regarder » à la taille de
-      l'écran, mini-lecteur façon Spotify et musique pilotable depuis la notification, même Plexr fermé.
+      l'écran, mini-lecteur façon Spotify et musique pilotable depuis la notification, même Maku fermé.
       En voiture, la bibliothèque musicale se parcourt et se lit depuis l'écran d'Android Auto.
       Sur tablette, l'interface de l'ordinateur adaptée au toucher.
     </td>
@@ -160,11 +162,11 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
 ## 📸 Aperçu
 
 > [!NOTE]
-> Ces captures viennent du **mode démo** de Plexr : la bibliothèque est fictive et toutes les affiches sont
+> Ces captures viennent du **mode démo** de Maku : la bibliothèque est fictive et toutes les affiches sont
 > générées par le programme. Aucun film, aucune série ni aucune œuvre réelle n'y figure.
 
 <p align="center">
-  <img src="docs/screenshots/accueil.png" alt="Accueil de Plexr" width="100%" />
+  <img src="docs/screenshots/accueil.png" alt="Accueil de Maku" width="100%" />
   <br /><em>L'accueil : bandeau « À suivre », rangées et barre de musique.</em>
 </p>
 
@@ -206,38 +208,38 @@ Les paquets de chaque version sont publiés dans les [Releases](../../releases) 
 
 | Système | Fichier | Installation |
 | --- | --- | --- |
-| 🪟 **Windows** | `Plexr_<version>_x64-setup.exe` (ou `.msi`) | lancez l'installeur : mpv est inclus, rien d'autre à installer |
-| 🎩 **Fedora / RHEL** | `Plexr-<version>-1.x86_64.rpm` | `sudo dnf install ./Plexr-*.rpm` (installe aussi mpv) |
-| 🐧 **Debian / Ubuntu** | `Plexr_<version>_amd64.deb` | `sudo apt install ./Plexr_*.deb` (installe aussi mpv) |
-| 📦 **Autres Linux** | `Plexr_<version>_amd64.AppImage` | rendez-le exécutable (`chmod +x`), installez mpv avec votre gestionnaire de paquets |
-| 🍎 **macOS** | `Plexr_<version>_universal.dmg` | glissez Plexr dans Applications, puis `brew install mpv` |
-| 🤖 **Android (téléphone, tablette, TV)** | `Plexr_<version>_android.apk` | voir ci-dessous |
+| 🪟 **Windows** | `Maku_<version>_x64-setup.exe` (ou `.msi`) | lancez l'installeur : mpv est inclus, rien d'autre à installer |
+| 🎩 **Fedora / RHEL** | `Maku-<version>-1.x86_64.rpm` | `sudo dnf install ./Maku-*.rpm` (installe aussi mpv) |
+| 🐧 **Debian / Ubuntu** | `Maku_<version>_amd64.deb` | `sudo apt install ./Maku_*.deb` (installe aussi mpv) |
+| 📦 **Autres Linux** | `Maku_<version>_amd64.AppImage` | rendez-le exécutable (`chmod +x`), installez mpv avec votre gestionnaire de paquets |
+| 🍎 **macOS** | `Maku_<version>_universal.dmg` | glissez Maku dans Applications, puis `brew install mpv` |
+| 🤖 **Android (téléphone, tablette, TV)** | `Maku_<version>_android.apk` | voir ci-dessous |
 
-Plexr s'ouvre ensuite comme n'importe quel logiciel (menu Démarrer, lanceur d'applications ou Launchpad).
+Maku s'ouvre ensuite comme n'importe quel logiciel (menu Démarrer, lanceur d'applications ou Launchpad).
 
 > [!NOTE]
-> **Sous Linux et macOS**, la vidéo s'ouvre dans une fenêtre mpv séparée, en plein écran : Plexr la pilote à
+> **Sous Linux et macOS**, la vidéo s'ouvre dans une fenêtre mpv séparée, en plein écran : Maku la pilote à
 > distance (pause, avance, pistes…) et suit la progression comme sous Windows. L'incrustation de la vidéo dans la
-> fenêtre de Plexr n'existe pour l'instant que sous Windows. La musique fonctionne partout de la même façon.
+> fenêtre de Maku n'existe pour l'instant que sous Windows. La musique fonctionne partout de la même façon.
 
 > [!IMPORTANT]
-> **macOS** : l'application n'est pas signée par Apple. Au premier lancement, faites un clic droit sur Plexr →
+> **macOS** : l'application n'est pas signée par Apple. Au premier lancement, faites un clic droit sur Maku →
 > **Ouvrir**, puis confirmez.
 
 ### 📱 Android : téléphones, tablettes et TV
 
 L'APK n'est pas sur le Play Store : il s'installe à la main (« sideload »), une seule fois — les versions
-suivantes s'installent depuis Plexr (voir *Mises à jour*).
+suivantes s'installent depuis Maku (voir *Mises à jour*).
 
 - **Téléphone et tablette** : copiez l'APK sur l'appareil et ouvrez-le ; Android demande d'autoriser
   l'installation depuis le gestionnaire de fichiers ou le navigateur.
 - **Téléviseur** : le plus simple est l'application *Downloader* (ou un gestionnaire de fichiers avec une clé
   USB). Depuis un ordinateur, avec le débogage activé dans les options pour les développeurs de la TV :
-  `adb connect <ip-de-la-tv>:5555` puis `adb install Plexr_<version>_android.apk`.
+  `adb connect <ip-de-la-tv>:5555` puis `adb install Maku_<version>_android.apk`.
 
-Plexr apparaît ensuite parmi les applications, avec sa bannière sur l'écran d'accueil de la TV.
+Maku apparaît ensuite parmi les applications, avec sa bannière sur l'écran d'accueil de la TV.
 
-Sous **Android 17**, Plexr demande au premier lancement l'autorisation d'accéder aux appareils du réseau local :
+Sous **Android 17**, Maku demande au premier lancement l'autorisation d'accéder aux appareils du réseau local :
 sans elle, un serveur sur le réseau de la maison (Jellyfin, ou Plex par son adresse locale) reste injoignable.
 
 **Sur téléphone**, l'interface prend la forme d'une application mobile : un en-tête compact sous la barre
@@ -245,24 +247,24 @@ d'état, des onglets en bas (Accueil, Bibliothèques, Découvrir, Stats, Réglag
 regarder » à la taille de l'écran, des fiches qui s'empilent. Un appui long sur une affiche ouvre son menu ; dans
 les bandes d'onglets, l'onglet touché se centre. Les vidéos passent en paysage et en plein écran.
 
-**Musique en arrière-plan** : sur téléphone comme sur tablette, la musique continue quand Plexr est quitté, avec
+**Musique en arrière-plan** : sur téléphone comme sur tablette, la musique continue quand Maku est quitté, avec
 une notification (pochette, titre, précédent / lecture / suivant, progression) qui la pilote aussi depuis l'écran
-de verrouillage et les boutons d'un casque Bluetooth. Fermer Plexr depuis les applications récentes l'arrête.
+de verrouillage et les boutons d'un casque Bluetooth. Fermer Maku depuis les applications récentes l'arrête.
 Le mini-lecteur, façon Spotify, ouvre en plein écran la pochette, la progression et toutes les commandes.
 
-**Android Auto** : Plexr apparaît parmi les applications de musique de la voiture, avec quatre onglets —
+**Android Auto** : Maku apparaît parmi les applications de musique de la voiture, avec quatre onglets —
 **Accueil** (ajouts récents), **Artistes** (avec une lecture aléatoire de toute la bibliothèque), **Albums** et
 **Playlists** — illustrés de leurs pochettes. Un album ou une playlist se lit d'un coup ou à partir d'un morceau,
-avec la file d'attente à l'écran ; « Joue … sur Plexr » lance un artiste, un album ou un morceau à la voix. La
-voiture lit elle-même la musique (ExoPlayer), même si Plexr n'est pas ouvert sur le téléphone : le compte et le
-serveur viennent de la configuration de Plexr, et hors du Wi-Fi l'adresse distante du serveur (ou le relais Plex)
+avec la file d'attente à l'écran ; « Joue … sur Maku » lance un artiste, un album ou un morceau à la voix. La
+voiture lit elle-même la musique (ExoPlayer), même si Maku n'est pas ouvert sur le téléphone : le compte et le
+serveur viennent de la configuration de Maku, et hors du Wi-Fi l'adresse distante du serveur (ou le relais Plex)
 prend le relais. Les écoutes remontent dans l'historique de Plex. Une musique lancée sur le téléphone remplace
 celle de la voiture, et inversement.
 
 > [!NOTE]
 > **Lecture sur Android** : il n'y a pas de mpv. La vidéo est lue par ExoPlayer, le lecteur natif qu'utilisent
 > aussi Plex et Wholphin : le fichier d'origine (4K, HEVC, HDR compris) est décodé par l'appareil et affiché dans
-> sa propre couche, sous l'interface de lecture de Plexr — fluide même sur un téléviseur modeste, au bon format
+> sa propre couche, sous l'interface de lecture de Maku — fluide même sur un téléviseur modeste, au bon format
 > (bandes noires pour un film plus large que l'écran). Les pistes audio
 > et les sous-titres (intégrés ou externes) se choisissent pendant la lecture. Si l'appareil ne sait pas lire un
 > format, le serveur Plex le convertit à la volée (HLS, 1080p). La musique est lue directement. La reprise,
@@ -279,21 +281,25 @@ celle de la voiture, et inversement.
 
 ### 🔄 Mises à jour
 
-À chaque lancement, Plexr consulte la dernière version publiée dans les [Releases](../../releases). S'il y en a
+À chaque lancement, Maku consulte la dernière version publiée dans les [Releases](../../releases). S'il y en a
 une plus récente, une fenêtre en présente les nouveautés par-dessus l'application floutée ; **Mettre à jour**
 télécharge le paquet qui convient et l'installe :
 
 | Système | Ce qui se passe |
 | --- | --- |
-| 🪟 Windows | l'installeur tourne avec une simple barre de progression, puis Plexr redémarre |
-| 🤖 Android / TV | l'installateur d'Android s'ouvre ; la première fois, Android demande d'autoriser Plexr à installer des applications |
-| 📦 Linux (AppImage) | le fichier est remplacé et Plexr redémarre |
+| 🪟 Windows | l'installeur tourne avec une simple barre de progression, puis Maku redémarre |
+| 🤖 Android / TV | l'installateur d'Android s'ouvre ; la première fois, Android demande d'autoriser Maku à installer des applications |
+| 📦 Linux (AppImage) | le fichier est remplacé et Maku redémarre |
 | 🎩 Linux (RPM / DEB) | le paquet s'ouvre dans la logithèque du système |
-| 🍎 macOS | l'image disque s'ouvre ; glissez Plexr dans Applications |
+| 🍎 macOS | l'image disque s'ouvre ; glissez Maku dans Applications |
 
 **Plus tard** referme la fenêtre jusqu'au prochain lancement. **Réglages → Compte → Rechercher les mises à jour**
-lance la même vérification à la demande. Rien n'est envoyé : Plexr lit seulement la page publique des versions
+lance la même vérification à la demande. Rien n'est envoyé : Maku lit seulement la page publique des versions
 sur GitHub.
+
+**Depuis Plexr** : la mise à jour se fait comme d'habitude, les réglages et les connexions sont gardés (l'identifiant
+de l'application ne change pas). Sous Windows, l'installeur de Maku désinstalle l'ancien Plexr pour qu'il n'en
+reste pas deux ; sur Linux et macOS, l'ancien Plexr peut être supprimé à la main.
 
 ### Pourquoi pas encore de Flatpak ?
 
@@ -324,7 +330,7 @@ Les paquets sont créés dans `src-tauri/target/release/bundle/` (sous-dossiers 
 
 Sous Windows, `scripts/fetch-mpv.mjs` télécharge d'abord une version épinglée de mpv
 ([mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake)), vérifiée par son empreinte SHA-256,
-dans `src-tauri/mpv-win/` (ignoré par git) : l'installeur la dépose dans `Plexr\mpv\`, où Plexr la trouve. Un
+dans `src-tauri/mpv-win/` (ignoré par git) : l'installeur la dépose dans `Maku\mpv\`, où Maku la trouve. Un
 chemin de mpv indiqué dans **Réglages → Lecteur** reste prioritaire.
 
 **Android.** Il faut en plus le JDK 17, le SDK Android (plateforme 36, build-tools, platform-tools) et le NDK,
@@ -360,22 +366,22 @@ machine), puis ajouté à la version avec `gh release upload`.
    Continuer à regarder » et musique fonctionnent comme avec Plex ; la carte Compte des Réglages montre le nom,
    la photo de profil et le rôle du compte Jellyfin. Seerr se connecte avec le compte Jellyfin ;
    Tracearr garde sa connexion par compte plex.tv.
-   L'écran de choix montre les deux services avec leur icône. Plexr retient ensuite les serveurs utilisés
+   L'écran de choix montre les deux services avec leur icône. Maku retient ensuite les serveurs utilisés
    (**Réglages → Compte → Serveurs de médias** : Plex, Jellyfin ou les deux) : avec un seul, il ne repose plus la
    question. Avec les deux, **Changer de serveur** ramène au choix sans perdre les connexions : le compte Plex reste
    connecté, et la dernière connexion Jellyfin est gardée 30 jours sans utilisation (vérifiée auprès du serveur à
    chaque retour ; le mot de passe n'est jamais enregistré). **Se déconnecter** efface tout et ferme aussi les
    sessions Jellyfin sur le serveur.
-2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
+2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Maku
    teste ses adresses et garde la plus rapide (locale, distante, puis relais), et la revérifie à chaque lancement.
    Si le routeur ou le DNS bloque les adresses locales `*.plex.direct` (protection contre le « DNS rebinding »),
-   Plexr utilise directement l'adresse IP locale du serveur (`http://10.0.0.2:32400`), comme Plex Web, plutôt
+   Maku utilise directement l'adresse IP locale du serveur (`http://10.0.0.2:32400`), comme Plex Web, plutôt
    que de faire le tour par l'adresse publique.
 3. Parcourez vos bibliothèques et lancez une lecture.
 4. Dans **Réglages → Seerr et Tracearr**, ajoutez si vous le souhaitez Seerr et Tracearr, à la main ou avec
    l'invitation de l'administrateur (voir ci-dessous).
 
-**Sur téléviseur**, il n'y a pas de navigateur : Plexr affiche un code à quatre caractères. Allez sur
+**Sur téléviseur**, il n'y a pas de navigateur : Maku affiche un code à quatre caractères. Allez sur
 [plex.tv/link](https://plex.tv/link) depuis un téléphone ou un ordinateur et saisissez-le ; la connexion se fait
 toute seule. Ce mode est aussi proposé sur ordinateur et tablette (**Avec un code**).
 
@@ -438,7 +444,7 @@ la fiche et de marquer un titre comme vu ou non vu (« non vu » remet aussi à 
 
 ### 🖥️ Réglages du serveur Plex
 
-**Réglages** regroupe les options de Plexr (compte, Seerr et Tracearr, lecteur, interface) et, pour
+**Réglages** regroupe les options de Maku (compte, Seerr et Tracearr, lecteur, interface) et, pour
 l'administrateur du serveur, celles de Plex : **Tableau de bord** (lectures en cours de tous les utilisateurs,
 recherche de nouveaux fichiers et corbeille de chaque bibliothèque) puis **Général, Bibliothèque, Réseau,
 Transcodeur, DLNA, Bonus et Tâches planifiées**. Les réglages avancés s'affichent sur demande. Un utilisateur
@@ -451,14 +457,14 @@ indique les adresses de Seerr et de Tracearr à partager (pré-remplies avec les
 obtient un QR code, et le code équivalent, qui les contient **sans aucun identifiant**. Il le copie (texte ou
 image) pour l'envoyer par message.
 
-Chez l'utilisateur, la **Configuration rapide** de la même page l'applique : Plexr enregistre les adresses, se
+Chez l'utilisateur, la **Configuration rapide** de la même page l'applique : Maku enregistre les adresses, se
 connecte à Seerr avec le compte Plex et lance la connexion Tracearr.
 
 - **Sur ordinateur** : collez le code, ou importez l'image du QR code.
 - **Sur téléphone** : **Choisir le QR code dans mes photos** lit la capture reçue de l'administrateur (ou
   collez le code).
-- **Sur téléviseur et tablette** : Plexr affiche son propre QR code. Scanné par un téléphone connecté au **même
-  Wi-Fi**, il ouvre une page servie par Plexr lui-même, où l'on prend en photo le QR code de l'invitation (ou
+- **Sur téléviseur et tablette** : Maku affiche son propre QR code. Scanné par un téléphone connecté au **même
+  Wi-Fi**, il ouvre une page servie par Maku lui-même, où l'on prend en photo le QR code de l'invitation (ou
   choisit l'image reçue, ou colle le code). La télé se configure aussitôt ; pour Tracearr, la page propose
   ensuite d'autoriser la connexion avec Plex, sur le téléphone. Cette page n'existe que tant que l'écran est
   ouvert, à une adresse aléatoire.
@@ -468,19 +474,19 @@ scanner avec le téléphone.
 
 ### 📥 Seerr
 
-Plexr ouvre la session Seerr avec **le compte Plex de l'utilisateur** : les demandes sont faites à son nom, avec
+Maku ouvre la session Seerr avec **le compte Plex de l'utilisateur** : les demandes sont faites à son nom, avec
 ses quotas et ses droits. Il n'y a pas de clé API à saisir ; le compte doit simplement avoir été importé dans Seerr
 par l'administrateur. L'adresse de l'instance se règle dans **Réglages → Seerr**. La protection CSRF de Seerr est
 prise en charge.
 
-Avec un serveur **Jellyfin**, Plexr demande une fois l'identifiant et le mot de passe : ceux du compte Jellyfin si
+Avec un serveur **Jellyfin**, Maku demande une fois l'identifiant et le mot de passe : ceux du compte Jellyfin si
 Seerr est relié à Jellyfin ou Emby, sinon l'adresse e-mail et le mot de passe du compte local Seerr. Le mot de passe
-n'est jamais enregistré, seule la session Seerr l'est ; quand elle expire, Plexr invite à se reconnecter.
+n'est jamais enregistré, seule la session Seerr l'est ; quand elle expire, Maku invite à se reconnecter.
 
 ### 📊 Tracearr
 
 Dans **Réglages → Tracearr**, indiquez l'adresse de l'instance puis cliquez sur **Se connecter avec Plex**.
-Tracearr gère lui-même sa connexion Plex : le navigateur s'ouvre une fois pour l'autoriser, Plexr détecte la
+Tracearr gère lui-même sa connexion Plex : le navigateur s'ouvre une fois pour l'autoriser, Maku détecte la
 validation et garde la session 30 jours. Seules les données de l'utilisateur connecté sont affichées.
 
 ## 🛠️ Développer
@@ -544,18 +550,18 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | `.github/workflows/paquets.yml` | construction des paquets Windows, Linux et macOS (l'APK est construit à part) |
 
 Sous Windows, pendant une vidéo, la fenêtre Tauri devient transparente et mpv dessine l'image dessous : l'interface
-web n'affiche plus que la barre de contrôle par-dessus. Ailleurs, mpv ouvre sa propre fenêtre et Plexr devient une
+web n'affiche plus que la barre de contrôle par-dessus. Ailleurs, mpv ouvre sa propre fenêtre et Maku devient une
 télécommande, reliée à mpv par son IPC (socket Unix).
 
-mpv ne survit jamais à Plexr : il est arrêté quand l'application se ferme et, sous Windows, rattaché à
-Plexr par un « Job Object » qui le fait fermer par le système même si Plexr plante ou est tué.
+mpv ne survit jamais à Maku : il est arrêté quand l'application se ferme et, sous Windows, rattaché à
+Maku par un « Job Object » qui le fait fermer par le système même si Maku plante ou est tué.
 
 ## 🔒 Confidentialité
 
-- Plexr parle directement à votre serveur Plex, à plex.tv (connexion), à l'API publique de GitHub (pour savoir
+- Maku parle directement à votre serveur Plex, à plex.tv (connexion), à l'API publique de GitHub (pour savoir
   si une nouvelle version existe) et, si vous les configurez, à vos instances Seerr et Tracearr. Il n'envoie
   rien ailleurs et ne collecte aucune statistique d'usage.
-- Pendant la configuration par téléphone, et seulement tant que l'écran est ouvert, Plexr écoute sur le réseau
+- Pendant la configuration par téléphone, et seulement tant que l'écran est ouvert, Maku écoute sur le réseau
   local à une adresse aléatoire, qui n'accepte qu'un code d'invitation.
 - La configuration est stockée sur votre appareil : `%APPDATA%\io.github.yanutros.plexr\config.json` sous Windows,
   `~/.config/io.github.yanutros.plexr/config.json` sous Linux, `~/Library/Application Support/io.github.yanutros.plexr/config.json`
@@ -566,24 +572,24 @@ Plexr par un « Job Object » qui le fait fermer par le système même si Plexr 
 
 ## ⚖️ Mentions légales
 
-Plexr est un projet indépendant, **sans lien avec Plex, Inc.**, ni avec les projets Seerr, Overseerr, Jellyseerr,
+Maku est un projet indépendant, **sans lien avec Plex, Inc.**, ni avec les projets Seerr, Overseerr, Jellyseerr,
 Tracearr ou mpv. « Plex » est une marque de Plex, Inc. ; les autres noms appartiennent à leurs propriétaires
-respectifs. Plexr ne fournit aucun contenu : il se contente d'afficher et de lire la bibliothèque de votre propre
+respectifs. Maku ne fournit aucun contenu : il se contente d'afficher et de lire la bibliothèque de votre propre
 serveur. Les visuels du mode démo et des captures ci-dessus sont générés par le programme.
 
 ## 📜 Licence
 
-Plexr est un logiciel libre, distribué sous la licence **GNU GPL version 3 ou ultérieure** : voir le fichier
+Maku est un logiciel libre, distribué sous la licence **GNU GPL version 3 ou ultérieure** : voir le fichier
 [`LICENSE`](LICENSE).
 
-En résumé, chacun peut utiliser, étudier, modifier et redistribuer Plexr, y compris dans une version modifiée,
+En résumé, chacun peut utiliser, étudier, modifier et redistribuer Maku, y compris dans une version modifiée,
 à condition de la distribuer elle aussi sous GPL, avec son code source et en conservant les mentions de droits
-d'auteur. Plexr est fourni **sans aucune garantie**.
+d'auteur. Maku est fourni **sans aucune garantie**.
 
 Les bibliothèques utilisées gardent leur propre licence (Tauri, Svelte et qrcode-generator sous MIT, jsQR et
 hls.js sous Apache-2.0, les polices Bebas Neue, Cinzel, Orbitron, Fredoka, Playfair Display et Creepster sous
 SIL Open Font License via Fontsource, notamment ; le logo Jellyfin de l'écran de connexion sous CC BY-SA 4.0,
 projet Jellyfin) ; Plex est une marque de Plex, Inc., dont l'icône ne sert qu'à désigner le service ; mpv est un
-programme séparé, lancé par Plexr, et reste sous sa licence. L'installeur Windows en inclut une version
+programme séparé, lancé par Maku, et reste sous sa licence. L'installeur Windows en inclut une version
 compilée par [mpv-winbuild-cmake](https://github.com/shinchiro/mpv-winbuild-cmake), sous GPL, dont le code source
 est disponible sur [github.com/mpv-player/mpv](https://github.com/mpv-player/mpv).

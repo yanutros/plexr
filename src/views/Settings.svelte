@@ -19,7 +19,7 @@
 
   let { session, onChange }: { session: Session; onChange: () => void } = $props();
 
-  // Rubriques de Plexr, puis celles du serveur Plex (administrateur seulement), comme dans Plex Web.
+  // Rubriques de Maku, puis celles du serveur Plex (administrateur seulement), comme dans Plex Web.
   const GROUPS: Record<string, { label: string; icon: IconName }> = {
     general: { label: t("settings.groups.general"), icon: "sliders" },
     library: { label: t("settings.groups.library"), icon: "film" },
@@ -362,7 +362,7 @@
 
 <div class="page settings">
   <nav class="menu">
-    <div class="menu-group">Plexr</div>
+    <div class="menu-group">Maku</div>
     {@render link("account", t("settings.menu.account"), "user")}
     {@render link("services", t("settings.menu.services"), "compass")}
     {#if !device.tv}{@render link("player", t("settings.menu.player"), "play")}{/if}

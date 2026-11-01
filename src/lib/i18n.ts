@@ -1,6 +1,6 @@
 // Traductions de l'interface. Format i18next (comme Tracearr) : un fichier JSON par langue dans
 // src/locales, clés imbriquées, variables {{nom}}, pluriels en `_one` / `_other` (avec `count`).
-// L'anglais sert de langue de repli, puis le français (langue d'origine de Plexr).
+// L'anglais sert de langue de repli, puis le français (langue d'origine de Maku).
 import { invoke } from "@tauri-apps/api/core";
 import fr from "../locales/fr.json";
 import en from "../locales/en.json";
@@ -32,7 +32,7 @@ export function savedLanguage(): Language | "auto" {
   }
 }
 
-/** Langue du système si Plexr la connaît, sinon l'anglais. */
+/** Langue du système si Maku la connaît, sinon l'anglais. */
 function systemLanguage(): Language {
   for (const tag of navigator.languages ?? [navigator.language]) {
     const id = tag.slice(0, 2).toLowerCase();

@@ -22,6 +22,8 @@
   import MusicBar from "./components/MusicBar.svelte";
   import NowPlaying from "./components/NowPlaying.svelte";
   import Icon from "./components/Icon.svelte";
+  import Logo from "./components/Logo.svelte";
+  import Wordmark from "./components/Wordmark.svelte";
   import Sidebar from "./components/Sidebar.svelte";
   import CardMenu from "./components/CardMenu.svelte";
   import TvMenu from "./components/TvMenu.svelte";
@@ -123,7 +125,7 @@
               <input type="search" placeholder={t("app.searchPlaceholder")} bind:value={query} oninput={onSearchInput} use:tvAutofocus />
             </label>
           {:else}
-            <span class="brand"><span class="logo"><Icon name="play" size={14} filled /></span>Plexr</span>
+            <span class="brand"><Logo size={30} bare /><Wordmark size={30} /></span>
             <button class="icon-btn" onclick={() => go({ name: "search", query: "" })} aria-label={t("phone.search")}>
               <Icon name="search" />
             </button>
@@ -270,17 +272,6 @@
     font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.02em;
-  }
-
-  .brand .logo {
-    display: grid;
-    place-items: center;
-    width: 28px;
-    height: 28px;
-    padding-left: 2px;
-    border-radius: 8px;
-    background: linear-gradient(145deg, var(--accent-light), var(--accent) 55%, var(--accent-dark));
-    color: var(--accent-text);
   }
 
   .icon-btn {

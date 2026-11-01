@@ -24,7 +24,7 @@ export const player = $state({
   active: false,
   /** Vidéo plein cadre, sinon musique avec la barre du bas. */
   video: false,
-  /** Vidéo dessinée dans la fenêtre de Plexr (Windows) ; sinon dans une fenêtre mpv séparée. */
+  /** Vidéo dessinée dans la fenêtre de Maku (Windows) ; sinon dans une fenêtre mpv séparée. */
   embedded: true,
   /** Lecture par le lecteur intégré du système (Android, iOS) plutôt que par mpv. */
   web: false,

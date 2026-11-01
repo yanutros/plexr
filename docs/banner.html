@@ -4,7 +4,7 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>Plexr</title>
+    <title>Maku</title>
     <style>
       html,
       body {
@@ -38,6 +38,12 @@
         background: #fff;
       }
 
+      /* Logotype : Bebas Neue (SIL OFL), celle de l'application. */
+      @font-face {
+        font-family: "Bebas Neue";
+        src: url("../node_modules/@fontsource/bebas-neue/files/bebas-neue-latin-400-normal.woff2") format("woff2");
+      }
+
       .logo {
         position: absolute;
         left: 80px;
@@ -46,21 +52,16 @@
         height: 170px;
         margin-top: -85px;
         border-radius: 44px;
-        background: linear-gradient(145deg, #f7bd3a, #e5a00d 55%, #c98400);
+        background: #0c0c0c;
         box-shadow:
-          0 0 0 10px #e5a00d1f,
-          0 0 80px 10px #e5a00d55,
-          0 30px 60px #0009,
-          inset 0 2px 0 #ffffff66;
-        display: grid;
-        place-items: center;
+          0 0 0 1px #ffffff14,
+          0 0 80px 10px #f5b70040,
+          0 30px 60px #0009;
       }
 
       .logo svg {
-        width: 84px;
-        height: 84px;
-        margin-left: 12px;
-        filter: drop-shadow(0 4px 8px #0004);
+        width: 170px;
+        height: 170px;
       }
 
       .text {
@@ -71,11 +72,14 @@
       }
 
       h1 {
-        margin: 0;
-        font-size: 104px;
-        font-weight: 800;
-        letter-spacing: -0.04em;
-        line-height: 1;
+        margin: 0 0 -6px;
+        color: #f5b700;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 150px;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        line-height: 0.9;
+        text-shadow: 0 4px 40px #f5b70040;
       }
 
       .tagline {
@@ -86,7 +90,7 @@
 
       .kicker {
         margin-top: 14px;
-        color: #e5a00d;
+        color: #f5b700;
         font-size: 14px;
         font-weight: 700;
         letter-spacing: 0.22em;
@@ -155,12 +159,23 @@
       </div>
 
       <div class="logo">
-        <svg viewBox="0 0 24 24" fill="#1a1300"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z" /></svg>
+        <!-- Le soleil rayé (docs/logo.html). -->
+        <svg viewBox="0 0 512 512">
+          <defs>
+            <mask id="stripes">
+              <rect width="512" height="512" fill="#fff" />
+              <rect y="282" width="512" height="12" fill="#000" />
+              <rect y="318" width="512" height="18" fill="#000" />
+              <rect y="360" width="512" height="24" fill="#000" />
+            </mask>
+          </defs>
+          <circle cx="256" cy="256" r="164" fill="#f5b700" mask="url(#stripes)" />
+        </svg>
       </div>
 
       <div class="text">
-        <h1>Plexr</h1>
-        <div class="tagline">Le client Plex de bureau, rapide et élégant</div>
+        <h1>MAKU</h1>
+        <div class="tagline">Le client Plex et Jellyfin, rapide et élégant</div>
         <div class="kicker">RUST · TAURI · MPV · SVELTE</div>
         <div class="chips">
           <div class="chip">🎬 Lecteur intégré</div>

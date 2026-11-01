@@ -95,7 +95,7 @@
   "relay": {
     "noNetwork": "Cet appareil n'est relié à aucun réseau",
     "notFound": "Introuvable",
-    "title": "Configurer Plexr",
+    "title": "Configurer Maku",
     "intro": "Le QR code d'invitation t'a été envoyé par l'administrateur du serveur.",
     "scan": "Scanner le QR code",
     "gallery": "Choisir une image du QR code",
@@ -106,9 +106,9 @@
     "authorize": "Autoriser Tracearr avec Plex",
     "done": "C'est prêt ! Tu peux reposer ton téléphone.",
     "noQr": "Aucun QR code trouvé dans l'image : réessaie en le cadrant bien.",
-    "notInvite": "Ce n'est pas un code d'invitation Plexr.",
+    "notInvite": "Ce n'est pas un code d'invitation Maku.",
     "tvGone": "La télé ne répond plus : rouvre l'écran de configuration.",
-    "watchTv": "Regarde ta télé : Plexr se configure.",
+    "watchTv": "Regarde ta télé : Maku se configure.",
     "connected": "Connecté",
     "connecting": "Connexion…",
     "failed": "La configuration a échoué."

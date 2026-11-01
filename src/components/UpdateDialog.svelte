@@ -10,7 +10,7 @@
   import { checkForUpdate, releaseHighlights, update as pending } from "../lib/update.svelte";
 
   /**
-   * Au lancement, si une nouvelle version est publiée, une fenêtre la présente par-dessus Plexr
+   * Au lancement, si une nouvelle version est publiée, une fenêtre la présente par-dessus Maku
    * flouté : nouveautés, puis « Mettre à jour » télécharge et installe le bon paquet pour l'appareil.
    */
   // La version proposée vit dans lib/update.svelte.ts (la recherche peut venir des Réglages).
@@ -62,7 +62,7 @@
           message = t("update.confirmInstall");
         }
       } else {
-        // Ordinateur : soit Plexr s'est fermé pour laisser faire l'installeur, soit celui-ci s'est ouvert.
+        // Ordinateur : soit Maku s'est fermé pour laisser faire l'installeur, soit celui-ci s'est ouvert.
         message = t("update.installStarted");
       }
     } catch (e) {
@@ -80,7 +80,7 @@
         <span class="logo"><Icon name="play" size={18} filled /></span>
         <div class="titles">
           <h2 id="update-title">{pending.notesOnly ? t("update.notesTitle") : t("update.title")}</h2>
-          <p>Plexr {info.version}{#if date}{" · "}{date}{/if}{#if !pending.notesOnly} — {t("update.current", { version: info.current })}{/if}</p>
+          <p>Maku {info.version}{#if date}{" · "}{date}{/if}{#if !pending.notesOnly} — {t("update.current", { version: info.current })}{/if}</p>
         </div>
         <button class="close" onclick={() => (pending.info = null)} disabled={progress !== null} aria-label={t("update.close")}>
           <Icon name="x" size={18} />
@@ -121,7 +121,7 @@
 {/if}
 
 <style>
-  /* Le reste de Plexr, flouté derrière la fenêtre (y compris sur téléviseur : voir app.css). */
+  /* Le reste de Maku, flouté derrière la fenêtre (y compris sur téléviseur : voir app.css). */
   .update-backdrop {
     position: fixed;
     inset: 0;

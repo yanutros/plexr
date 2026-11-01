@@ -1,4 +1,4 @@
-// Windows : prépare le lecteur mpv embarqué dans l'installeur de Plexr (src-tauri/mpv-win), pour
+// Windows : prépare le lecteur mpv embarqué dans l'installeur de Maku (src-tauri/mpv-win), pour
 // que la lecture fonctionne sans rien installer d'autre. Version épinglée de mpv-winbuild-cmake
 // (https://github.com/shinchiro/mpv-winbuild-cmake, GPL), vérifiée par son empreinte SHA-256.
 // Lancé avant chaque compilation Windows (voir tauri.windows.conf.json) ; ne fait rien ailleurs.

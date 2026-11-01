@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Plexr",
+  "productName": "Maku",
   "version": "0.12.0",
   "identifier": "io.github.yanutros.plexr",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Plexr",
+        "title": "Maku",
         "width": 1400,
         "height": 900,
         "minWidth": 960,
@@ -27,10 +27,10 @@
     "active": true,
     "targets": "all",
     "category": "Video",
-    "shortDescription": "Client Plex de bureau",
-    "longDescription": "Client Plex de bureau écrit en Rust : films, séries et musique lus avec mpv, demandes Seerr et statistiques Tracearr intégrées.",
-    "publisher": "Plexr",
-    "copyright": "Plexr — GPL-3.0-or-later",
+    "shortDescription": "Client Plex et Jellyfin",
+    "longDescription": "Client Plex et Jellyfin écrit en Rust : films, séries et musique lus avec mpv, demandes Seerr et statistiques Tracearr intégrées.",
+    "publisher": "Maku",
+    "copyright": "Maku — GPL-3.0-or-later",
     "license": "GPL-3.0-or-later",
     "licenseFile": "../LICENSE",
     "icon": [

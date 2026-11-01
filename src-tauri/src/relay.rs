@@ -1,4 +1,4 @@
-//! Relais d'invitation : pendant que l'écran « Configurer avec ton téléphone » est ouvert, Plexr
+//! Relais d'invitation : pendant que l'écran « Configurer avec ton téléphone » est ouvert, Maku
 //! sert sur le réseau local une petite page à une adresse secrète (affichée en QR code). Le
 //! téléphone y envoie le code d'invitation de l'administrateur ; l'interface l'applique et publie
 //! l'avancement (dont le lien d'autorisation Tracearr), que la page du téléphone affiche.

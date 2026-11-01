@@ -9,7 +9,7 @@ use crate::plex::{Section, PRODUCT};
 
 /// En-tête d'authentification de Jellyfin : l'application, l'appareil et, une fois connecté, le jeton.
 fn authorization(client_id: &str, token: Option<&str>) -> String {
-    let device = if cfg!(target_os = "android") { "Plexr (Android)" } else { "Plexr (PC)" };
+    let device = if cfg!(target_os = "android") { "Maku (Android)" } else { "Maku (PC)" };
     let mut value = format!(
         r#"MediaBrowser Client="{PRODUCT}", Device="{device}", DeviceId="{client_id}", Version="{}""#,
         env!("CARGO_PKG_VERSION")
@@ -194,7 +194,7 @@ impl JellyfinServer {
         })
     }
 
-    /// Bibliothèques de l'utilisateur, avec le type que Plexr connaît (films, séries, musique).
+    /// Bibliothèques de l'utilisateur, avec le type que Maku connaît (films, séries, musique).
     pub async fn sections(&self) -> Result<Vec<Section>> {
         let views: Views = self.get(&format!("/Users/{}/Views", self.user_id)).send().await?.error_for_status()?.json().await?;
         Ok(views
@@ -233,7 +233,7 @@ fn str_of(v: &Value) -> Option<String> {
     v.as_str().filter(|s| !s.is_empty()).map(str::to_owned)
 }
 
-/// Type Jellyfin → type Plexr (celui de Plex).
+/// Type Jellyfin → type Maku (celui de Plex).
 fn kind_of(t: &str) -> &'static str {
     match t {
         "Movie" => "movie",

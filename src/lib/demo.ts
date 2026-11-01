@@ -1,4 +1,4 @@
-// Mode démo : Plexr tourne dans un navigateur, sans serveur Plex, avec une bibliothèque fictive.
+// Mode démo : Maku tourne dans un navigateur, sans serveur Plex, avec une bibliothèque fictive.
 // Sert à produire les captures d'écran du README. Ouvrir http://localhost:1420/?demo=accueil
 // (vues : accueil, films, categories, fiche, seerr, decouvrir, stats, musique, lecteur).
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
@@ -152,7 +152,7 @@ const ALBUMS: [string, number][] = [
 const TRACK_NAMES = ["Ouverture", "Rivages", "Sur la route", "Lueur", "Minuit pile", "Comète", "Les Quais", "Retour"];
 
 const artists: Item[] = ARTISTS.map((name) =>
-  item({ kind: "artist", title: name, poster: avatar(name), backdrop: scene(name), genres: ["Électro", "Pop"], summary: `${name} est un groupe fictif imaginé pour la démo de Plexr.` }),
+  item({ kind: "artist", title: name, poster: avatar(name), backdrop: scene(name), genres: ["Électro", "Pop"], summary: `${name} est un groupe fictif imaginé pour la démo de Maku.` }),
 );
 const albums: Item[] = ALBUMS.map(([title, a], i) =>
   item({
@@ -374,7 +374,7 @@ const dashboard: TracearrDashboard = {
       progressMs: 23 * MIN,
       durationMs: 52 * MIN,
       paused: false,
-      player: "Plexr (PC)",
+      player: "Maku (PC)",
       local: true,
       decision: "directplay",
     },

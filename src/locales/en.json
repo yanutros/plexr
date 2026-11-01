@@ -25,14 +25,14 @@
       "server": "Server:",
       "changeServer": "Change server",
       "logout": "Sign out",
-      "version": "Plexr {{version}}",
+      "version": "Maku {{version}}",
       "checkUpdates": "Check for updates",
       "checking": "Checking…",
-      "upToDate": "Plexr is up to date ({{version}})",
+      "upToDate": "Maku is up to date ({{version}})",
       "releaseNotes": "Release notes",
       "serverKinds": "Media servers",
       "bothKinds": "Both",
-      "serverKindsHint": "With just one, Plexr no longer asks you to choose between Plex and Jellyfin. With both, “Change server” offers the choice, keeping both sign-ins."
+      "serverKindsHint": "With just one, Maku no longer asks you to choose between Plex and Jellyfin. With both, “Change server” offers the choice, keeping both sign-ins."
     },
     "services": {
       "seerrConnected": "Connected to Seerr with your Plex account",
@@ -72,7 +72,7 @@
       "stepTracearr": "Statistics (Tracearr): {{status}}",
       "authorizeOnPhone": "to be authorised on the phone",
       "title": "Invite users",
-      "intro": "Share this QR code or this code: Plexr will find these addresses in it and connect to them with each person's Plex account.",
+      "intro": "Share this QR code or this code: Maku will find these addresses in it and connect to them with each person's Plex account.",
       "copyCode": "Copy code",
       "copyImage": "Copy image",
       "photoHint": "Pick the screenshot of the QR code sent by the server admin from your photos, or paste their invite code.",
@@ -107,7 +107,7 @@
     },
     "tmdb": {
       "title": "Title logos (TMDB)",
-      "intro": "For movies and shows whose logo Plex doesn't have, Plexr can look it up on TMDB with your own free API key: create an account, then request a key in the API settings of",
+      "intro": "For movies and shows whose logo Plex doesn't have, Maku can look it up on TMDB with your own free API key: create an account, then request a key in the API settings of",
       "key": "TMDB API key",
       "save": "Save",
       "remove": "Remove",
@@ -193,7 +193,7 @@
       "runtime": "{{minutes}} minutes",
       "seasons_one": "{{count}} season",
       "seasons_other": "{{count}} seasons",
-      "watchInPlexr": "Watch in Plexr",
+      "watchInPlexr": "Watch in Maku",
       "requestMoreSeasons": "Request more seasons",
       "request": "Request",
       "trailer": "Trailer",
@@ -606,8 +606,8 @@
     "openAlbum": "Open album"
   },
   "update": {
-    "allowInstall": "Allow Plexr to install apps, then restart the update.",
-    "confirmInstall": "Confirm the installation: Plexr will restart in its new version.",
+    "allowInstall": "Allow Maku to install apps, then restart the update.",
+    "confirmInstall": "Confirm the installation: Maku will restart in its new version.",
     "installStarted": "Installation started.",
     "title": "New version available",
     "current": "you have {{version}}",

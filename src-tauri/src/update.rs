@@ -62,7 +62,7 @@ fn pick(assets: &[Asset]) -> Option<&Asset> {
 }
 
 fn request(http: &reqwest::Client, url: &str) -> reqwest::RequestBuilder {
-    let mut req = http.get(url).header("User-Agent", "Plexr").header("X-GitHub-Api-Version", "2022-11-28");
+    let mut req = http.get(url).header("User-Agent", "Maku").header("X-GitHub-Api-Version", "2022-11-28");
     // Développement seulement : un jeton permet de tester avant la publication du dépôt.
     if cfg!(debug_assertions) {
         if let Ok(token) = std::env::var("PLEXR_GH_TOKEN") {
@@ -154,12 +154,12 @@ pub async fn download(app: &AppHandle, http: &reqwest::Client, info: &UpdateInfo
     Ok(path)
 }
 
-/// Lance l'installation sur ordinateur. Renvoie `true` si Plexr doit se fermer pour la laisser faire.
+/// Lance l'installation sur ordinateur. Renvoie `true` si Maku doit se fermer pour la laisser faire.
 /// (Sur Android, c'est l'installateur du système qui prend la main, depuis l'interface.)
 pub fn install(path: &Path) -> Result<bool> {
     use std::process::Command;
     match std::env::consts::OS {
-        // Installeur NSIS de Tauri : /P affiche juste la progression, /R relance Plexr à la fin.
+        // Installeur NSIS de Tauri : /P affiche juste la progression, /R relance Maku à la fin.
         "windows" => {
             Command::new(path).args(["/P", "/R"]).spawn()?;
             Ok(true)

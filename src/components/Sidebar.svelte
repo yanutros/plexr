@@ -3,6 +3,8 @@
   import { go, nav, type View } from "../lib/nav.svelte";
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import Icon, { type IconName } from "./Icon.svelte";
+  import Logo from "./Logo.svelte";
+  import Wordmark from "./Wordmark.svelte";
   import { device } from "../lib/device";
   import { t } from "../lib/i18n";
 
@@ -88,8 +90,8 @@
       <Icon name="menu" />
     </button>
     {#if !sidebar.collapsed}
-      <span class="logo"><Icon name="play" size={14} filled /></span>
-      <span class="name">Plexr</span>
+      <Logo size={34} bare />
+      <Wordmark size={32} />
     {/if}
   </div>
 
@@ -254,17 +256,6 @@
   .toggle:hover {
     background: #ffffff12;
     color: var(--text);
-  }
-
-  .logo {
-    display: grid;
-    place-items: center;
-    width: 26px;
-    height: 26px;
-    padding-left: 2px;
-    border-radius: 7px;
-    background: var(--accent);
-    color: var(--accent-text);
   }
 
   nav {

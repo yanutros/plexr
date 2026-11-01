@@ -1,6 +1,6 @@
 // Téléviseur : sur une jaquette qui porte un titre (`use:menuable`), OK ouvre au relâchement ;
 // maintenu une demi-seconde, il ouvre le menu du titre (TvMenu), comme dans Plex. La touche Menu de
-// la télécommande l'ouvre aussi, pour les télécommandes dont l'appui long n'arrive pas jusqu'à Plexr.
+// la télécommande l'ouvre aussi, pour les télécommandes dont l'appui long n'arrive pas jusqu'à Maku.
 import type { Item } from "./api";
 import { nav } from "./nav.svelte";
 

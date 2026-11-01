@@ -7,7 +7,7 @@
   "app": {
     "windows": [
       {
-        "title": "Plexr",
+        "title": "Maku",
         "width": 1400,
         "height": 900,
         "minWidth": 960,
@@ -25,6 +25,11 @@
       "mpv-win/mpv.exe": "mpv/mpv.exe",
       "mpv-win/d3dcompiler_43.dll": "mpv/d3dcompiler_43.dll",
       "mpv-win/mpv/fonts.conf": "mpv/mpv/fonts.conf"
+    },
+    "windows": {
+      "nsis": {
+        "installerHooks": "./windows/hooks.nsh"
+      }
     }
   }
 }

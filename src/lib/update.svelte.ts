@@ -1,4 +1,4 @@
-// Nouvelle version de Plexr : cherchée au lancement, ou à la demande depuis les Réglages. Quand
+// Nouvelle version de Maku : cherchée au lancement, ou à la demande depuis les Réglages. Quand
 // `update.info` est renseigné, la fenêtre « Nouvelle version disponible » s'affiche (UpdateDialog).
 import { api, type UpdateInfo } from "./api";
 
@@ -30,8 +30,8 @@ export async function checkForUpdate(): Promise<boolean> {
 }
 
 /**
- * Notes de version telles qu'affichées dans Plexr : les nouveautés et les corrections seulement, sans
- * la liste des paquets à télécharger (Plexr installe lui-même le bon). La release les donne en
+ * Notes de version telles qu'affichées dans Maku : les nouveautés et les corrections seulement, sans
+ * la liste des paquets à télécharger (Maku installe lui-même le bon). La release les donne en
  * français puis en anglais (« ## 🌍 What's new (English) ») : on garde la langue de l'interface.
  */
 export function releaseHighlights(notes: string, locale: string): string {

@@ -38,15 +38,15 @@ class MainActivity : TauriActivity() {
   }
 
   /**
-   * Tauri met la page en pause quand Plexr passe en arrière-plan, ce qui coupe la musique : tant
-   * qu'un morceau joue, la page est aussitôt relancée (la notification garde Plexr en vie).
+   * Tauri met la page en pause quand Maku passe en arrière-plan, ce qui coupe la musique : tant
+   * qu'un morceau joue, la page est aussitôt relancée (la notification garde Maku en vie).
    */
   override fun onPause() {
     super.onPause()
     if (MediaService.playing) MediaService.webView?.onResume()
   }
 
-  /** Plexr quitté (bouton Accueil) : la vidéo se met en pause, comme dans Plex. */
+  /** Maku quitté (bouton Accueil) : la vidéo se met en pause, comme dans Plex. */
   override fun onStop() {
     super.onStop()
     video?.command("pause", "")
@@ -134,7 +134,7 @@ class MainActivity : TauriActivity() {
       fun setIconTheme(theme: String) {
         val themes = listOf("jaune", "rouge", "vert", "violet")
         if (theme !in themes) return
-        // La nouvelle entrée d'abord, pour que le lanceur ne se retrouve jamais sans Plexr.
+        // La nouvelle entrée d'abord, pour que le lanceur ne se retrouve jamais sans Maku.
         for (name in themes.sortedBy { it != theme }) {
           val component = ComponentName(this@MainActivity, "$packageName.Icon${name.replaceFirstChar { it.uppercase() }}")
           val wanted = if (name == theme) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
@@ -148,8 +148,8 @@ class MainActivity : TauriActivity() {
       }
 
       /**
-       * Mise à jour : confie l'APK téléchargé (dans le cache de Plexr) à l'installateur d'Android.
-       * Renvoie « permission » si Plexr n'a pas encore le droit d'installer des applications : Android
+       * Mise à jour : confie l'APK téléchargé (dans le cache de Maku) à l'installateur d'Android.
+       * Renvoie « permission » si Maku n'a pas encore le droit d'installer des applications : Android
        * ouvre alors l'écran où l'accorder, et il suffit de relancer la mise à jour.
        */
       @JavascriptInterface

@@ -25,14 +25,14 @@
       "server": "Servidor:",
       "changeServer": "Cambiar de servidor",
       "logout": "Cerrar sesión",
-      "version": "Plexr {{version}}",
+      "version": "Maku {{version}}",
       "checkUpdates": "Buscar actualizaciones",
       "checking": "Buscando…",
-      "upToDate": "Plexr está actualizado ({{version}})",
+      "upToDate": "Maku está actualizado ({{version}})",
       "releaseNotes": "Notas de la versión",
       "serverKinds": "Servidores multimedia",
       "bothKinds": "Los dos",
-      "serverKindsHint": "Con uno solo, Plexr ya no pide elegir entre Plex y Jellyfin. Con los dos, «Cambiar de servidor» ofrece la elección, sin perder las sesiones."
+      "serverKindsHint": "Con uno solo, Maku ya no pide elegir entre Plex y Jellyfin. Con los dos, «Cambiar de servidor» ofrece la elección, sin perder las sesiones."
     },
     "services": {
       "seerrConnected": "Conectado a Seerr con tu cuenta de Plex",
@@ -72,7 +72,7 @@
       "stepTracearr": "Estadísticas (Tracearr): {{status}}",
       "authorizeOnPhone": "pendiente de autorizar en el móvil",
       "title": "Invitar usuarios",
-      "intro": "Comparte este código QR o este código: Plexr encontrará en él estas direcciones y se conectará con la cuenta de Plex de cada persona.",
+      "intro": "Comparte este código QR o este código: Maku encontrará en él estas direcciones y se conectará con la cuenta de Plex de cada persona.",
       "copyCode": "Copiar código",
       "copyImage": "Copiar imagen",
       "photoHint": "Elige en tus fotos la captura del código QR enviada por el administrador del servidor, o pega su código de invitación.",
@@ -107,7 +107,7 @@
     },
     "tmdb": {
       "title": "Logotipos de títulos (TMDB)",
-      "intro": "Para las películas y series cuyo logotipo no tiene Plex, Plexr puede buscarlo en TMDB con tu propia clave de API gratuita: crea una cuenta y solicita una clave en los ajustes de API de",
+      "intro": "Para las películas y series cuyo logotipo no tiene Plex, Maku puede buscarlo en TMDB con tu propia clave de API gratuita: crea una cuenta y solicita una clave en los ajustes de API de",
       "key": "Clave de API de TMDB",
       "save": "Guardar",
       "remove": "Quitar",
@@ -193,7 +193,7 @@
       "runtime": "{{minutes}} minutos",
       "seasons_one": "{{count}} temporada",
       "seasons_other": "{{count}} temporadas",
-      "watchInPlexr": "Ver en Plexr",
+      "watchInPlexr": "Ver en Maku",
       "requestMoreSeasons": "Solicitar más temporadas",
       "request": "Solicitar",
       "trailer": "Tráiler",
@@ -606,8 +606,8 @@
     "openAlbum": "Abrir el álbum"
   },
   "update": {
-    "allowInstall": "Permite que Plexr instale aplicaciones y vuelve a iniciar la actualización.",
-    "confirmInstall": "Confirma la instalación: Plexr se reiniciará con la nueva versión.",
+    "allowInstall": "Permite que Maku instale aplicaciones y vuelve a iniciar la actualización.",
+    "confirmInstall": "Confirma la instalación: Maku se reiniciará con la nueva versión.",
     "installStarted": "La instalación ha comenzado.",
     "title": "Nueva versión disponible",
     "current": "tienes la {{version}}",

@@ -25,14 +25,14 @@
       "server": "Server:",
       "changeServer": "Server wechseln",
       "logout": "Abmelden",
-      "version": "Plexr {{version}}",
+      "version": "Maku {{version}}",
       "checkUpdates": "Nach Updates suchen",
       "checking": "Suche…",
-      "upToDate": "Plexr ist auf dem neuesten Stand ({{version}})",
+      "upToDate": "Maku ist auf dem neuesten Stand ({{version}})",
       "releaseNotes": "Versionshinweise",
       "serverKinds": "Medienserver",
       "bothKinds": "Beide",
-      "serverKindsHint": "Mit nur einem fragt Plexr nicht mehr nach Plex oder Jellyfin. Mit beiden bietet „Server wechseln“ die Wahl an, ohne die Anmeldungen zu verlieren."
+      "serverKindsHint": "Mit nur einem fragt Maku nicht mehr nach Plex oder Jellyfin. Mit beiden bietet „Server wechseln“ die Wahl an, ohne die Anmeldungen zu verlieren."
     },
     "services": {
       "seerrConnected": "Mit deinem Plex-Konto bei Seerr angemeldet",
@@ -72,7 +72,7 @@
       "stepTracearr": "Statistiken (Tracearr): {{status}}",
       "authorizeOnPhone": "auf dem Handy zu autorisieren",
       "title": "Nutzer einladen",
-      "intro": "Teile diesen QR-Code oder diesen Code: Plexr liest daraus die Adressen und verbindet sich mit dem Plex-Konto der jeweiligen Person.",
+      "intro": "Teile diesen QR-Code oder diesen Code: Maku liest daraus die Adressen und verbindet sich mit dem Plex-Konto der jeweiligen Person.",
       "copyCode": "Code kopieren",
       "copyImage": "Bild kopieren",
       "photoHint": "Wähle in deinen Fotos den Screenshot des QR-Codes vom Server-Admin oder füge seinen Einladungscode ein.",
@@ -107,7 +107,7 @@
     },
     "tmdb": {
       "title": "Titel-Logos (TMDB)",
-      "intro": "Für Filme und Serien, deren Logo Plex nicht hat, kann Plexr es mit deinem eigenen, kostenlosen API-Schlüssel bei TMDB suchen: Konto anlegen und einen Schlüssel in den API-Einstellungen anfordern auf",
+      "intro": "Für Filme und Serien, deren Logo Plex nicht hat, kann Maku es mit deinem eigenen, kostenlosen API-Schlüssel bei TMDB suchen: Konto anlegen und einen Schlüssel in den API-Einstellungen anfordern auf",
       "key": "TMDB-API-Schlüssel",
       "save": "Speichern",
       "remove": "Entfernen",
@@ -193,7 +193,7 @@
       "runtime": "{{minutes}} Minuten",
       "seasons_one": "{{count}} Staffel",
       "seasons_other": "{{count}} Staffeln",
-      "watchInPlexr": "In Plexr ansehen",
+      "watchInPlexr": "In Maku ansehen",
       "requestMoreSeasons": "Weitere Staffeln anfragen",
       "request": "Anfragen",
       "trailer": "Trailer",
@@ -606,8 +606,8 @@
     "openAlbum": "Album öffnen"
   },
   "update": {
-    "allowInstall": "Erlaube Plexr, Apps zu installieren, und starte das Update dann erneut.",
-    "confirmInstall": "Bestätige die Installation: Plexr startet danach in der neuen Version.",
+    "allowInstall": "Erlaube Maku, Apps zu installieren, und starte das Update dann erneut.",
+    "confirmInstall": "Bestätige die Installation: Maku startet danach in der neuen Version.",
     "installStarted": "Installation gestartet.",
     "title": "Neue Version verfügbar",
     "current": "du hast {{version}}",

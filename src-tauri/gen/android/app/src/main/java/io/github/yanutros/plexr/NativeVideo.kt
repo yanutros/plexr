@@ -30,7 +30,7 @@ import org.json.JSONObject
 /**
  * Lecteur vidéo natif (ExoPlayer), comme Plex et Wholphin : le fichier d'origine est décodé par la
  * puce de l'appareil et affiché dans sa propre couche (SurfaceView), sous la page devenue
- * transparente — l'interface de lecture de Plexr reste dessinée par-dessus. La page ne redessine
+ * transparente — l'interface de lecture de Maku reste dessinée par-dessus. La page ne redessine
  * donc plus chaque image de la vidéo (c'était la cause des saccades sur téléviseur).
  *
  * La page pilote le lecteur (`PlexrDevice.video*`) et reçoit son état par `window.__plexrVideo`.

@@ -1,5 +1,5 @@
 // Invitations : l'administrateur partage ses adresses Seerr et Tracearr dans un code (et son QR
-// code) ; l'utilisateur l'applique et Plexr se connecte aux deux avec son compte Plex.
+// code) ; l'utilisateur l'applique et Maku se connecte aux deux avec son compte Plex.
 // Le code ne contient que des adresses, aucun identifiant.
 import jsQR from "jsqr";
 import { api, errorText, tracearrLogin } from "./api";

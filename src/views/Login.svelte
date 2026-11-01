@@ -3,6 +3,8 @@
   import { api, errorText, type LoginPin, type Session } from "../lib/api";
   import { device } from "../lib/device";
   import { t } from "../lib/i18n";
+  import Logo from "../components/Logo.svelte";
+  import Wordmark from "../components/Wordmark.svelte";
 
   let { onDone }: { onDone: () => void } = $props();
 
@@ -143,10 +145,8 @@
 
 <div class="center">
   <div class="card">
-    <div class="logo">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a.5.5 0 0 0 .8.4l11.5-7.5a.5.5 0 0 0 0-.8L7.8 4.1a.5.5 0 0 0-.8.4z" /></svg>
-    </div>
-    <h1>Plexr</h1>
+    <div class="logo"><Logo size={80} glow /></div>
+    <h1><Wordmark size={72} /></h1>
     <p class="muted">{t("login.tagline")}</p>
 
     {#if server === null}
@@ -243,20 +243,7 @@
 
   .logo {
     display: grid;
-    place-items: center;
-    width: 72px;
-    height: 72px;
     margin-bottom: 8px;
-    padding-left: 6px;
-    border-radius: 20px;
-    background: linear-gradient(145deg, var(--accent-light), var(--accent) 55%, var(--accent-dark));
-    color: var(--accent-text);
-    box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 33%, transparent);
-  }
-
-  .logo svg {
-    width: 34px;
-    height: 34px;
   }
 
   h1 {

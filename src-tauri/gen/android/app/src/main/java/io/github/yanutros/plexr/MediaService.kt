@@ -37,11 +37,11 @@ import kotlin.concurrent.thread
 
 /**
  * Musique hors de la page. Deux sources :
- * - la page (élément <audio>) : ce service la garde en vie quand Plexr est quitté et l'expose à
+ * - la page (élément <audio>) : ce service la garde en vie quand Maku est quitté et l'expose à
  *   Android par une session média — notification avec pochette et commandes, écran de verrouillage,
  *   casque Bluetooth, écran de la voiture. Les commandes repartent vers la page (`window.__plexrMedia`) ;
  * - Android Auto : la voiture parcourt la bibliothèque musicale (PlexLibrary) et ce qu'elle lance
- *   est lu ici, par ExoPlayer, même si Plexr n'est pas ouvert. La page s'arrête alors, et
+ *   est lu ici, par ExoPlayer, même si Maku n'est pas ouvert. La page s'arrête alors, et
  *   inversement une musique lancée depuis la page reprend la main.
  */
 class MediaService : MediaBrowserServiceCompat() {
@@ -100,7 +100,7 @@ class MediaService : MediaBrowserServiceCompat() {
   override fun onCreate() {
     super.onCreate()
     instance = this
-    session = MediaSessionCompat(this, "Plexr").apply {
+    session = MediaSessionCompat(this, "Maku").apply {
       setCallback(object : MediaSessionCompat.Callback() {
         override fun onPlay() = command("play")
         override fun onPause() = command("pause")
@@ -296,7 +296,7 @@ class MediaService : MediaBrowserServiceCompat() {
 
   /** Erreur affichée sur l'écran de la voiture. */
   private fun showError(error: Throwable?) {
-    Log.w("Plexr", "Android Auto", error)
+    Log.w("Maku", "Android Auto", error)
     val (code, message) = when (error) {
       null -> PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED to R.string.auto_nothing
       is PlexLibrary.NotSignedIn -> PlaybackStateCompat.ERROR_CODE_AUTHENTICATION_EXPIRED to R.string.auto_sign_in
@@ -397,7 +397,7 @@ class MediaService : MediaBrowserServiceCompat() {
     }
   }
 
-  /** Plexr fermé depuis les applications récentes : la musique de la page s'arrête avec lui (pas celle de la voiture). */
+  /** Maku fermé depuis les applications récentes : la musique de la page s'arrête avec lui (pas celle de la voiture). */
   override fun onTaskRemoved(rootIntent: Intent?) {
     if (player != null) return
     dispatch("stop")
