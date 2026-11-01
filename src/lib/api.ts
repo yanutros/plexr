@@ -306,6 +306,8 @@ export interface Account {
   email: string | null;
   thumb: string | null;
   plexPass: boolean;
+  /** Jellyfin : administrateur du serveur (Plex : voir `nav.admin`). */
+  admin: boolean | null;
 }
 
 export const api = {

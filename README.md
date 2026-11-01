@@ -357,7 +357,8 @@ machine), puis ajouté à la version avec `gh release upload`.
    identifiant et votre mot de passe, ou utilisez **Quick Connect** (un code à valider depuis une autre application
    Jellyfin déjà connectée, pratique sur téléviseur) : accueil, bibliothèques (mixtes comprises), fiches, séries,
    pages d'acteurs, recherche, lecture (fichier d'origine ou flux converti), progression, « J'aime », « Retirer de
-   Continuer à regarder » et musique fonctionnent comme avec Plex. Seerr se connecte avec le compte Jellyfin ;
+   Continuer à regarder » et musique fonctionnent comme avec Plex ; la carte Compte des Réglages montre le nom,
+   la photo de profil et le rôle du compte Jellyfin. Seerr se connecte avec le compte Jellyfin ;
    Tracearr garde sa connexion par compte plex.tv.
 2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
    teste ses adresses et garde la plus rapide (locale, distante, puis relais), et la revérifie à chaque lancement.

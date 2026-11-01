@@ -171,6 +171,20 @@ impl JellyfinServer {
             .header("Authorization", authorization(&self.client_id, Some(&self.token)))
     }
 
+    /// Compte connecté : nom, photo de profil et rôle d'administrateur.
+    pub async fn account(&self) -> Result<crate::plex_admin::Account> {
+        let v: Value = self.get(&format!("/Users/{}", self.user_id)).send().await?.error_for_status()?.json().await?;
+        Ok(crate::plex_admin::Account {
+            username: v["Name"].as_str().unwrap_or_default().to_string(),
+            email: None,
+            thumb: v["PrimaryImageTag"]
+                .as_str()
+                .map(|tag| format!("{}/Users/{}/Images/Primary?maxWidth=200&tag={tag}", self.base, self.user_id)),
+            plex_pass: false,
+            admin: Some(v["Policy"]["IsAdministrator"].as_bool().unwrap_or(false)),
+        })
+    }
+
     /// Bibliothèques de l'utilisateur, avec le type que Plexr connaît (films, séries, musique).
     pub async fn sections(&self) -> Result<Vec<Section>> {
         let views: Views = self.get(&format!("/Users/{}/Views", self.user_id)).send().await?.error_for_status()?.json().await?;

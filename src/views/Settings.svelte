@@ -370,7 +370,7 @@
           {#if account?.email}<div class="muted">{account.email}</div>{/if}
           <div class="badges">
             {#if account?.plexPass}<span class="badge pass">Plex Pass</span>{/if}
-            <span class="badge outline">{nav.admin ? t("settings.account.admin") : t("settings.account.shared")}</span>
+            <span class="badge outline">{(account?.admin ?? nav.admin) ? t("settings.account.admin") : t("settings.account.shared")}</span>
           </div>
         </div>
       </section>

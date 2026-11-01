@@ -448,6 +448,8 @@ pub struct Account {
     pub thumb: Option<String>,
     /// Plex Pass actif.
     pub plex_pass: bool,
+    /// Jellyfin : le compte administre-t-il le serveur ? (Plex : voir `is_admin`.)
+    pub admin: Option<bool>,
 }
 
 /// Compte plex.tv connecté (nom, adresse, Plex Pass).
@@ -463,5 +465,6 @@ pub async fn account(http: &reqwest::Client, client_id: &str, token: &str) -> Re
         email: v["email"].as_str().map(str::to_owned),
         thumb: v["thumb"].as_str().map(str::to_owned),
         plex_pass: v["subscription"]["active"].as_bool().unwrap_or(false),
+        admin: None,
     })
 }

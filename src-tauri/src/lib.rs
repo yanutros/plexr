@@ -500,6 +500,9 @@ async fn plex_is_admin(state: State<'_, AppState>) -> CmdResult<bool> {
 
 #[tauri::command]
 async fn plex_account(state: State<'_, AppState>) -> CmdResult<Account> {
+    if let Ok(media::MediaServer::Jellyfin(j)) = state.server() {
+        return Ok(j.account().await?);
+    }
     let c = state.cfg();
     let token = c.plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("app.notLoggedIn")))?;
     Ok(plex_admin::account(&state.http, &c.client_id, &token).await?)
