@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Section } from "../lib/api";
+  import { api, type Account, type Section } from "../lib/api";
   import { go, nav, type View } from "../lib/nav.svelte";
   import { ordered, saveSidebar, sidebar } from "../lib/sidebar.svelte";
   import Icon, { type IconName } from "./Icon.svelte";
@@ -13,6 +13,16 @@
   const hidden = $derived(list.filter((s) => sidebar.hidden.includes(s.key)));
 
   let dragged = $state<string | null>(null);
+
+  // Ordinateur : carte du profil en bas (photo, nom, serveur), qui ouvre les Réglages.
+  const desk = !device.tv && !device.phone;
+  let account = $state<Account | null>(null);
+  let serverKind = $state<"plex" | "jellyfin">("plex");
+  $effect(() => {
+    if (!desk || !serverName) return;
+    api.account().then((a) => (account = a), () => (account = null));
+    api.session().then((s) => (serverKind = s.serverKind), () => {});
+  });
 
   function icon(kind: string): IconName {
     return kind === "movie" ? "film" : kind === "artist" ? "music" : "tv";
@@ -68,6 +78,7 @@
 <!-- Sur téléviseur, le menu reste replié et ne se déplie que lorsqu'on y entre. -->
 <aside
   class:collapsed={sidebar.collapsed}
+  class:desk
   data-nav-zone
   onfocusin={() => device.tv && (sidebar.collapsed = false)}
   onfocusout={(e) => device.tv && !e.currentTarget.contains(e.relatedTarget as Node) && (sidebar.collapsed = true)}
@@ -83,7 +94,7 @@
   </div>
 
   <nav>
-    {#if device.tv}
+    {#if !device.phone}
       <button class="item" class:active={isActive("search")}
             aria-current={isActive("search") ? "page" : undefined} onclick={() => open({ name: "search", query: "" })} title={t("sidebar.search")}>
         <Icon name="search" /> <span class="label">{t("sidebar.search")}</span>
@@ -185,14 +196,26 @@
   </nav>
 
   <div class="spacer"></div>
-  <button class="item settings" class:active={isActive("settings")}
+  {#if desk}
+    <button class="profile" class:active={isActive("settings")}
             aria-current={isActive("settings") ? "page" : undefined} onclick={() => open({ name: "settings" })} title={t("sidebar.settings")}>
-    <Icon name="settings" />
-    <span class="label">
-      {t("sidebar.settings")}
-      <small>{serverName}</small>
-    </span>
-  </button>
+      {#if account?.thumb}<img class="avatar" src={account.thumb} alt="" />{:else}<span class="avatar"><Icon name="user" size={16} /></span>{/if}
+      <span class="label">
+        {account?.username ?? t("sidebar.settings")}
+        <small>{serverKind === "jellyfin" ? "Jellyfin" : "Plex"} · {serverName}</small>
+      </span>
+      <span class="gear"><Icon name="settings" size={17} /></span>
+    </button>
+  {:else}
+    <button class="item settings" class:active={isActive("settings")}
+              aria-current={isActive("settings") ? "page" : undefined} onclick={() => open({ name: "settings" })} title={t("sidebar.settings")}>
+      <Icon name="settings" />
+      <span class="label">
+        {t("sidebar.settings")}
+        <small>{serverName}</small>
+      </span>
+    </button>
+  {/if}
 </aside>
 
 <style>
@@ -422,5 +445,117 @@
 
   .collapsed .item.sub {
     padding-left: 0;
+  }
+
+  /* ---------- Ordinateur : panneau flottant (Apple), page active en barre lumineuse (Netflix) ---------- */
+
+  .desk {
+    margin: 10px 0 10px 10px;
+    padding: 12px 8px 10px;
+    border: 1px solid #ffffff10;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--bg-sidebar) 82%, transparent);
+    backdrop-filter: blur(24px) saturate(1.4);
+  }
+
+  .desk .item {
+    position: relative;
+    min-height: 38px;
+    border-radius: 10px;
+  }
+
+  .desk .item.active {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 20%, transparent), transparent 85%);
+    box-shadow: none;
+    font-weight: 600;
+  }
+
+  .desk .item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    bottom: 9px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  .desk .group {
+    padding: 16px 12px 4px;
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    border: none;
+    border-radius: 14px;
+    background: #ffffff0a;
+    color: var(--text);
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .profile:hover,
+  .profile.active {
+    background: #ffffff14;
+  }
+
+  .profile small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-faint);
+  }
+
+  .avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #ffffff14;
+    color: var(--text-dim);
+  }
+
+  .gear {
+    display: grid;
+    flex: none;
+    color: var(--text-faint);
+    transition: color 0.15s, transform 0.3s var(--ease);
+  }
+
+  .profile:hover .gear,
+  .profile.active .gear {
+    color: var(--accent);
+    transform: rotate(45deg);
+  }
+
+  .collapsed.desk {
+    padding: 12px 6px 10px;
+  }
+
+  .collapsed .profile {
+    justify-content: center;
+    padding: 6px 0;
+    background: none;
+  }
+
+  .collapsed .profile .gear {
+    display: none;
   }
 </style>
