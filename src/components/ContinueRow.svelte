@@ -81,7 +81,8 @@
         </button>
 
         <!-- Grand format : scène, titre, épisode, progression et reprise. -->
-        <div class="wide" aria-hidden={!open}>
+        <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+        <div class="wide" aria-hidden={!open} onclick={() => go({ name: "item", ratingKey: item.ratingKey })}>
           {#if scene(item)}<img class="scene" src={scene(item)} alt="" loading="lazy" />{/if}
           <div class="shade"></div>
           <div class="info">
@@ -94,7 +95,8 @@
                 {item.year}{#if item.genres.length} · {item.genres.slice(0, 2).join(" · ")}{/if}
               {/if}
             </div>
-            <div class="actions">
+            <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+            <div class="actions" onclick={(e) => e.stopPropagation()}>
               <button class="resume" onclick={() => resume(item)} tabindex={open ? 0 : -1}>
                 <Icon name="play" size={20} filled />
                 {item.viewOffsetMs ? t("common.c1.resume") : t("common.c1.play")}
@@ -218,6 +220,11 @@
   .card.open .wide {
     opacity: 1;
     pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .actions button {
+    cursor: pointer;
   }
 
   .scene {

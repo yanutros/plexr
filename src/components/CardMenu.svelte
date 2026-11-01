@@ -6,8 +6,12 @@
   import { t } from "../lib/i18n";
 
   // Menu « ⋮ » d'une jaquette : actions de lecture, puis gestion (administrateur seulement).
+  // Le menu se ferme avant que l'action ne s'exécute : on garde donc le contenu visé à part.
   const menu = $derived(nav.menu!);
-  const item = $derived(menu.item);
+  let item = $state(nav.menu!.item);
+  $effect.pre(() => {
+    if (nav.menu) item = nav.menu.item;
+  });
   const music = $derived(isMusic(item.kind));
   const editable = $derived(item.kind !== "playlist");
 
@@ -40,11 +44,19 @@
     run(() => (music ? playMusic(item.ratingKey, { shuffle }) : play(item.ratingKey)));
   }
 
-  function toggleWatched() {
+  // « Non vu » remet aussi à zéro une lecture en cours (le titre quitte « Continuer à regarder »).
+  const started = $derived(item.watched || (item.viewOffsetMs ?? 0) > 0);
+
+  function setWatched(watched: boolean) {
     run(async () => {
-      await api.setWatched(item.ratingKey, !item.watched);
+      await api.setWatched(item.ratingKey, watched);
       reload();
-    }, item.watched ? t("cardMenu.markedUnwatched") : t("cardMenu.markedWatched"));
+    }, watched ? t("cardMenu.markedWatched") : t("cardMenu.markedUnwatched"));
+  }
+
+  function openDetails() {
+    close();
+    go({ name: "item", ratingKey: item.ratingKey });
   }
 
   function edit() {
@@ -66,11 +78,14 @@
     <button role="menuitem" onclick={() => start(true)}><Icon name="shuffle" size={16} /> {t("common.c1.shuffle")}</button>
   {/if}
   {#if !music}
-    <button role="menuitem" onclick={toggleWatched}>
-      <Icon name="checkCircle" size={16} /> {item.watched ? t("cardMenu.markUnwatched") : t("cardMenu.markWatched")}
-    </button>
+    {#if !item.watched}
+      <button role="menuitem" onclick={() => setWatched(true)}><Icon name="checkCircle" size={16} /> {t("cardMenu.markWatched")}</button>
+    {/if}
+    {#if started}
+      <button role="menuitem" onclick={() => setWatched(false)}><Icon name="restart" size={16} /> {t("cardMenu.markUnwatched")}</button>
+    {/if}
   {/if}
-  <button role="menuitem" onclick={() => (close(), go({ name: "item", ratingKey: item.ratingKey }))}>
+  <button role="menuitem" onclick={openDetails}>
     <Icon name="chevronRight" size={16} /> {t("cardMenu.openDetails")}
   </button>
   {#if nav.admin && editable}

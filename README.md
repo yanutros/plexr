@@ -54,7 +54,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       <h4>🏠 Il met vos bibliothèques en valeur</h4>
       Accueil et bibliothèques avec un bandeau qui fait défiler cinq titres, puis un « Continuer à regarder »
       façon plateforme de streaming : grandes affiches, et celle survolée s'ouvre en grand avec sa scène, son
-      épisode, sa progression et le bouton Reprendre. Puis de grands panneaux « À la une » et les rangées de Plex.
+      épisode, sa progression et le bouton Reprendre ; un clic sur la carte ouvre la fiche. Puis de grands panneaux « À la une » et les rangées de Plex.
       Les titres s'affichent avec leur logo officiel, comme dans Jellyfin : celui du serveur, sinon celui du
       service en ligne de Plex ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
     </td>
@@ -385,7 +385,8 @@ Pour l'administrateur du serveur, le menu ⋮ d'une jaquette (ou un clic droit) 
 fiches ouvrent l'édition : champs (titre, tri, titre original, date, classification, studio, accroche, résumé…
 selon le type), genres, affiche et fond d'écran parmi les images proposées par Plex ou depuis une adresse web.
 Un champ modifié est verrouillé, comme dans Plex, pour que l'actualisation des métadonnées ne l'écrase pas ; le
-cadenas permet de le déverrouiller. Le même menu propose **Actualiser les métadonnées** et **Analyser**.
+cadenas permet de le déverrouiller. Le même menu propose **Actualiser les métadonnées** et **Analyser**. Pour tous, il permet aussi de lire, d'ouvrir
+la fiche et de marquer un titre comme vu ou non vu (« non vu » remet aussi à zéro une lecture commencée).
 
 ## ⚙️ Configurer
 
