@@ -237,6 +237,9 @@ suivantes s'installent depuis Plexr (voir *Mises à jour*).
 
 Plexr apparaît ensuite parmi les applications, avec sa bannière sur l'écran d'accueil de la TV.
 
+Sous **Android 17**, Plexr demande au premier lancement l'autorisation d'accéder aux appareils du réseau local :
+sans elle, un serveur sur le réseau de la maison (Jellyfin, ou Plex par son adresse locale) reste injoignable.
+
 **Sur téléphone**, l'interface prend la forme d'une application mobile : un en-tête compact sous la barre
 d'état, des onglets en bas (Accueil, Bibliothèques, Découvrir, Stats, Réglages), le bandeau et « Continuer à
 regarder » à la taille de l'écran, des fiches qui s'empilent. Un appui long sur une affiche ouvre son menu ; dans

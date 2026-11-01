@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 17 : accès aux serveurs du réseau local (Jellyfin, Plex en local). -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- Mises à jour : Plexr télécharge le nouvel APK et le confie à l'installateur d'Android. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Musique en arrière-plan, avec ses commandes dans la notification (MediaService.kt). -->

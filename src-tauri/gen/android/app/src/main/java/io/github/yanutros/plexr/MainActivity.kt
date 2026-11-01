@@ -26,6 +26,15 @@ class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
+    // Android 17 : sans cette autorisation, les serveurs du réseau local (Jellyfin, Plex en local)
+    // sont injoignables.
+    if (Build.VERSION.SDK_INT >= 37 && checkSelfPermission(LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
+      requestPermissions(arrayOf(LOCAL_NETWORK), 0)
+    }
+  }
+
+  private companion object {
+    const val LOCAL_NETWORK = "android.permission.ACCESS_LOCAL_NETWORK"
   }
 
   /**
