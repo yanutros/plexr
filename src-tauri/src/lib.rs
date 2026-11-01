@@ -582,6 +582,45 @@ async fn video_stream(
     Ok(state.server()?.web_stream(&rating_key, audio_stream, subtitle_stream, &session).await?)
 }
 
+/// Lecture native sur Android (ExoPlayer) : le fichier d'origine, sans conversion, avec les
+/// pistes à choisir (numérotées comme pour mpv, à partir de 1 dans chaque type).
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct NativeVideo {
+    session: String,
+    url: String,
+    title: String,
+    subtitle: Option<String>,
+    offset_ms: u64,
+    duration_ms: u64,
+    aid: Option<usize>,
+    /// Numéro de sous-titre, « no » ou « auto ».
+    sid: String,
+    sub_files: Vec<plex::SubFile>,
+}
+
+#[tauri::command]
+async fn native_video(
+    state: State<'_, AppState>,
+    rating_key: String,
+    audio_stream: Option<u64>,
+    subtitle_stream: Option<u64>,
+    from_start: Option<bool>,
+) -> CmdResult<NativeVideo> {
+    let info = state.server()?.play_info(&rating_key, audio_stream, subtitle_stream).await?;
+    Ok(NativeVideo {
+        session: uuid::Uuid::new_v4().simple().to_string(),
+        url: info.url,
+        title: info.title,
+        subtitle: info.subtitle,
+        offset_ms: if from_start == Some(true) { 0 } else { info.offset_ms },
+        duration_ms: info.duration_ms,
+        aid: info.aid,
+        sid: info.sid,
+        sub_files: info.sub_tracks,
+    })
+}
+
 #[tauri::command]
 async fn stop_transcode(state: State<'_, AppState>, session: String) -> CmdResult<()> {
     Ok(state.server()?.stop_transcode(&session).await?)
@@ -941,6 +980,7 @@ pub fn run() {
             platform,
             music_queue,
             video_stream,
+            native_video,
             stop_transcode,
             report_timeline,
             player_command,

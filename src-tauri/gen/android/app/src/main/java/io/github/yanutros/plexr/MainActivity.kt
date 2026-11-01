@@ -21,6 +21,8 @@ import androidx.core.view.WindowInsetsCompat
 import java.io.File
 
 class MainActivity : TauriActivity() {
+  private var video: NativeVideo? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
@@ -33,6 +35,12 @@ class MainActivity : TauriActivity() {
   override fun onPause() {
     super.onPause()
     if (MediaService.playing) MediaService.webView?.onResume()
+  }
+
+  /** Plexr quitté (bouton Accueil) : la vidéo se met en pause, comme dans Plex. */
+  override fun onStop() {
+    super.onStop()
+    video?.command("pause", "")
   }
 
   // Le WebView annonce un écran tactile même sur téléviseur : l'interface demande donc à
@@ -48,7 +56,24 @@ class MainActivity : TauriActivity() {
     // Sur téléviseur, la page reçoit les touches dès le premier appui sur la télécommande.
     if (tv) webView.post { webView.requestFocus() }
     MediaService.webView = webView
+    val video = NativeVideo(this, webView).also { this.video = it }
     webView.addJavascriptInterface(object {
+      /** Vidéo : lecteur natif ExoPlayer sous la page (voir NativeVideo.kt). */
+      @JavascriptInterface
+      fun videoOpen(json: String) {
+        video.open(json)
+      }
+
+      @JavascriptInterface
+      fun videoCommand(name: String, value: String) {
+        video.command(name, value)
+      }
+
+      @JavascriptInterface
+      fun videoClose() {
+        video.closeAsync()
+      }
+
       @JavascriptInterface
       fun isTv(): Boolean = tv
 

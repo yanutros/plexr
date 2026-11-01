@@ -385,6 +385,9 @@ struct RawStream {
     extended_display_title: Option<String>,
     selected: bool,
     key: Option<String>,
+    /// Format d'un sous-titre externe (« srt », « ass », « vtt »…), pour le lecteur Android.
+    codec: Option<String>,
+    language_code: Option<String>,
 }
 
 #[derive(Deserialize, Default)]
@@ -559,6 +562,18 @@ pub struct PlayInfo {
     pub sid: String,
     /// Sous-titres externes à charger, dans l'ordre (leurs numéros suivent les pistes intégrées).
     pub sub_files: Vec<String>,
+    /// Les mêmes, avec leur format et leur langue (lecteur natif d'Android).
+    pub sub_tracks: Vec<SubFile>,
+}
+
+/// Sous-titre externe servi par Plex.
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SubFile {
+    pub url: String,
+    pub codec: String,
+    pub language: Option<String>,
+    pub title: Option<String>,
 }
 
 fn is_music(kind: &str) -> bool {
@@ -1139,6 +1154,17 @@ impl PlexServer {
             .filter_map(|s| s.key.as_ref())
             .map(|key| format!("{}{}?X-Plex-Token={}", self.base, key, self.token))
             .collect();
+        let sub_tracks = external
+            .iter()
+            .filter_map(|s| {
+                Some(SubFile {
+                    url: format!("{}{}?X-Plex-Token={}", self.base, s.key.as_ref()?, self.token),
+                    codec: s.codec.clone().unwrap_or_else(|| "srt".into()),
+                    language: s.language_code.clone(),
+                    title: s.display_title.clone(),
+                })
+            })
+            .collect();
 
         Ok(PlayInfo {
             url: format!("{}{}?X-Plex-Token={}", self.base, part.key, self.token),
@@ -1149,6 +1175,7 @@ impl PlexServer {
             aid,
             sid,
             sub_files,
+            sub_tracks,
         })
     }
 

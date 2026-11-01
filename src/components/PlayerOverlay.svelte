@@ -193,8 +193,9 @@
 <svelte:window onkeydown={onKey} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="overlay" class:hidden={!visible} class:remote={!player.embedded} class:web={player.web} onpointermove={poke}>
-  {#if player.web}
+<div class="overlay" class:hidden={!visible} class:remote={!player.embedded} class:web={player.web && !player.native} onpointermove={poke}>
+  <!-- Android : la vidéo est dessinée sous la page par le lecteur natif ; sinon par cet élément. -->
+  {#if player.web && !player.native}
     <!-- svelte-ignore a11y_media_has_caption -->
     <video class="web-video" bind:this={videoEl} playsinline></video>
   {/if}
@@ -288,8 +289,8 @@
       </div>
 
       <div class="group">
-        <!-- Sur mobile, l'audio et les sous-titres se choisissent sur la fiche, avant la lecture. -->
-        {#if !player.web}
+        <!-- Avec un flux converti (navigateur), l'audio et les sous-titres se choisissent sur la fiche. -->
+        {#if !player.web || player.native}
         <div class="menu-anchor">
           <button
             class="icon-btn"

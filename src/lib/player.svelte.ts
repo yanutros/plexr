@@ -28,6 +28,8 @@ export const player = $state({
   embedded: true,
   /** Lecture par le lecteur intégré du système (Android, iOS) plutôt que par mpv. */
   web: false,
+  /** Vidéo lue par le lecteur natif d'Android (ExoPlayer, sous la page) plutôt que par <video>. */
+  native: false,
   /** Identifiant de la lecture : les événements d'une lecture remplacée sont ignorés. */
   session: "",
   /** Vidéo en cours et épisodes voisins (pour les boutons précédent / suivant). */
@@ -64,6 +66,23 @@ invoke<string | null>("platform").then(
   () => {},
 );
 
+/** Lecteur vidéo natif d'Android (NativeVideo.kt), quand l'application le fournit. */
+type VideoBridge = { videoOpen?(json: string): void; videoCommand?(name: string, value: string): void; videoClose?(): void };
+const bridge = (globalThis as { PlexrDevice?: VideoBridge }).PlexrDevice;
+const nativeVideo = !!bridge?.videoOpen;
+
+interface NativeInfo {
+  session: string;
+  url: string;
+  title: string;
+  subtitle: string | null;
+  offsetMs: number;
+  durationMs: number;
+  aid: number | null;
+  sid: string;
+  subFiles: { url: string; codec: string; language: string | null; title: string | null }[];
+}
+
 export interface PlayOptions {
   /** Identifiants de pistes Plex ; `subtitleStream: 0` désactive les sous-titres. */
   audioStream?: number | null;
@@ -77,6 +96,7 @@ function reset(video: boolean) {
     active: true,
     video,
     embedded: true,
+    native: false,
     session: "",
     ratingKey: "",
     prevKey: null,
@@ -111,6 +131,13 @@ export async function play(ratingKey: string, opts: PlayOptions = {}) {
     subtitleStream: opts.subtitleStream ?? null,
   };
   try {
+    // Android : le fichier d'origine, lu par le lecteur natif (le serveur ne convertit qu'en secours).
+    if (player.web && nativeVideo) {
+      const s = await invoke<NativeInfo>("native_video", { ratingKey, ...streams, fromStart: opts.fromStart ?? false });
+      Object.assign(player, { session: s.session, title: s.title, subtitle: s.subtitle, duration: s.durationMs / 1000, native: true });
+      web.startNative(s, streams);
+      return;
+    }
     if (player.web) {
       const s = await invoke<{
         session: string;
@@ -211,6 +238,10 @@ const web = (() => {
   let reportTimer: ReturnType<typeof setInterval> | undefined;
   let reportedKey = "";
   let unbind: (() => void) | null = null;
+  // Lecteur natif : pistes demandées (pour le secours) et conversion du serveur en cours.
+  let nativeStreams: { audioStream: number | null; subtitleStream: number | null } = { audioStream: null, subtitleStream: null };
+  let fallbackTried = false;
+  let transcoding = false;
 
   const key = () => (player.video ? player.ratingKey : (player.queue[player.index]?.ratingKey ?? ""));
 
@@ -255,6 +286,82 @@ const web = (() => {
     else stop();
   }
 
+  /** État publié par le lecteur natif (toutes les 500 ms, et à chaque changement). */
+  type NativeEvent = {
+    position?: number;
+    duration?: number;
+    buffered?: number;
+    paused?: boolean;
+    buffering?: boolean;
+    volume?: number;
+    tracks?: MpvTrack[];
+    aid?: number | null;
+    sid?: number | null;
+    ended?: boolean;
+    unsupported?: string;
+    error?: string;
+  };
+
+  (globalThis as { __plexrVideo?: (e: NativeEvent) => void }).__plexrVideo = (e) => {
+    if (!player.native) return;
+    if (e.ended) return stop();
+    if (e.unsupported !== undefined || e.error !== undefined) {
+      // Codec ou format que l'appareil ne lit pas : le serveur convertit, comme avant.
+      if (!fallbackTried) fallback();
+      else stop();
+      return;
+    }
+    if (e.position !== undefined) player.position = e.position / 1000;
+    if (e.duration) player.duration = e.duration / 1000;
+    if (e.buffered !== undefined) player.bufferedUntil = e.buffered / 1000;
+    if (e.paused !== undefined && e.paused !== player.paused) {
+      player.paused = e.paused;
+      if (e.paused) report("paused");
+    }
+    if (e.buffering !== undefined) player.buffering = e.buffering;
+    if (e.volume !== undefined) player.volume = e.volume;
+    if (e.tracks) player.tracks = e.tracks;
+    if (e.aid !== undefined) player.aid = e.aid;
+    if (e.sid !== undefined) player.sid = e.sid;
+  };
+
+  async function fallback() {
+    fallbackTried = true;
+    const key = player.ratingKey;
+    try {
+      const s = await invoke<{ session: string; url: string }>("video_stream", { ratingKey: key, ...nativeStreams });
+      if (player.ratingKey !== key || !player.native) return;
+      player.session = s.session;
+      transcoding = true;
+      bridge!.videoOpen!(JSON.stringify({ url: s.url, offsetMs: Math.round(player.position * 1000), aid: null, sid: "auto", subFiles: [] }));
+    } catch {
+      stop();
+    }
+  }
+
+  function nativeCommand(args: unknown[]) {
+    const send = (name: string, value: unknown = "") => bridge!.videoCommand!(name, String(value));
+    const [cmd, a, b] = args as [string, unknown, unknown];
+    switch (cmd) {
+      case "cycle":
+        if (a === "pause") send("toggle");
+        else if (a === "mute") send("mute", (player.muted = !player.muted) ? 1 : 0);
+        break;
+      case "seek":
+        send(b === "absolute" ? "seek" : "seekBy", Math.round(Number(a) * 1000));
+        player.seeks++;
+        break;
+      case "add":
+        if (a === "volume") send("volume", Math.min(100, Math.max(0, player.volume + Number(b))));
+        break;
+      case "set_property":
+        if (a === "volume") send("volume", Math.min(100, Number(b)));
+        else if (a === "mute") send("mute", (player.muted = !!b) ? 1 : 0);
+        else if (a === "aid" || a === "sid") send(a, b);
+        break;
+    }
+  }
+
   async function load(el: HTMLVideoElement, url: string, offset: number) {
     el.addEventListener("loadedmetadata", () => offset > 0 && (el.currentTime = offset), { once: true });
     // Le lecteur d'Android et d'iOS lit le HLS nativement ; sinon hls.js s'en charge.
@@ -281,6 +388,16 @@ const web = (() => {
       }
     },
 
+    startNative(s: NativeInfo, streams: { audioStream: number | null; subtitleStream: number | null }) {
+      reportedKey = player.ratingKey;
+      nativeStreams = streams;
+      fallbackTried = false;
+      transcoding = false;
+      bridge!.videoOpen!(JSON.stringify({ url: s.url, offsetMs: s.offsetMs, aid: s.aid, sid: s.sid, subFiles: s.subFiles }));
+      clearInterval(reportTimer);
+      reportTimer = setInterval(() => report(player.paused ? "paused" : "playing"), 10000);
+    },
+
     startVideo(url: string, offset: number) {
       reportedKey = player.ratingKey;
       if (videoEl) {
@@ -305,6 +422,7 @@ const web = (() => {
 
     /** Traduit les commandes au format mpv pour l'élément <video> / <audio>. */
     command(args: unknown[]) {
+      if (player.native) return nativeCommand(args);
       const el = media;
       const [cmd, a, b] = args as [string, unknown, unknown];
       if (!el) return;
@@ -351,7 +469,11 @@ const web = (() => {
         el.removeAttribute("src");
         el.load();
       }
-      if (player.web && player.video && player.session) {
+      if (player.native) {
+        bridge?.videoClose?.();
+        if (transcoding) invoke("stop_transcode", { session: player.session }).catch(() => {});
+        transcoding = false;
+      } else if (player.web && player.video && player.session) {
         invoke("stop_transcode", { session: player.session }).catch(() => {});
       }
       media = null;

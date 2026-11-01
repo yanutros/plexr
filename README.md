@@ -257,10 +257,12 @@ prend le relais. Les écoutes remontent dans l'historique de Plex. Une musique l
 celle de la voiture, et inversement.
 
 > [!NOTE]
-> **Lecture sur Android** : il n'y a pas de mpv. La vidéo est convertie à la volée par votre serveur Plex (flux
-> HLS, 1080p au maximum, sous-titres incrustés) et lue par le lecteur intégré ; le choix des pistes audio et des
-> sous-titres n'est pas encore proposé. La musique est lue directement. La reprise, l'épisode suivant et la
-> progression fonctionnent comme sur ordinateur.
+> **Lecture sur Android** : il n'y a pas de mpv. La vidéo est lue par ExoPlayer, le lecteur natif qu'utilisent
+> aussi Plex et Wholphin : le fichier d'origine (4K, HEVC, HDR compris) est décodé par l'appareil et affiché dans
+> sa propre couche, sous l'interface de lecture de Plexr — fluide même sur un téléviseur modeste. Les pistes audio
+> et les sous-titres (intégrés ou externes) se choisissent pendant la lecture. Si l'appareil ne sait pas lire un
+> format, le serveur Plex le convertit à la volée (HLS, 1080p). La musique est lue directement. La reprise,
+> l'épisode suivant et la progression fonctionnent comme sur ordinateur.
 
 > [!TIP]
 > **Sur téléviseur**, l'interface est volontairement plus sobre que sur ordinateur (pas de carrousel animé, de
@@ -503,8 +505,8 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | `src/lib/device.ts` | type d'appareil (ordinateur, tablette tactile, téléviseur) et échelle de l'interface sur TV |
 | `src/lib/spatial.ts`, `src/lib/nav.svelte.ts` | navigation à la télécommande (flèches) et bouton Retour d'Android |
 | `src/components/TvRows.svelte`, `TvGrid.svelte`, `src/lib/tvcards.ts` | interface TV : rangées avec fiche en haut, grilles légères |
-| `src/lib/player.svelte.ts` | lecture : mpv sur ordinateur, lecteur HTML (HLS transcodé par Plex) sur Android |
-| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière, icônes par couleur), signature, détection du téléviseur et du téléphone, barres système, vidéo en paysage (`MainActivity.kt`), musique en arrière-plan, notification et Android Auto (`MediaService.kt`, bibliothèque lue auprès de Plex dans `PlexLibrary.kt`, pochettes servies à la voiture par `ArtProvider.kt`) |
+| `src/lib/player.svelte.ts` | lecture : mpv sur ordinateur, ExoPlayer natif sur Android (HLS converti par Plex en secours) |
+| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière, icônes par couleur), signature, détection du téléviseur et du téléphone, barres système, vidéo en paysage (`MainActivity.kt`), lecteur vidéo natif sous la page (`NativeVideo.kt`), musique en arrière-plan, notification et Android Auto (`MediaService.kt`, bibliothèque lue auprès de Plex dans `PlexLibrary.kt`, pochettes servies à la voiture par `ArtProvider.kt`) |
 | `src/components/PhoneTabs.svelte`, `src/views/Libraries.svelte` | téléphone : barre d'onglets et liste des bibliothèques |
 | `src-tauri/tauri.conf.json`, `tauri.windows.conf.json` | configuration et paquets ; la fenêtre transparente n'est activée que sous Windows |
 | `.github/workflows/paquets.yml` | construction des paquets Windows, Linux et macOS (l'APK est construit à part) |
