@@ -86,6 +86,17 @@ class MainActivity : TauriActivity() {
       @JavascriptInterface
       fun isTv(): Boolean = tv
 
+      /** Téléviseur : OK sur un champ de saisie ouvre le clavier (il ne s'ouvre pas au simple passage). */
+      @JavascriptInterface
+      fun showKeyboard() {
+        runOnUiThread {
+          val imm = getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+          // Le champ vient de changer de mode de saisie : Android le relit avant d'ouvrir le clavier.
+          imm.restartInput(webView)
+          webView.postDelayed({ imm.showSoftInput(webView, android.view.inputmethod.InputMethodManager.SHOW_FORCED) }, 100)
+        }
+      }
+
       /** Musique : état de la lecture pour la notification (JSON, voir MediaService). */
       @JavascriptInterface
       fun mediaUpdate(json: String) = MediaService.update(this@MainActivity, json)

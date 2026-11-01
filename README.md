@@ -377,7 +377,8 @@ toute seule. Ce mode est aussi proposé sur ordinateur et tablette (**Avec un co
 
 Les flèches déplacent la sélection (entourée en doré), **OK** ouvre ou lance, **Retour** ferme ce qui est ouvert
 puis revient à la page précédente. Sur « Continuer à regarder », OK reprend directement la lecture. Pendant une
-vidéo, les touches lecture / pause et suivant / précédent de la télécommande fonctionnent.
+vidéo, les touches lecture / pause et suivant / précédent de la télécommande fonctionnent. Les champs de saisie
+(connexion, réglages, recherche) se traversent aux flèches sans ouvrir le clavier : **OK** l'ouvre.
 
 ### ⌨️ Raccourcis
 

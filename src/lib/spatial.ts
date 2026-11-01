@@ -216,6 +216,32 @@ export function enableSpatialNavigation(skip: () => boolean) {
     },
     true,
   );
+  // Champs de saisie : les traverser aux flèches n'ouvre pas le clavier (ils passent en lecture
+  // seule) ; OK les rend modifiables et ouvre le clavier. Avec `inputmode="none"`, Android garderait
+  // la touche OK pour lui : la page ne la recevrait jamais.
+  const TEXT = 'input:not([type="checkbox"], [type="radio"], [type="range"], [type="button"], [type="submit"]), textarea';
+  const typing = new WeakSet<HTMLInputElement>();
+  window.addEventListener("focusin", (e) => {
+    const el = e.target as HTMLInputElement;
+    if (!el.matches?.(TEXT) || typing.has(el) || (el.readOnly && !el.dataset.tvLock)) return;
+    el.dataset.tvLock = "1";
+    el.readOnly = true;
+  });
+  window.addEventListener("focusout", (e) => typing.delete(e.target as HTMLInputElement));
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      const el = e.target as HTMLInputElement;
+      if (e.key !== "Enter" || !el.dataset?.tvLock || typing.has(el)) return;
+      e.preventDefault();
+      el.readOnly = false;
+      typing.add(el);
+      // Android a déjà retiré la sélection du champ : on la lui rend, puis il ouvre le clavier.
+      el.focus({ preventScroll: true });
+      setTimeout(() => (window as { PlexrDevice?: { showKeyboard?: () => void } }).PlexrDevice?.showKeyboard?.(), 0);
+    },
+    true,
+  );
   // Toujours un élément sélectionné et visible : au chargement des pages (les données arrivent
   // après coup), à la fin d'une lecture, au retour dans Plexr.
   let pending = 0;
