@@ -20,7 +20,7 @@
   let error = $state<string | null>(null);
   let primary = $state<HTMLButtonElement>();
 
-  const RELEASES = "https://github.com/yanutros/plexr/releases";
+  const RELEASES = "https://github.com/yanutros/maku/releases";
 
   const notes = $derived(info ? releaseHighlights(info.notes, locale) : "");
 

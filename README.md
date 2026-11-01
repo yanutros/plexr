@@ -299,7 +299,8 @@ sur GitHub.
 
 **Depuis Plexr** : la mise à jour se fait comme d'habitude, les réglages et les connexions sont gardés (l'identifiant
 de l'application ne change pas). Sous Windows, l'installeur de Maku désinstalle l'ancien Plexr pour qu'il n'en
-reste pas deux ; sur Linux et macOS, l'ancien Plexr peut être supprimé à la main.
+reste pas deux ; sur Linux et macOS, l'ancien Plexr peut être supprimé à la main. Le dépôt est passé de
+`yanutros/plexr` à `yanutros/maku` ; GitHub redirige les anciennes adresses, mises à jour comprises.
 
 ### Pourquoi pas encore de Flatpak ?
 
@@ -319,8 +320,8 @@ Il faut [Rust](https://rustup.rs) et [Node.js](https://nodejs.org), plus :
 - **macOS** : les outils en ligne de commande Xcode (`xcode-select --install`).
 
 ```bash
-git clone https://github.com/yanutros/plexr.git
-cd plexr
+git clone https://github.com/yanutros/maku.git
+cd maku
 npm install
 npm run tauri build
 ```

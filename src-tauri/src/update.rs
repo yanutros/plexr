@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Emitter};
 use tokio::io::AsyncWriteExt;
 
-const LATEST: &str = "https://api.github.com/repos/yanutros/plexr/releases/latest";
+const LATEST: &str = "https://api.github.com/repos/yanutros/maku/releases/latest";
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -75,7 +75,7 @@ fn request(http: &reqwest::Client, url: &str) -> reqwest::RequestBuilder {
 /// Notes de la version installée (le rappel des nouveautés, depuis les Réglages).
 pub async fn installed_notes(http: &reqwest::Client) -> Result<UpdateInfo> {
     let current = env!("CARGO_PKG_VERSION").to_string();
-    let url = format!("https://api.github.com/repos/yanutros/plexr/releases/tags/v{current}");
+    let url = format!("https://api.github.com/repos/yanutros/maku/releases/tags/v{current}");
     let release: Release = request(http, &url)
         .header("Accept", "application/vnd.github+json")
         .send()
