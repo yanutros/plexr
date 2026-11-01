@@ -351,9 +351,11 @@ machine), puis ajouté à la version avec `gh release upload`.
 
 1. Choisissez votre serveur de médias, **Plex** ou **Jellyfin**. Avec Plex, cliquez sur **Se connecter avec
    Plex** : votre navigateur s'ouvre, validez le code. Avec Jellyfin, saisissez l'adresse du serveur, votre
-   identifiant et votre mot de passe : accueil, bibliothèques (mixtes comprises), fiches, séries, recherche,
-   lecture (fichier d'origine ou flux converti), progression et musique fonctionnent comme avec Plex ; la note,
-   les pages d'acteurs, Seerr et Tracearr avec un compte Jellyfin arrivent ensuite.
+   identifiant et votre mot de passe, ou utilisez **Quick Connect** (un code à valider depuis une autre application
+   Jellyfin déjà connectée, pratique sur téléviseur) : accueil, bibliothèques (mixtes comprises), fiches, séries,
+   pages d'acteurs, recherche, lecture (fichier d'origine ou flux converti), progression, « J'aime », « Retirer de
+   Continuer à regarder » et musique fonctionnent comme avec Plex. Seerr se connecte avec le compte Jellyfin ;
+   Tracearr garde sa connexion par compte plex.tv.
 2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
    teste ses adresses et garde la plus rapide (locale, distante, puis relais), et la revérifie à chaque lancement.
    Si le routeur ou le DNS bloque les adresses locales `*.plex.direct` (protection contre le « DNS rebinding »),
@@ -455,6 +457,10 @@ ses quotas et ses droits. Il n'y a pas de clé API à saisir ; le compte doit si
 par l'administrateur. L'adresse de l'instance se règle dans **Réglages → Seerr**. La protection CSRF de Seerr est
 prise en charge.
 
+Avec un serveur **Jellyfin**, Plexr demande une fois l'identifiant et le mot de passe : ceux du compte Jellyfin si
+Seerr est relié à Jellyfin ou Emby, sinon l'adresse e-mail et le mot de passe du compte local Seerr. Le mot de passe
+n'est jamais enregistré, seule la session Seerr l'est ; quand elle expire, Plexr invite à se reconnecter.
+
 ### 📊 Tracearr
 
 Dans **Réglages → Tracearr**, indiquez l'adresse de l'instance puis cliquez sur **Se connecter avec Plex**.
@@ -497,7 +503,7 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | --- | --- |
 | `src-tauri/src/plex.rs` | plex.tv (PIN, serveurs) et API du serveur Plex : bibliothèques, rangées, genres, musique |
 | `src-tauri/src/player.rs` | mpv incrusté dans la fenêtre (`--wid`, sous la page web transparente) ou en audio seul, piloté par son IPC JSON |
-| `src-tauri/src/seerr.rs` | Seerr : connexion Plex, découverte, fiches détaillées, demandes |
+| `src-tauri/src/seerr.rs` | Seerr : connexion Plex ou Jellyfin, découverte, fiches détaillées, demandes |
 | `src-tauri/src/tracearr.rs` | Tracearr : connexion Plex et tableau de bord personnel |
 | `src-tauri/src/plex_admin.rs` | administration : édition des métadonnées, images, réglages et lectures du serveur |
 | `src-tauri/src/update.rs` | dernière version sur GitHub, paquet adapté à l'appareil, téléchargement et installation |

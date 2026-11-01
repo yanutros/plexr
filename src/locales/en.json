@@ -45,7 +45,9 @@
       "tracearrIntro": "Your personal viewing statistics. Sign-in goes through your Plex account: your browser opens once to authorise Tracearr, then the session lasts 30 days.",
       "waitingBrowser": "Waiting for confirmation in the browser…",
       "logout": "Sign out",
-      "connected": "Connected"
+      "connected": "Connected",
+      "seerrIntroJellyfin": "Requests are made in your name, with your Jellyfin account (or your Seerr email if Seerr is linked to Plex). The password is used once: only the session is kept.",
+      "connectWithJellyfin": "Sign in with Jellyfin"
     },
     "invite": {
       "invalid": "This invite code is not valid.",
@@ -131,7 +133,9 @@
     "password": "Password",
     "connect": "Sign in",
     "connecting": "Signing in…",
-    "back": "Back"
+    "back": "Back",
+    "quickConnect": "With Quick Connect",
+    "quickConnectHint": "In Jellyfin, open your profile → Quick Connect and enter this code:"
   },
   "servers": {
     "title": "Choose a server",

@@ -74,7 +74,8 @@
       "screenplay": "Screenplay",
       "novel": "Novel",
       "producer": "Producer"
-    }
+    },
+    "sessionExpired": "Seerr session expired: sign in again in Settings."
   },
   "tracearr": {
     "invalidUrl": "Invalid Tracearr address: {{url}}",
@@ -129,6 +130,7 @@
       "recentAlbums": "Recently Added Albums",
       "recentlyPlayed": "Recently Played",
       "playlists": "Playlists"
-    }
+    },
+    "quickConnectOff": "Quick Connect is disabled on this Jellyfin server (Dashboard → General)."
   }
 }

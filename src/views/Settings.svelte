@@ -50,6 +50,9 @@
     mpvPath = session.mpvPath ?? "";
   });
 
+  // Avec Jellyfin, Seerr demande l'identifiant et le mot de passe Jellyfin (gardés le temps de la connexion).
+  let seerrUser = $state("");
+  let seerrPassword = $state("");
   let seerrBusy = $state(false);
   let seerrError = $state<string | null>(null);
   let tracearrBusy = $state(false);
@@ -89,7 +92,12 @@
     seerrBusy = true;
     seerrError = null;
     try {
-      await api.seerrConfigure(seerrUrl);
+      if (session.serverKind === "jellyfin" && seerrUrl) {
+        await api.seerrConfigureJellyfin(seerrUrl, seerrUser, seerrPassword);
+        seerrPassword = "";
+      } else {
+        await api.seerrConfigure(seerrUrl);
+      }
       toast(seerrUrl ? t("settings.services.seerrConnected") : t("settings.services.seerrDisabled"));
       onChange();
     } catch (e) {
@@ -469,12 +477,20 @@
       <section class="card">
         <h2>Seerr</h2>
         <p class="muted">
-          {t("settings.services.seerrIntro")}
+          {session.serverKind === "jellyfin" ? t("settings.services.seerrIntroJellyfin") : t("settings.services.seerrIntro")}
         </p>
         <label>{t("settings.services.seerrAddress")} <input bind:value={seerrUrl} placeholder="https://seerr.mondomaine.fr" /></label>
+        {#if session.serverKind === "jellyfin"}
+          <label>{t("login.username")} <input bind:value={seerrUser} autocomplete="username" spellcheck="false" /></label>
+          <label>{t("login.password")} <input type="password" bind:value={seerrPassword} autocomplete="current-password" /></label>
+        {/if}
         <div>
           <button class="btn primary" disabled={seerrBusy} onclick={saveSeerr}>
-            {seerrBusy ? t("settings.services.connecting") : t("settings.services.connectWithPlex")}
+            {seerrBusy
+              ? t("settings.services.connecting")
+              : session.serverKind === "jellyfin"
+                ? t("settings.services.connectWithJellyfin")
+                : t("settings.services.connectWithPlex")}
           </button>
         </div>
         {#if seerrError}<p class="error">{seerrError}</p>{/if}

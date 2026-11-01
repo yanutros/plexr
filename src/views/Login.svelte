@@ -65,8 +65,34 @@
     }
   }
 
+  // Quick Connect : un code à valider dans Jellyfin (Profil → Quick Connect), sans mot de passe.
+  let quickCode = $state<string | null>(null);
+
+  async function quickConnect() {
+    error = null;
+    clearInterval(timer);
+    try {
+      const qc = await api.jellyfinQuickStart(jfUrl);
+      quickCode = qc.code;
+      timer = setInterval(async () => {
+        try {
+          if (await api.jellyfinQuickPoll(jfUrl, qc.secret)) {
+            clearInterval(timer);
+            onDone();
+          }
+        } catch (e) {
+          clearInterval(timer);
+          error = errorText(e);
+        }
+      }, 2000);
+    } catch (e) {
+      error = errorText(e);
+    }
+  }
+
   function back() {
     clearInterval(timer);
+    quickCode = null;
     server = null;
     pin = null;
     error = null;
@@ -97,14 +123,20 @@
           <span class="muted small">{t("login.jellyfinHint")}</span>
         </button>
       </div>
+    {:else if server === "jellyfin" && quickCode}
+      <p>{t("login.quickConnectHint")}</p>
+      <div class="code">{#each quickCode.split("") as c, i (i)}<span>{c}</span>{/each}</div>
+      <p class="muted small">{t("login.autoConnect")}</p>
+      <div class="row"><button class="btn" onclick={back}>{t("login.back")}</button></div>
     {:else if server === "jellyfin"}
       <form class="jf" onsubmit={loginJellyfin}>
         <label>{t("login.jellyfinUrl")} <input bind:value={jfUrl} placeholder="http://192.168.1.10:8096" autocomplete="url" spellcheck="false" required /></label>
-        <label>{t("login.username")} <input bind:value={jfUser} autocomplete="username" spellcheck="false" required /></label>
+        <label>{t("login.username")} <input bind:value={jfUser} autocomplete="username" spellcheck="false" /></label>
         <label>{t("login.password")} <input type="password" bind:value={jfPassword} autocomplete="current-password" /></label>
         <div class="row">
           <button type="button" class="btn" onclick={back}>{t("login.back")}</button>
           <button type="submit" class="btn primary" disabled={jfBusy}>{jfBusy ? t("login.connecting") : t("login.connect")}</button>
+          <button type="button" class="btn" disabled={!jfUrl.trim()} onclick={quickConnect}>{t("login.quickConnect")}</button>
         </div>
       </form>
     {:else if pin && mode === "link"}

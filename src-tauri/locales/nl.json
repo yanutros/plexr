@@ -74,7 +74,8 @@
       "screenplay": "Scenario",
       "novel": "Roman",
       "producer": "Productie"
-    }
+    },
+    "sessionExpired": "Seerr-sessie verlopen: meld je opnieuw aan in Instellingen."
   },
   "tracearr": {
     "invalidUrl": "Ongeldig Tracearr-adres: {{url}}",
@@ -129,6 +130,7 @@
       "recentAlbums": "Recent toegevoegde albums",
       "recentlyPlayed": "Recent beluisterd",
       "playlists": "Afspeellijsten"
-    }
+    },
+    "quickConnectOff": "Quick Connect staat uit op deze Jellyfin-server (Dashboard → Algemeen)."
   }
 }

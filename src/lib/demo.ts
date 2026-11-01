@@ -254,7 +254,7 @@ function detail(key: string): ItemDetail {
     releaseDate: `${base.year}-03-14`,
     directors: base.kind === "movie" || base.kind === "episode" ? ["Claire Vasseur"] : [],
     writers: base.kind === "movie" || base.kind === "episode" ? ["Antoine Rey", "Claire Vasseur"] : [],
-    cast: base.kind === "movie" || base.kind === "show" ? CAST.map((name, i) => ({ id: i + 1, name, role: ROLES[i], photo: avatar(name) })) : [],
+    cast: base.kind === "movie" || base.kind === "show" ? CAST.map((name, i) => ({ id: String(i + 1), name, role: ROLES[i], photo: avatar(name) })) : [],
     video: base.playable ? "4K (HEVC)" : null,
     audioTracks: base.playable
       ? [
@@ -347,7 +347,7 @@ function seerrDetail(tmdbId: number): SeerrDetail {
       { name: "Antoine Rey", role: "Scénario", photo: null },
       { name: "Nadia Ferrand", role: "Production", photo: null },
     ],
-    cast: CAST.map((name, i) => ({ id: i + 1, name, role: ROLES[i], photo: avatar(name) })),
+    cast: CAST.map((name, i) => ({ id: String(i + 1), name, role: ROLES[i], photo: avatar(name) })),
     trailer: "https://example.org",
     ratings: { rtCritics: 87, rtAudience: 91, rtUrl: null, imdb: 7.8, imdbUrl: null, tmdb: 7.6 },
     collection: null,

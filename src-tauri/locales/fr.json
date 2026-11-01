@@ -74,7 +74,8 @@
       "screenplay": "Scénario",
       "novel": "Roman",
       "producer": "Production"
-    }
+    },
+    "sessionExpired": "Session Seerr expirée : reconnecte-toi dans les Réglages."
   },
   "tracearr": {
     "invalidUrl": "Adresse Tracearr invalide : {{url}}",
@@ -129,6 +130,7 @@
       "recentAlbums": "Albums ajoutés récemment",
       "recentlyPlayed": "Écoutés récemment",
       "playlists": "Playlists"
-    }
+    },
+    "quickConnectOff": "Quick Connect est désactivé sur ce serveur Jellyfin (Tableau de bord → Général)."
   }
 }

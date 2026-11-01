@@ -9,7 +9,7 @@ export type View =
   | { name: "discover" }
   | { name: "seerr"; mediaType: "movie" | "tv"; tmdbId: number }
   | { name: "stats" }
-  | { name: "person"; id: number; personName: string; photo: string | null }
+  | { name: "person"; id: string; personName: string; photo: string | null }
   | { name: "settings" };
 
 export const nav = $state({

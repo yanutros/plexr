@@ -45,7 +45,9 @@
       "tracearrIntro": "Je persoonlijke kijkstatistieken. Je logt in met je Plex-account: je browser opent één keer om Tracearr te autoriseren, daarna blijft de sessie 30 dagen geldig.",
       "waitingBrowser": "Wachten op bevestiging in de browser…",
       "logout": "Uitloggen",
-      "connected": "Verbonden"
+      "connected": "Verbonden",
+      "seerrIntroJellyfin": "Verzoeken gaan op jouw naam via je Jellyfin-account (of je Seerr-e-mail als Seerr aan Plex gekoppeld is). Het wachtwoord wordt één keer gebruikt: alleen de sessie wordt bewaard.",
+      "connectWithJellyfin": "Aanmelden met Jellyfin"
     },
     "invite": {
       "invalid": "Deze uitnodigingscode is niet geldig.",
@@ -131,7 +133,9 @@
     "password": "Wachtwoord",
     "connect": "Aanmelden",
     "connecting": "Aanmelden…",
-    "back": "Terug"
+    "back": "Terug",
+    "quickConnect": "Met Quick Connect",
+    "quickConnectHint": "Open in Jellyfin je profiel → Quick Connect en voer deze code in:"
   },
   "servers": {
     "title": "Kies een server",

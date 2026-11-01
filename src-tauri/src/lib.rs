@@ -83,7 +83,7 @@ impl AppState {
         }
         let c = self.cfg();
         let url = c.seerr_url.ok_or_else(|| anyhow!(crate::i18n::tr("app.seerrNotConfigured")))?;
-        let s = Arc::new(Seerr::connect(&url, c.plex_token).await?);
+        let s = Arc::new(Seerr::connect(&url, c.plex_token, c.seerr_cookies.as_deref()).await?);
         *slot = Some(s.clone());
         Ok(s)
     }
@@ -185,12 +185,8 @@ async fn plex_poll_login(state: State<'_, AppState>, pin_id: u64) -> CmdResult<b
     Ok(true)
 }
 
-/// Connexion à un serveur Jellyfin (adresse, identifiant, mot de passe) : il devient le serveur de Plexr.
-#[tauri::command]
-async fn jellyfin_login(state: State<'_, AppState>, url: String, username: String, password: String) -> CmdResult<String> {
-    let base = jellyfin::normalize_url(&url);
-    let client_id = state.cfg().client_id;
-    let login = jellyfin::login(&state.http, &base, &client_id, username.trim(), &password).await?;
+/// Enregistre le serveur Jellyfin auquel on vient de se connecter : il devient le serveur de Plexr.
+fn save_jellyfin(state: &AppState, base: String, login: jellyfin::Login) -> anyhow::Result<String> {
     let name = login.server_name.clone();
     let saved = SavedServer {
         name: login.server_name,
@@ -204,11 +200,48 @@ async fn jellyfin_login(state: State<'_, AppState>, url: String, username: Strin
     Ok(name)
 }
 
+/// Connexion à un serveur Jellyfin par identifiant et mot de passe.
+#[tauri::command]
+async fn jellyfin_login(state: State<'_, AppState>, url: String, username: String, password: String) -> CmdResult<String> {
+    let base = jellyfin::normalize_url(&url);
+    let client_id = state.cfg().client_id;
+    let login = jellyfin::login(&state.http, &base, &client_id, username.trim(), &password).await?;
+    Ok(save_jellyfin(&state, base, login)?)
+}
+
+/// Quick Connect : demande un code à valider dans Jellyfin.
+#[derive(Serialize)]
+struct QuickCode {
+    code: String,
+    secret: String,
+}
+
+#[tauri::command]
+async fn jellyfin_quick_start(state: State<'_, AppState>, url: String) -> CmdResult<QuickCode> {
+    let qc = jellyfin::quick_connect_start(&state.http, &jellyfin::normalize_url(&url), &state.cfg().client_id).await?;
+    Ok(QuickCode { code: qc.code, secret: qc.secret })
+}
+
+/// Le code Quick Connect est-il validé ? Si oui, Plexr se connecte (renvoie `true`).
+#[tauri::command]
+async fn jellyfin_quick_poll(state: State<'_, AppState>, url: String, secret: String) -> CmdResult<bool> {
+    let base = jellyfin::normalize_url(&url);
+    match jellyfin::quick_connect_poll(&state.http, &base, &state.cfg().client_id, &secret).await? {
+        Some(login) => {
+            save_jellyfin(&state, base, login)?;
+            Ok(true)
+        }
+        None => Ok(false),
+    }
+}
+
 #[tauri::command]
 async fn plex_logout(state: State<'_, AppState>) -> CmdResult<()> {
     state.update_cfg(|c| {
         c.plex_token = None;
         c.server = None;
+        // La session Seerr d'un compte Jellyfin part avec lui.
+        c.seerr_cookies = None;
     })?;
     *state.seerr.lock().await = None;
     Ok(())
@@ -399,8 +432,8 @@ async fn plex_remote_logo(state: State<'_, AppState>, guid: String, fallback: Op
 
 /// Films et séries où joue une personne (identifiant Plex de l'acteur), toutes bibliothèques confondues.
 #[tauri::command]
-async fn plex_person_items(state: State<'_, AppState>, id: u64) -> CmdResult<Vec<plex::Item>> {
-    Ok(state.server()?.person_items(id).await?)
+async fn plex_person_items(state: State<'_, AppState>, id: String) -> CmdResult<Vec<plex::Item>> {
+    Ok(state.server()?.person_items(&id).await?)
 }
 
 #[tauri::command]
@@ -782,11 +815,32 @@ async fn seerr_configure(state: State<'_, AppState>, url: String) -> CmdResult<(
     let mut slot = state.seerr.lock().await;
     if url.is_empty() {
         *slot = None;
-        state.update_cfg(|c| c.seerr_url = None)?;
+        state.update_cfg(|c| {
+            c.seerr_url = None;
+            c.seerr_cookies = None;
+        })?;
         return Ok(());
     }
-    let seerr = Seerr::connect(&url, state.cfg().plex_token).await?;
-    state.update_cfg(|c| c.seerr_url = Some(url))?;
+    let seerr = Seerr::connect(&url, state.cfg().plex_token, None).await?;
+    state.update_cfg(|c| {
+        c.seerr_url = Some(url);
+        c.seerr_cookies = None;
+    })?;
+    *slot = Some(Arc::new(seerr));
+    Ok(())
+}
+
+/// Enregistre l'adresse de Seerr et s'y connecte avec un compte Jellyfin : seule la session est gardée.
+#[tauri::command]
+async fn seerr_configure_jellyfin(state: State<'_, AppState>, url: String, username: String, password: String) -> CmdResult<()> {
+    let url = url.trim().trim_end_matches('/').to_string();
+    let mut slot = state.seerr.lock().await;
+    let seerr = Seerr::connect_jellyfin(&url, username.trim(), &password).await?;
+    let cookies = seerr.saved_cookies();
+    state.update_cfg(|c| {
+        c.seerr_url = Some(url);
+        c.seerr_cookies = cookies;
+    })?;
     *slot = Some(Arc::new(seerr));
     Ok(())
 }
@@ -1052,6 +1106,8 @@ pub fn run() {
             set_mpv_path,
             plex_start_login,
             jellyfin_login,
+            jellyfin_quick_start,
+            jellyfin_quick_poll,
             plex_poll_login,
             plex_logout,
             plex_forget_server,
@@ -1102,6 +1158,7 @@ pub fn run() {
             player_command,
             player_stop,
             seerr_configure,
+            seerr_configure_jellyfin,
             seerr_search,
             seerr_trending,
             seerr_tv_seasons,

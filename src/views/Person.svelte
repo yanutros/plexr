@@ -8,7 +8,7 @@
   import TvGrid from "../components/TvGrid.svelte";
 
   /** Une personne (acteur) : ses films et séries dans les bibliothèques du serveur, comme dans Plex. */
-  let { id, name, photo }: { id: number; name: string; photo: string | null } = $props();
+  let { id, name, photo }: { id: string; name: string; photo: string | null } = $props();
 
   let items = $state<Item[] | null>(null);
   let error = $state<string | null>(null);

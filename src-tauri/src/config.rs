@@ -10,8 +10,10 @@ pub struct Config {
     pub client_id: String,
     pub plex_token: Option<String>,
     pub server: Option<SavedServer>,
-    /// Seerr s'ouvre toujours avec le compte Plex de l'utilisateur.
+    /// Seerr s'ouvre avec le compte Plex de l'utilisateur, ou son compte Jellyfin.
     pub seerr_url: Option<String>,
+    /// Cookies de session Seerr d'un compte Jellyfin (le mot de passe n'est jamais gardé).
+    pub seerr_cookies: Option<String>,
     pub mpv_path: Option<String>,
     pub tracearr_url: Option<String>,
     /// Cookies de session Tracearr (« nom=valeur; … »), valables 30 jours.

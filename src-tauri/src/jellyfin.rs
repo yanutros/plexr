@@ -60,16 +60,7 @@ struct PublicInfo {
 
 /// Connexion par identifiant et mot de passe.
 pub async fn login(http: &Client, base: &str, client_id: &str, username: &str, password: &str) -> Result<Login> {
-    let info: PublicInfo = http
-        .get(format!("{base}/System/Info/Public"))
-        .send()
-        .await
-        .map_err(|_| anyhow!(crate::i18n::tr("jellyfin.unreachable")))?
-        .error_for_status()
-        .map_err(|_| anyhow!(crate::i18n::tr("jellyfin.notJellyfin")))?
-        .json()
-        .await
-        .map_err(|_| anyhow!(crate::i18n::tr("jellyfin.notJellyfin")))?;
+    let server_name = server_name(http, base).await?;
     let resp = http
         .post(format!("{base}/Users/AuthenticateByName"))
         .header("Authorization", authorization(client_id, None))
@@ -80,7 +71,71 @@ pub async fn login(http: &Client, base: &str, client_id: &str, username: &str, p
         bail!(crate::i18n::tr("jellyfin.badCredentials"));
     }
     let auth: AuthResult = resp.error_for_status()?.json().await?;
-    Ok(Login { token: auth.access_token, user_id: auth.user.id, server_id: auth.server_id, server_name: info.server_name })
+    Ok(Login { token: auth.access_token, user_id: auth.user.id, server_id: auth.server_id, server_name })
+}
+
+/// Quick Connect : un code à valider dans Jellyfin (Profil → Quick Connect), sans mot de passe.
+pub struct QuickConnect {
+    pub code: String,
+    pub secret: String,
+}
+
+pub async fn quick_connect_start(http: &Client, base: &str, client_id: &str) -> Result<QuickConnect> {
+    server_name(http, base).await?;
+    let resp = http
+        .post(format!("{base}/QuickConnect/Initiate"))
+        .header("Authorization", authorization(client_id, None))
+        .send()
+        .await?;
+    if !resp.status().is_success() {
+        bail!(crate::i18n::tr("jellyfin.quickConnectOff"));
+    }
+    let v: serde_json::Value = resp.json().await?;
+    Ok(QuickConnect {
+        code: v["Code"].as_str().unwrap_or_default().into(),
+        secret: v["Secret"].as_str().unwrap_or_default().into(),
+    })
+}
+
+/// Le code a-t-il été validé ? Si oui, la connexion.
+pub async fn quick_connect_poll(http: &Client, base: &str, client_id: &str, secret: &str) -> Result<Option<Login>> {
+    let v: serde_json::Value = http
+        .get(format!("{base}/QuickConnect/Connect?Secret={secret}"))
+        .header("Authorization", authorization(client_id, None))
+        .send()
+        .await?
+        .error_for_status()?
+        .json()
+        .await?;
+    if v["Authenticated"].as_bool() != Some(true) {
+        return Ok(None);
+    }
+    let auth: AuthResult = http
+        .post(format!("{base}/Users/AuthenticateWithQuickConnect"))
+        .header("Authorization", authorization(client_id, None))
+        .json(&serde_json::json!({ "Secret": secret }))
+        .send()
+        .await?
+        .error_for_status()?
+        .json()
+        .await?;
+    let name = server_name(http, base).await?;
+    Ok(Some(Login { token: auth.access_token, user_id: auth.user.id, server_id: auth.server_id, server_name: name }))
+}
+
+/// Nom du serveur, et vérification que l'adresse est bien celle d'un serveur Jellyfin.
+async fn server_name(http: &Client, base: &str) -> Result<String> {
+    let info: PublicInfo = http
+        .get(format!("{base}/System/Info/Public"))
+        .send()
+        .await
+        .map_err(|_| anyhow!(crate::i18n::tr("jellyfin.unreachable")))?
+        .error_for_status()
+        .map_err(|_| anyhow!(crate::i18n::tr("jellyfin.notJellyfin")))?
+        .json()
+        .await
+        .map_err(|_| anyhow!(crate::i18n::tr("jellyfin.notJellyfin")))?;
+    Ok(info.server_name)
 }
 
 /// Serveur Jellyfin connecté.
@@ -279,7 +334,8 @@ impl JellyfinServer {
             unwatched_count: user["UnplayedItemCount"].as_u64().map(|n| n as u32).filter(|_| matches!(kind, "show" | "season")),
             content_rating: str_of(&v["OfficialRating"]),
             rating: v["CommunityRating"].as_f64().map(|r| r as f32),
-            user_rating: None,
+            // Jellyfin n'a pas d'étoiles : « J'aime » vaut 5 étoiles, « Je n'aime pas » 1.
+            user_rating: user["Likes"].as_bool().map(|l| if l { 10.0 } else { 2.0 }),
             genres: v["Genres"].as_array().map(|g| g.iter().filter_map(|x| x.as_str().map(str::to_owned)).collect()).unwrap_or_default(),
             resolution: None,
             playable: matches!(kind, "movie" | "episode" | "track"),
@@ -408,6 +464,15 @@ impl JellyfinServer {
         self.items(&format!("/Items/{id}/Similar?UserId={}&Limit=24&{FIELDS}", self.uid())).await
     }
 
+    /// Films et séries où joue une personne, du plus récent au plus ancien.
+    pub async fn person_items(&self, id: &str) -> Result<Vec<Item>> {
+        self.items(&format!(
+            "/Users/{}/Items?PersonIds={id}&Recursive=true&IncludeItemTypes=Movie,Series&SortBy=PremiereDate,ProductionYear&SortOrder=Descending&{FIELDS}",
+            self.uid()
+        ))
+        .await
+    }
+
     pub async fn search(&self, query: &str) -> Result<Vec<Item>> {
         self.items(&format!(
             "/Users/{}/Items?searchTerm={}&Recursive=true&IncludeItemTypes=Movie,Series,Episode,MusicArtist,MusicAlbum,Audio&Limit=40&{FIELDS}",
@@ -454,7 +519,7 @@ impl JellyfinServer {
             .filter(|p| p["Type"] == "Actor")
             .take(30)
             .map(|p| CastMember {
-                id: None,
+                id: str_of(&p["Id"]),
                 name: p["Name"].as_str().unwrap_or_default().into(),
                 role: str_of(&p["Role"]),
                 photo: str_of(&p["Id"]).zip(p["PrimaryImageTag"].as_str()).map(|(pid, t)| self.image(&pid, "Primary", t, 300)),
@@ -615,6 +680,37 @@ impl JellyfinServer {
         let path = if state == "stopped" { "/Sessions/Playing/Stopped" } else { "/Sessions/Playing/Progress" };
         self.send(reqwest::Method::POST, path)
             .json(&serde_json::json!({ "ItemId": id, "PositionTicks": time_ms * 10_000, "IsPaused": state == "paused", "CanSeek": true }))
+            .send()
+            .await?
+            .error_for_status()?;
+        Ok(())
+    }
+
+    /// Note : Jellyfin ne connaît que « J'aime » / « Je n'aime pas » (3 étoiles et plus = j'aime).
+    pub async fn rate(&self, id: &str, rating: Option<f32>) -> Result<()> {
+        let path = format!("/Users/{}/Items/{id}/Rating", self.uid());
+        let req = match rating {
+            Some(r) => self.send(reqwest::Method::POST, &format!("{path}?likes={}", r >= 6.0)),
+            None => self.send(reqwest::Method::DELETE, &path),
+        };
+        req.send().await?.error_for_status()?;
+        Ok(())
+    }
+
+    /// Retire un titre de « Continuer à regarder » : sa position de lecture repart à zéro.
+    pub async fn remove_from_continue(&self, id: &str) -> Result<()> {
+        let body = serde_json::json!({ "PlaybackPositionTicks": 0 });
+        let current = self
+            .send(reqwest::Method::POST, &format!("/UserItems/{id}/UserData?userId={}", self.uid()))
+            .json(&body)
+            .send()
+            .await?;
+        if current.status().is_success() {
+            return Ok(());
+        }
+        // Serveurs Jellyfin plus anciens (avant 10.9).
+        self.send(reqwest::Method::POST, &format!("/Users/{}/Items/{id}/UserData", self.uid()))
+            .json(&body)
             .send()
             .await?
             .error_for_status()?;

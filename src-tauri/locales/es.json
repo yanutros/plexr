@@ -74,7 +74,8 @@
       "screenplay": "Guion",
       "novel": "Novela",
       "producer": "Producción"
-    }
+    },
+    "sessionExpired": "La sesión de Seerr ha caducado: vuelve a iniciar sesión en Ajustes."
   },
   "tracearr": {
     "invalidUrl": "Dirección de Tracearr no válida: {{url}}",
@@ -129,6 +130,7 @@
       "recentAlbums": "Álbumes añadidos recientemente",
       "recentlyPlayed": "Escuchado recientemente",
       "playlists": "Listas"
-    }
+    },
+    "quickConnectOff": "Quick Connect está desactivado en este servidor Jellyfin (Panel → General)."
   }
 }

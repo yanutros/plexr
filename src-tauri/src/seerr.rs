@@ -11,13 +11,15 @@ const TMDB_IMAGES: &str = "https://image.tmdb.org/t/p";
 /// Statut Seerr « demandé » (2) ; les autres : 3 en cours, 4 partiel, 5 disponible.
 const STATUS_PENDING: u8 = 2;
 
-/// Client Seerr. La session est ouverte avec le jeton Plex de l'utilisateur :
-/// les demandes sont faites à son nom, avec ses quotas et ses droits.
+/// Client Seerr. La session est ouverte avec le compte de l'utilisateur (jeton Plex, ou
+/// identifiant Jellyfin dont seuls les cookies de session sont gardés) : les demandes sont
+/// faites à son nom, avec ses quotas et ses droits.
 pub struct Seerr {
     http: Client,
     cookies: Arc<Jar>,
     base: String,
-    plex_token: String,
+    /// Pour rouvrir la session Plex quand elle expire ; sans lui (Jellyfin), il faut se reconnecter.
+    plex_token: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -111,27 +113,75 @@ pub struct SeerrSeason {
 }
 
 impl Seerr {
-    pub async fn connect(base: &str, plex_token: Option<String>) -> Result<Self> {
-        let plex_token = plex_token.ok_or_else(|| anyhow!(crate::i18n::tr("seerr.plexRequired")))?;
+    fn new(base: &str, plex_token: Option<String>, saved_cookies: Option<&str>) -> Result<Self> {
+        let base = base.trim_end_matches('/').to_string();
         let cookies = Arc::new(Jar::default());
+        if let Ok(url) = Url::parse(&base) {
+            for pair in saved_cookies.unwrap_or_default().split("; ").filter(|p| p.contains('=')) {
+                cookies.add_cookie_str(&format!("{pair}; Path=/"), &url);
+            }
+        }
         let http = Client::builder()
             .cookie_provider(cookies.clone())
             .timeout(Duration::from_secs(20))
             .build()?;
-        let seerr = Seerr { http, cookies, base: base.trim_end_matches('/').to_string(), plex_token };
+        Ok(Seerr { http, cookies, base, plex_token })
+    }
+
+    /// Session enregistrée (compte Jellyfin) si elle existe, sinon connexion avec le jeton Plex.
+    pub async fn connect(base: &str, plex_token: Option<String>, saved_cookies: Option<&str>) -> Result<Self> {
+        if saved_cookies.is_some() {
+            return Self::new(base, plex_token, saved_cookies);
+        }
+        if plex_token.is_none() {
+            bail!(crate::i18n::tr("seerr.plexRequired"));
+        }
+        let seerr = Self::new(base, plex_token, None)?;
         seerr.login().await?;
         Ok(seerr)
     }
 
-    async fn login(&self) -> Result<()> {
-        // Avec la protection CSRF de Seerr, une première requête dépose le jeton à renvoyer.
-        self.builder(Method::GET, "/settings/public")
+    /// Connexion sans Plex (compte Jellyfin, ou compte local de Seerr) : le mot de passe sert une fois, la session est gardée
+    /// (`saved_cookies`).
+    pub async fn connect_jellyfin(base: &str, username: &str, password: &str) -> Result<Self> {
+        let seerr = Self::new(base, None, None)?;
+        let public = seerr.prepare().await?;
+        // Seerr ne gère qu'un type de serveur : 2 Jellyfin, 3 Emby. Un Seerr prévu pour Plex
+        // accepte encore ses comptes locaux (adresse e-mail et mot de passe).
+        let (path, body) = match public["mediaServerType"].as_u64() {
+            Some(2 | 3) => ("/auth/jellyfin", json!({ "username": username, "password": password })),
+            _ => ("/auth/local", json!({ "email": username, "password": password })),
+        };
+        let resp = seerr.builder(Method::POST, path).json(&body).send().await?;
+        if !resp.status().is_success() {
+            bail!(crate::i18n::tr_with("seerr.loginRefused", &[("status", &resp.status().to_string())]));
+        }
+        Ok(seerr)
+    }
+
+    /// Cookies de session à conserver (« nom=valeur; … »).
+    pub fn saved_cookies(&self) -> Option<String> {
+        let url = Url::parse(&self.base).ok()?;
+        self.cookies.cookies(&url).and_then(|h| h.to_str().ok().map(str::to_owned))
+    }
+
+    /// Avec la protection CSRF de Seerr, une première requête dépose le jeton à renvoyer.
+    /// Renvoie les réglages publics de Seerr.
+    async fn prepare(&self) -> Result<Value> {
+        let resp = self
+            .builder(Method::GET, "/settings/public")
             .send()
             .await
             .map_err(|e| anyhow!(crate::i18n::tr_with("seerr.unreachable", &[("error", &e.to_string())])))?;
+        Ok(resp.json().await.unwrap_or_default())
+    }
+
+    async fn login(&self) -> Result<()> {
+        let Some(token) = &self.plex_token else { bail!(crate::i18n::tr("seerr.sessionExpired")) };
+        self.prepare().await?;
         let resp = self
             .builder(Method::POST, "/auth/plex")
-            .json(&json!({ "authToken": self.plex_token }))
+            .json(&json!({ "authToken": token }))
             .send()
             .await?;
         if !resp.status().is_success() {

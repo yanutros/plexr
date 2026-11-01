@@ -612,7 +612,8 @@ pub struct ItemDetail {
 
 #[derive(Serialize)]
 pub struct CastMember {
-    pub id: Option<u64>,
+    /// Identifiant de la personne sur le serveur (nombre chez Plex, texte chez Jellyfin).
+    pub id: Option<String>,
     pub name: String,
     pub role: Option<String>,
     pub photo: Option<String>,
@@ -885,7 +886,7 @@ impl PlexServer {
     }
 
     /// Films et séries d'une personne (acteur) dans toutes les bibliothèques vidéo du serveur.
-    pub async fn person_items(&self, id: u64) -> Result<Vec<Item>> {
+    pub async fn person_items(&self, id: &str) -> Result<Vec<Item>> {
         let sections = self.sections().await?;
         let lists = join_all(
             sections
@@ -1082,7 +1083,7 @@ impl PlexServer {
         let cast = std::mem::take(&mut m.role)
             .into_iter()
             .take(30)
-            .map(|r| CastMember { id: r.id, name: r.tag, role: r.role, photo: r.thumb })
+            .map(|r| CastMember { id: r.id.map(|i| i.to_string()), name: r.tag, role: r.role, photo: r.thumb })
             .collect();
         let original_title = m.original_title.take().filter(|o| !o.trim().is_empty() && *o != m.title);
         let backdrop_hd = m.art.as_ref().map(|p| self.image(p, 2560, 1440));

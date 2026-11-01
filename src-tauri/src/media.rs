@@ -66,12 +66,11 @@ common! {
         fn play_info(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>) -> PlayInfo;
         fn timeline(&self, rating_key: &str, state: &str, time_ms: u64, duration_ms: u64) -> ();
         fn set_watched(&self, rating_key: &str, watched: bool) -> ();
-    }
-    plex_only {
-        fn person_items(&self, id: u64) -> Vec<Item>;
+        fn person_items(&self, id: &str) -> Vec<Item>;
         fn rate(&self, rating_key: &str, rating: Option<f32>) -> ();
         fn remove_from_continue(&self, rating_key: &str) -> ();
     }
+    plex_only {}
 }
 
 impl MediaServer {

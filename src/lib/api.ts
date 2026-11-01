@@ -84,7 +84,7 @@ export interface ItemDetail extends Item {
   releaseDate: string | null;
   directors: string[];
   writers: string[];
-  cast: { id: number | null; name: string; role: string | null; photo: string | null }[];
+  cast: { id: string | null; name: string; role: string | null; photo: string | null }[];
   video: string | null;
   audioTracks: Track[];
   subtitleTracks: Track[];
@@ -317,6 +317,8 @@ export const api = {
   pollLogin: (pinId: number) => invoke<boolean>("plex_poll_login", { pinId }),
   jellyfinLogin: (url: string, username: string, password: string) =>
     invoke<string>("jellyfin_login", { url, username, password }),
+  jellyfinQuickStart: (url: string) => invoke<{ code: string; secret: string }>("jellyfin_quick_start", { url }),
+  jellyfinQuickPoll: (url: string, secret: string) => invoke<boolean>("jellyfin_quick_poll", { url, secret }),
   logout: () => invoke<void>("plex_logout"),
   forgetServer: () => invoke<void>("plex_forget_server"),
   servers: () => invoke<ServerSummary[]>("plex_servers"),
@@ -349,7 +351,7 @@ export const api = {
   setWatchlist: (guid: string, on: boolean) => invoke<void>("plex_set_watchlist", { guid, on }),
   collections: (key: string) => invoke<Item[]>("plex_collections", { key }),
   collectionItems: (ratingKey: string) => invoke<Item[]>("plex_collection_items", { ratingKey }),
-  personItems: (id: number) => invoke<Item[]>("plex_person_items", { id }),
+  personItems: (id: string) => invoke<Item[]>("plex_person_items", { id }),
   remoteLogo: (guid: string, fallback = true) => invoke<string | null>("plex_remote_logo", { guid, fallback }),
   search: (query: string) => invoke<Item[]>("plex_search", { query }),
   setWatched: (ratingKey: string, watched: boolean) => invoke<void>("plex_set_watched", { ratingKey, watched }),
@@ -371,6 +373,8 @@ export const api = {
   emptyTrash: (key: string) => invoke<void>("plex_empty_trash", { key }),
 
   seerrConfigure: (url: string) => invoke<void>("seerr_configure", { url }),
+  seerrConfigureJellyfin: (url: string, username: string, password: string) =>
+    invoke<void>("seerr_configure_jellyfin", { url, username, password }),
   seerrSearch: (query: string, page = 1) => invoke<SeerrMedia[]>("seerr_search", { query, page }),
   seerrTrending: (page = 1) => invoke<SeerrMedia[]>("seerr_trending", { page }),
   seerrDetails: (mediaType: string, tmdbId: number) => invoke<SeerrDetail>("seerr_details", { mediaType, tmdbId }),
