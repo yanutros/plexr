@@ -1,7 +1,7 @@
 <script lang="ts">
   import { menuable } from "../lib/longpress";
   import type { Snippet } from "svelte";
-  import { moveFocus } from "../lib/spatial";
+  import { focusTabs, moveFocus } from "../lib/spatial";
   import TitleLogo from "./TitleLogo.svelte";
   import type { TvRow } from "../lib/tvcards";
 
@@ -61,7 +61,7 @@
       // Tout en haut, on rejoint les onglets.
       if (row === 0) {
         e.preventDefault();
-        moveFocus("ArrowUp");
+        if (!focusTabs()) moveFocus("ArrowUp");
         return;
       }
       r2 = row - 1;

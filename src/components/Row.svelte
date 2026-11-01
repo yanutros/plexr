@@ -42,7 +42,7 @@
       </button>
     </div>
   </div>
-  <div class="scroller" class:wide class:large bind:this={scroller} onscroll={update}>
+  <div class="scroller" class:wide class:large bind:this={scroller} onscroll={update} data-nav-row>
     {@render children()}
   </div>
 </section>
@@ -50,6 +50,11 @@
 <style>
   section {
     margin-top: 28px;
+  }
+
+  /* Téléviseur : la télécommande fait défiler la rangée, les flèches seraient des étapes inutiles. */
+  :global(html.tv) .arrows {
+    display: none;
   }
 
   .head {

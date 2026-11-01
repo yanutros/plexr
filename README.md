@@ -268,7 +268,9 @@ celle de la voiture, et inversement.
 > [!TIP]
 > **Sur téléviseur**, l'interface est volontairement plus sobre que sur ordinateur (pas de carrousel animé, de
 > cartes qui s'agrandissent ni de flou) pour consommer peu de mémoire. Les nouveautés arrivent d'abord sur
-> l'application de bureau. Comme dans Plex, un **appui long sur OK** (ou la touche Menu) sur une jaquette ouvre
+> l'application de bureau. Un élément est toujours sélectionné (à l'arrivée, après une lecture), et les fiches
+> se parcourent rangée par rangée comme dans Plex et Wholphin : haut / bas d'une rangée à l'autre (boutons,
+> audio, sous-titres, distribution, « Plus de ce genre »), gauche / droite dans la rangée. Comme dans Plex, un **appui long sur OK** (ou la touche Menu) sur une jaquette ouvre
 > le menu du titre : reprendre ou recommencer, liste de visionnage, note, retrait de « Continuer à regarder »,
 > vu / non vu, et pour la musique lecture aléatoire, aller à l'artiste ou à l'album.
 

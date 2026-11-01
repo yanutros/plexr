@@ -1,6 +1,6 @@
 <script lang="ts">
   import { menuable } from "../lib/longpress";
-  import { moveFocus } from "../lib/spatial";
+  import { focusTabs, moveFocus } from "../lib/spatial";
   import type { TvCard } from "../lib/tvcards";
 
   /**
@@ -47,7 +47,7 @@
     else if (e.key === "ArrowUp") {
       if (index < columns) {
         e.preventDefault();
-        moveFocus("ArrowUp");
+        if (!focusTabs()) moveFocus("ArrowUp");
         return;
       }
       next = index - columns;
@@ -90,8 +90,10 @@
     --ratio: 2 / 3;
     display: grid;
     grid-template-columns: repeat(var(--columns), 1fr);
-    gap: 28px 20px;
-    padding: 6px 4px 48px;
+    /* L'espace entre les cases vient de leur marge intérieure (voir .cell). */
+    gap: 4px 0;
+    margin: 0 -12px;
+    padding: 0 0 36px;
   }
 
   .tv-grid.square,
@@ -103,13 +105,14 @@
     --ratio: 16 / 9;
   }
 
-  /* Hors de l'écran, une case n'est ni mise en page ni dessinée. */
+  /* Hors de l'écran, une case n'est ni mise en page ni dessinée. Ce mode coupe tout ce qui dépasse
+     de la case : la marge intérieure laisse la place au cadre et à l'agrandissement de la sélection. */
   .cell {
     display: flex;
     flex-direction: column;
     gap: 8px;
     min-width: 0;
-    padding: 0;
+    padding: 12px;
     border: none;
     background: none;
     text-align: left;

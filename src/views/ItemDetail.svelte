@@ -10,6 +10,7 @@
   import Icon from "../components/Icon.svelte";
   import TitleLogo from "../components/TitleLogo.svelte";
   import { t, locale } from "../lib/i18n";
+  import { device } from "../lib/device";
 
   let { ratingKey }: { ratingKey: string } = $props();
 
@@ -122,13 +123,13 @@
     {#if heroArt}<img src={heroArt} alt="" />{/if}
   </div>
 
-  <div class="page detail" bind:this={root}>
+  <div class="page detail" bind:this={root} data-nav-rows>
     <section class="hero">
       <div class="hero-main">
         {#if item.showKey && (item.kind === "episode" || item.kind === "season")}
           <!-- Épisode ou saison : le logo de la série, qui y ramène, puis l'épisode ou la saison. -->
           <h1>
-            <button class="show-logo" onclick={() => go({ name: "item", ratingKey: item!.showKey! })} title={item.showTitle ?? ""}>
+            <button class="show-logo" tabindex={device.tv ? -1 : 0} onclick={() => go({ name: "item", ratingKey: item!.showKey! })} title={item.showTitle ?? ""}>
               <TitleLogo logo={null} guid={item.logoGuid} genres={item.genres} title={item.showTitle ?? item.title} />
             </button>
           </h1>
@@ -162,7 +163,7 @@
           {#if item.watched}<span class="badge ok">{t("item.watched")}</span>{/if}
         </div>
 
-        <div class="actions">
+        <div class="actions" data-nav-row>
           {#if item.playable}
             <button class="btn primary big" onclick={() => playThis()}>
               <Icon name="play" size={18} filled />
@@ -210,7 +211,8 @@
       <section class="about">
         {#if item.tagline && item.kind !== "episode"}<p class="tagline">{item.tagline}</p>{/if}
         {#if item.summary}
-          <button class="summary" class:open={summaryOpen} onclick={() => (summaryOpen = !summaryOpen)}>
+          <!-- Sur téléviseur, le résumé n'est pas une étape de la navigation. -->
+          <button class="summary" class:open={summaryOpen} tabindex={device.tv ? -1 : 0} onclick={() => (summaryOpen = !summaryOpen)}>
             {item.summary}
           </button>
         {/if}
@@ -236,7 +238,7 @@
               <div class="track"><span class="ico" title={t("item.facts.video")}><Icon name="film" size={18} /></span><span class="video">{item.video}</span></div>
             {/if}
             {#if item.audioTracks.length}
-              <label class="track">
+              <label class="track" data-nav-row>
                 <span class="ico" title={t("item.facts.audio")}><Icon name="audio" size={18} /></span>
                 <select bind:value={audioStream} aria-label={t("item.facts.audio")}>
                   {#each item.audioTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
@@ -244,7 +246,7 @@
               </label>
             {/if}
             {#if item.playable}
-              <label class="track">
+              <label class="track" data-nav-row>
                 <span class="ico" title={t("item.facts.subtitles")}><Icon name="subtitles" size={18} /></span>
                 <select bind:value={subtitleStream} aria-label={t("item.facts.subtitles")}>
                   <option value={0}>{t("item.facts.none")}</option>
@@ -259,19 +261,19 @@
 
     {#if collection && children.length}
       <h2 class="row-title">{t("item.collectionMovies")}</h2>
-      <div class="grid">
+      <div class="grid" data-nav-row="grid">
         {#each children as movie (movie.ratingKey)}<PosterCard item={movie} />{/each}
       </div>
     {:else if item.kind === "show" && children.length}
       <h2 class="row-title">{t("item.seasons")}</h2>
-      <div class="grid">
+      <div class="grid" data-nav-row="grid">
         {#each children as season (season.ratingKey)}<PosterCard item={season} />{/each}
       </div>
     {:else if item.kind === "season"}
       <h2 class="row-title">{t("item.episodes")}</h2>
       <div class="episodes">
         {#each children as ep (ep.ratingKey)}
-          <div class="episode">
+          <div class="episode" data-nav-row>
             <button class="thumb" onclick={() => start(ep.ratingKey)} aria-label={t("item.playTitle", { title: ep.title })}>
               {#if ep.thumb}<img src={ep.thumb} alt="" loading="lazy" />{/if}
               <span class="play"><Icon name="play" size={20} filled /></span>
@@ -295,7 +297,7 @@
 
     {#if item.cast.length}
       <h2 class="row-title">{t("item.cast")}</h2>
-      <div class="cast">
+      <div class="cast" data-nav-row>
         {#each item.cast as person (person.name + person.role)}
           <!-- Comme dans Plex : un acteur ouvre la liste de ses films et séries du serveur. -->
           <button
