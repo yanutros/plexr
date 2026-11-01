@@ -493,6 +493,9 @@ Sous Windows, pendant une vidéo, la fenêtre Tauri devient transparente et mpv 
 web n'affiche plus que la barre de contrôle par-dessus. Ailleurs, mpv ouvre sa propre fenêtre et Plexr devient une
 télécommande, reliée à mpv par son IPC (socket Unix).
 
+mpv ne survit jamais à Plexr : il est arrêté quand l'application se ferme et, sous Windows, rattaché à
+Plexr par un « Job Object » qui le fait fermer par le système même si Plexr plante ou est tué.
+
 ## 🔒 Confidentialité
 
 - Plexr parle directement à votre serveur Plex, à plex.tv (connexion), à l'API publique de GitHub (pour savoir

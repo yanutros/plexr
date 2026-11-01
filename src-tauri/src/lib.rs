@@ -950,6 +950,14 @@ pub fn run() {
             set_app_icon,
             set_language,
         ])
-        .run(tauri::generate_context!())
-        .expect("erreur au lancement de Plexr");
+        .build(tauri::generate_context!())
+        .expect("erreur au lancement de Plexr")
+        .run(|app, event| {
+            // Fermeture de Plexr : mpv (vidéo ou musique) s'arrête avec lui.
+            if let tauri::RunEvent::Exit = event {
+                if let Some(player) = app.state::<AppState>().player.lock().unwrap().take() {
+                    player.kill_now();
+                }
+            }
+        });
 }

@@ -42,6 +42,8 @@ impl<T: AsyncRead + AsyncWrite + Unpin + Send> IpcStream for T {}
 pub struct PlayerControl {
     commands: mpsc::UnboundedSender<Value>,
     _stop: oneshot::Sender<()>,
+    /// Processus mpv, pour l'arrêter tout de suite à la fermeture de Plexr (voir `kill_now`).
+    pid: Option<u32>,
 }
 
 impl PlayerControl {
@@ -51,6 +53,63 @@ impl PlayerControl {
             .send(json!({ "command": args }))
             .ok()
             .with_context(|| crate::i18n::tr("player.noPlayback"))
+    }
+
+    /// Fermeture de Plexr : arrête mpv sur-le-champ (le suivi asynchrone n'en aurait plus le temps).
+    pub fn kill_now(&self) {
+        let Some(pid) = self.pid else { return };
+        #[cfg(windows)]
+        {
+            use windows_sys::Win32::Foundation::CloseHandle;
+            use windows_sys::Win32::System::Threading::{OpenProcess, TerminateProcess, PROCESS_TERMINATE};
+            unsafe {
+                let process = OpenProcess(PROCESS_TERMINATE, 0, pid);
+                if !process.is_null() {
+                    TerminateProcess(process, 0);
+                    CloseHandle(process);
+                }
+            }
+        }
+        #[cfg(unix)]
+        {
+            let _ = std::process::Command::new("kill").arg(pid.to_string()).status();
+        }
+    }
+}
+
+/// Windows : mpv est rattaché à un « objet tâche » de Plexr, fermé par Windows quand Plexr s'arrête
+/// pour quelque raison que ce soit (fermeture, plantage, arrêt forcé) — et mpv avec lui. Sans cela,
+/// la musique continuait après la fermeture de Plexr, sans plus rien pour l'arrêter.
+#[cfg(windows)]
+fn tie_to_plexr(child: &Child) {
+    use std::sync::OnceLock;
+    use windows_sys::Win32::System::JobObjects::{
+        AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation, SetInformationJobObject,
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+    };
+    // L'objet tâche n'est jamais fermé explicitement : il l'est à la fin du processus de Plexr.
+    static JOB: OnceLock<isize> = OnceLock::new();
+    let job = *JOB.get_or_init(|| unsafe {
+        let job = CreateJobObjectW(std::ptr::null(), std::ptr::null());
+        if job.is_null() {
+            return 0;
+        }
+        let mut info: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = std::mem::zeroed();
+        info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        SetInformationJobObject(
+            job,
+            JobObjectExtendedLimitInformation,
+            &info as *const _ as *const std::ffi::c_void,
+            std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+        );
+        job as isize
+    });
+    if job != 0 {
+        if let Some(process) = child.raw_handle() {
+            unsafe {
+                AssignProcessToJobObject(job as _, process as _);
+            }
+        }
     }
 }
 
@@ -263,6 +322,9 @@ pub fn launch(
         }
     };
 
+    #[cfg(windows)]
+    tie_to_plexr(&child);
+    let pid = child.id();
     let (commands, command_rx) = mpsc::unbounded_channel();
     let (stop, stop_rx) = oneshot::channel();
     tauri::async_runtime::spawn(async move {
@@ -275,7 +337,7 @@ pub fn launch(
         }
         let _ = app.emit("player-stopped", &session_id);
     });
-    Ok(PlayerControl { commands, _stop: stop })
+    Ok(PlayerControl { commands, _stop: stop, pid })
 }
 
 struct Session<'a> {
