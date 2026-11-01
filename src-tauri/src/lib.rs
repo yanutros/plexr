@@ -339,6 +339,11 @@ async fn plex_person_items(state: State<'_, AppState>, id: u64) -> CmdResult<Vec
 }
 
 #[tauri::command]
+async fn plex_related(state: State<'_, AppState>, rating_key: String) -> CmdResult<Vec<Item>> {
+    Ok(state.server()?.related(&rating_key).await?)
+}
+
+#[tauri::command]
 async fn plex_children(state: State<'_, AppState>, rating_key: String) -> CmdResult<Vec<Item>> {
     Ok(state.server()?.children(&rating_key).await?)
 }
@@ -901,6 +906,7 @@ pub fn run() {
             plex_home,
             plex_metadata,
             plex_children,
+            plex_related,
             plex_person_items,
             plex_remote_logo,
             plex_search,

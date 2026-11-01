@@ -332,6 +332,7 @@ export const api = {
   home: () => invoke<Home>("plex_home"),
   metadata: (ratingKey: string) => invoke<ItemDetail>("plex_metadata", { ratingKey }),
   children: (ratingKey: string) => invoke<Item[]>("plex_children", { ratingKey }),
+  related: (ratingKey: string) => invoke<Item[]>("plex_related", { ratingKey }),
   personItems: (id: number) => invoke<Item[]>("plex_person_items", { id }),
   remoteLogo: (guid: string) => invoke<string | null>("plex_remote_logo", { guid }),
   search: (query: string) => invoke<Item[]>("plex_search", { query }),

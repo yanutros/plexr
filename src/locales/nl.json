@@ -276,12 +276,15 @@
       "video": "Video",
       "audio": "Audio",
       "subtitles": "Ondertitels",
-      "none": "Geen"
+      "none": "Geen",
+      "genres": "Genres"
     },
     "seasons": "Seizoenen",
     "episodes": "Afleveringen",
     "playTitle": "{{title}} afspelen",
-    "cast": "Cast"
+    "cast": "Cast",
+    "endsAt": "Eindigt om {{time}}",
+    "related": "Meer zoals dit"
   },
   "stats": {
     "title": "Mijn statistieken",

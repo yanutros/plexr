@@ -276,12 +276,15 @@
       "video": "Vidéo",
       "audio": "Audio",
       "subtitles": "Sous-titres",
-      "none": "Aucun"
+      "none": "Aucun",
+      "genres": "Genres"
     },
     "seasons": "Saisons",
     "episodes": "Épisodes",
     "playTitle": "Lire {{title}}",
-    "cast": "Distribution"
+    "cast": "Distribution",
+    "endsAt": "Se termine à {{time}}",
+    "related": "Plus de ce genre"
   },
   "stats": {
     "title": "Mes statistiques",

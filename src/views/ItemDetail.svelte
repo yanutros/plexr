@@ -6,6 +6,7 @@
   import { go, nav, toast } from "../lib/nav.svelte";
   import { play, type PlayOptions } from "../lib/player.svelte";
   import PosterCard from "../components/PosterCard.svelte";
+  import Row from "../components/Row.svelte";
   import Icon from "../components/Icon.svelte";
   import TitleLogo from "../components/TitleLogo.svelte";
   import { t, locale } from "../lib/i18n";
@@ -17,6 +18,10 @@
   let error = $state<string | null>(null);
   let audioStream = $state<number | null>(null);
   let subtitleStream = $state<number>(0);
+  let related = $state<Item[]>([]);
+  let summaryOpen = $state(false);
+  let root = $state<HTMLElement>();
+  let fade = $state(0);
 
   async function load() {
     try {
@@ -24,6 +29,7 @@
       item = detail;
       audioStream = detail.audioTracks.find((tr) => tr.selected)?.id ?? detail.audioTracks[0]?.id ?? null;
       subtitleStream = detail.subtitleTracks.find((tr) => tr.selected)?.id ?? 0;
+      if (detail.kind === "movie" || detail.kind === "show") api.related(ratingKey).then((r) => (related = r), () => {});
       children = detail.kind === "show" || detail.kind === "season" ? await api.children(ratingKey) : [];
     } catch (e) {
       error = errorText(e);
@@ -59,7 +65,27 @@
       ? new Date(item.releaseDate).toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })
       : null,
   );
-  const art = $derived(item?.kind === "episode" ? (item.thumb ?? item.poster) : item?.poster);
+  // Fond du film, ou de la saison pour une série et ses épisodes (Plex reprend celui de la série
+  // quand la saison n'a pas le sien) : plus soigné que l'image d'un épisode, gardée en dernier recours.
+  const heroArt = $derived(item?.backdrop ?? (item?.kind === "episode" ? item.thumb : item?.poster));
+  // Heure de fin si la lecture démarre maintenant (reprise comprise), comme dans Jellyfin.
+  const endsAt = $derived.by(() => {
+    if (!item?.playable || !item.durationMs) return null;
+    const end = new Date(Date.now() + (item.durationMs - (item.viewOffsetMs ?? 0)));
+    return end.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  });
+  const hasCredits = $derived(!!item && (item.directors.length + item.writers.length + item.genres.length > 0 || !!item.studio));
+  const hasMedia = $derived(!!item && (!!item.video || item.audioTracks.length > 0 || item.playable));
+
+  // Le fond s'assombrit à mesure que la page défile sur lui.
+  $effect(() => {
+    const scroller = root?.closest(".content");
+    if (!scroller) return;
+    const update = () => (fade = Math.min(1, scroller.scrollTop / (window.innerHeight * 0.55)));
+    update();
+    scroller.addEventListener("scroll", update, { passive: true });
+    return () => scroller.removeEventListener("scroll", update);
+  });
 
   onMount(() => {
     load();
@@ -75,17 +101,14 @@
 {:else if isMusic(item.kind)}
   <MusicDetail {item} />
 {:else}
-  <div class="backdrop" style:background-image={item.backdrop ? `url("${item.backdrop}")` : undefined}></div>
+  <!-- Le fond reste en place pendant que la page défile par-dessus, et s'assombrit peu à peu. -->
+  <div class="backdrop" style:--fade={fade}>
+    {#if heroArt}<img src={heroArt} alt="" />{/if}
+  </div>
 
-  <div class="page detail">
-    <div class="head">
-      <div class="art" class:wide={item.kind === "episode"}>
-        {#if art}<img src={art} alt="" />{/if}
-        {#if progress > 0}<div class="progress"><div style:width="{progress}%"></div></div>{/if}
-        {#if remaining}<div class="remaining">{t("item.remaining", { time: formatDuration(remaining) })}</div>{/if}
-      </div>
-
-      <div class="info">
+  <div class="page detail" bind:this={root}>
+    <section class="hero">
+      <div class="hero-main">
         {#if item.showKey}
           <button class="show-link" onclick={() => go({ name: "item", ratingKey: item!.showKey! })}>
             {item.showTitle}
@@ -101,12 +124,9 @@
           /></h1>
         {#if item.kind === "episode"}
           <div class="line">{t("item.seasonEpisode", { season: item.parentIndex ?? "", episode: item.index ?? "" })}</div>
-        {:else if item.tagline}
-          <div class="line tagline">{item.tagline}</div>
         {/if}
 
         <div class="meta">
-          {#if item.contentRating}<span class="badge outline">{item.contentRating}</span>{/if}
           {#if releaseDate}<span>{releaseDate}</span>{:else if item.year}<span>{item.year}</span>{/if}
           {#if item.durationMs && item.kind !== "show" && item.kind !== "season"}
             <span>{formatDuration(item.durationMs)}</span>
@@ -114,7 +134,9 @@
           {#if item.kind === "show" || item.kind === "season"}
             <span>{t(item.kind === "show" ? "item.seasonCount" : "item.episodeCount", { count: children.length })}</span>
           {/if}
+          {#if item.contentRating}<span class="badge outline">{item.contentRating}</span>{/if}
           {#if item.rating}<span class="rating"><Icon name="star" size={14} filled /> {item.rating.toFixed(1)}</span>{/if}
+          {#if endsAt}<span>{t("item.endsAt", { time: endsAt })}</span>{/if}
           {#if item.watched}<span class="badge ok">{t("item.watched")}</span>{/if}
         </div>
 
@@ -149,37 +171,66 @@
           {/if}
         </div>
 
-        {#if item.summary}<p class="summary">{item.summary}</p>{/if}
-
-        {#if item.genres.length}
-          <div class="genres">{#each item.genres as g}<span>{g}</span>{/each}</div>
+        {#if progress > 0}
+          <div class="watch-progress">
+            <div class="bar"><div style:width="{progress}%"></div></div>
+            {#if remaining}<span>{t("item.remaining", { time: formatDuration(remaining) })}</span>{/if}
+          </div>
         {/if}
-
-        <dl class="facts">
-          {#if item.directors.length}<dt>{t("item.facts.director")}</dt><dd>{item.directors.join(", ")}</dd>{/if}
-          {#if item.writers.length}<dt>{t("item.facts.writer")}</dt><dd>{item.writers.slice(0, 3).join(", ")}</dd>{/if}
-          {#if item.studio}<dt>{t("item.facts.studio")}</dt><dd>{item.studio}</dd>{/if}
-          {#if item.video}<dt>{t("item.facts.video")}</dt><dd>{item.video}</dd>{/if}
-          {#if item.audioTracks.length}
-            <dt>{t("item.facts.audio")}</dt>
-            <dd>
-              <select bind:value={audioStream}>
-                {#each item.audioTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
-              </select>
-            </dd>
-          {/if}
-          {#if item.playable}
-            <dt>{t("item.facts.subtitles")}</dt>
-            <dd>
-              <select bind:value={subtitleStream}>
-                <option value={0}>{t("item.facts.none")}</option>
-                {#each item.subtitleTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
-              </select>
-            </dd>
-          {/if}
-        </dl>
       </div>
-    </div>
+
+      <!-- À droite, comme sur l'Apple TV : l'accroche et le résumé, dépliable. -->
+      {#if item.tagline || item.summary}
+        <div class="hero-side">
+          {#if item.tagline && item.kind !== "episode"}<p class="tagline">{item.tagline}</p>{/if}
+          {#if item.summary}
+            <button class="summary" class:open={summaryOpen} onclick={() => (summaryOpen = !summaryOpen)}>
+              {item.summary}
+            </button>
+          {/if}
+        </div>
+      {/if}
+    </section>
+
+    <!-- Deux panneaux, comme Jellyfin : l'équipe à gauche, les pistes à lire à droite. -->
+    {#if hasCredits || hasMedia}
+      <div class="panels">
+        {#if hasCredits}
+          <dl class="panel credits">
+            {#if item.directors.length}<div><dt>{t("item.facts.director")}</dt><dd>{item.directors.join(", ")}</dd></div>{/if}
+            {#if item.writers.length}<div><dt>{t("item.facts.writer")}</dt><dd>{item.writers.slice(0, 3).join(", ")}</dd></div>{/if}
+            {#if item.studio}<div><dt>{t("item.facts.studio")}</dt><dd>{item.studio}</dd></div>{/if}
+            {#if item.genres.length}
+              <div><dt>{t("item.facts.genres")}</dt><dd class="genres">{#each item.genres as g}<span>{g}</span>{/each}</dd></div>
+            {/if}
+          </dl>
+        {/if}
+        {#if hasMedia}
+          <div class="panel media">
+            {#if item.video}
+              <div class="track"><span class="ico" title={t("item.facts.video")}><Icon name="film" size={18} /></span><span class="video">{item.video}</span></div>
+            {/if}
+            {#if item.audioTracks.length}
+              <label class="track">
+                <span class="ico" title={t("item.facts.audio")}><Icon name="audio" size={18} /></span>
+                <select bind:value={audioStream} aria-label={t("item.facts.audio")}>
+                  {#each item.audioTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
+                </select>
+              </label>
+            {/if}
+            {#if item.playable}
+              <label class="track">
+                <span class="ico" title={t("item.facts.subtitles")}><Icon name="subtitles" size={18} /></span>
+                <select bind:value={subtitleStream} aria-label={t("item.facts.subtitles")}>
+                  <option value={0}>{t("item.facts.none")}</option>
+                  {#each item.subtitleTracks as tr (tr.id)}<option value={tr.id}>{tr.label}</option>{/each}
+                </select>
+              </label>
+            {/if}
+          </div>
+        {/if}
+      </div>
+    {/if}
 
     {#if item.kind === "show" && children.length}
       <h2 class="row-title">{t("item.seasons")}</h2>
@@ -231,87 +282,97 @@
         {/each}
       </div>
     {/if}
+
+    {#if related.length}
+      <Row title={t("item.related")}>
+        {#each related as r (r.ratingKey)}<PosterCard item={r} />{/each}
+      </Row>
+    {/if}
   </div>
 {/if}
 
 <style>
+  /* ---------- Bandeau : le fond du titre plein écran, sous l'en-tête transparent ---------- */
+
   .backdrop {
     position: fixed;
     inset: 0 0 0 var(--sidebar-w, 237px);
     z-index: 0;
-    background-size: cover;
-    background-position: center top;
-    opacity: 0.35;
-    mask-image: linear-gradient(#000 0%, #0008 45%, transparent 85%);
+    overflow: hidden;
+    background: var(--bg);
     pointer-events: none;
+  }
+
+  .backdrop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    transform: scale(calc(1 + var(--fade) * 0.05));
+    animation: unveil 1.2s var(--ease);
+  }
+
+  @keyframes unveil {
+    from {
+      opacity: 0;
+      transform: scale(1.08);
+    }
+  }
+
+  /* Dégradés : lisibilité du texte en bas à gauche, puis voile qui s'épaissit au défilement. */
+  .backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(0deg, var(--bg) 0%, #000000b0 28%, transparent 60%),
+      linear-gradient(90deg, #000000c0 0%, #00000060 38%, transparent 70%),
+      rgb(0 0 0 / calc(var(--fade) * 0.72));
   }
 
   .detail {
     position: relative;
     z-index: 1;
-    padding-top: 24px;
   }
 
-  .head {
+  .hero {
     display: flex;
-    gap: 40px;
-    align-items: flex-start;
+    align-items: flex-end;
+    gap: 48px;
+    min-height: calc(100vh - 68px - 90px);
+    padding-bottom: 36px;
   }
 
-  .art {
-    position: relative;
-    flex: none;
-    width: 260px;
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-    background: var(--bg-elev);
-    box-shadow: 0 20px 50px #000c;
-  }
-
-  .art.wide {
-    width: 400px;
-  }
-
-  .art img {
-    display: block;
-    width: 100%;
-  }
-
-  .remaining {
-    padding: 8px 12px;
-    background: #000c;
-    color: var(--text-dim);
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .progress {
-    height: 4px;
-    background: #000a;
-  }
-
-  .art .progress {
-    position: relative;
-  }
-
-  .progress div {
-    height: 100%;
-    background: var(--accent);
-  }
-
-  .info {
-    flex: 1;
+  .hero-main {
+    flex: 1 1 auto;
     min-width: 0;
-    max-width: 820px;
+    max-width: 640px;
+    animation: rise 0.7s 0.15s var(--ease) backwards;
+  }
+
+  .hero-side {
+    flex: 0 1 460px;
+    min-width: 0;
+    padding-bottom: 6px;
+    animation: rise 0.7s 0.3s var(--ease) backwards;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
   }
 
   .show-link {
     padding: 0;
     border: none;
     background: none;
-    color: var(--text-dim);
+    color: #ffffffcc;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 12px #000;
   }
 
   .show-link:hover {
@@ -319,28 +380,30 @@
   }
 
   h1 {
-    margin: 2px 0 4px;
-    font-size: 38px;
-    line-height: 1.1;
+    margin: 4px 0 8px;
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-shadow: 0 4px 30px #000c;
   }
 
   .line {
-    color: var(--text-dim);
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  .tagline {
-    font-style: italic;
+    color: #ffffffd0;
+    font-size: 17px;
+    font-weight: 600;
   }
 
   .meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 14px;
+    gap: 8px 16px;
     margin-top: 14px;
-    color: var(--text-dim);
+    color: #ffffffd8;
+    font-size: 15px;
+    font-weight: 500;
+    text-shadow: 0 1px 8px #000;
   }
 
   .rating {
@@ -348,76 +411,183 @@
     align-items: center;
     gap: 4px;
     color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .actions {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 24px 0;
+    gap: 12px;
+    margin-top: 24px;
   }
 
   .big {
-    height: 46px;
+    height: 50px;
   }
 
   .btn.primary.big {
-    padding: 0 26px;
-    font-size: 15px;
+    padding: 0 32px;
+    font-size: 16px;
   }
 
   .btn.round.big {
-    width: 46px;
+    width: 50px;
+    border-color: #ffffff40;
+    background: #00000059;
+    backdrop-filter: blur(10px);
   }
 
   .btn.on {
     color: var(--accent);
   }
 
+  .watch-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 420px;
+    margin-top: 18px;
+    color: #ffffffb8;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .watch-progress .bar {
+    flex: 1;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: #ffffff33;
+  }
+
+  .watch-progress .bar div {
+    height: 100%;
+    background: var(--accent);
+  }
+
+  .tagline {
+    margin: 0 0 10px;
+    color: #fff;
+    font-size: 17px;
+    font-style: italic;
+    font-weight: 600;
+    text-shadow: 0 2px 12px #000;
+  }
+
+  /* Résumé : quatre lignes, le reste au clic. */
   .summary {
-    margin: 0;
+    display: -webkit-box;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    background: none;
+    color: #ffffffd8;
     font-size: 15px;
-    line-height: 1.65;
-    color: #e4e5e8;
+    line-height: 1.6;
+    text-align: left;
+    text-shadow: 0 1px 10px #000;
+    cursor: pointer;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+
+  .summary.open {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+  }
+
+  /* ---------- Panneaux : équipe et pistes ---------- */
+
+  .panels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-bottom: 8px;
+  }
+
+  .panel {
+    margin: 0;
+    padding: 6px 20px;
+    border: 1px solid #ffffff14;
+    border-radius: var(--radius-lg);
+    background: #16171bcc;
+    backdrop-filter: blur(16px);
+  }
+
+  .credits > div {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 0;
+  }
+
+  .credits > div + div {
+    border-top: 1px solid #ffffff10;
+  }
+
+  dt {
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    text-align: right;
   }
 
   .genres {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
+    justify-content: flex-end;
+    gap: 6px;
   }
 
   .genres span {
-    padding: 4px 12px;
+    padding: 2px 10px;
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 12px;
     color: var(--text-dim);
-    font-size: 13px;
+    font-size: 12px;
   }
 
-  .facts {
+  .media {
     display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 10px 16px;
+    align-content: start;
+    gap: 10px;
+    padding: 16px 20px;
+  }
+
+  .track {
+    display: flex;
     align-items: center;
-    margin: 24px 0 0;
+    gap: 14px;
+    min-width: 0;
   }
 
-  dt {
-    color: var(--text-faint);
-    font-size: 13px;
-  }
-
-  dd {
-    margin: 0;
-  }
-
-  select {
-    max-width: 100%;
-    padding: 6px 10px;
+  .ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #ffffff0f;
     color: var(--accent);
+  }
+
+  .video {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .track select {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    color: var(--text);
     font-weight: 500;
   }
 
@@ -453,6 +623,16 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  .progress {
+    height: 4px;
+    background: #000a;
+  }
+
+  .progress div {
+    height: 100%;
+    background: var(--accent);
   }
 
   .thumb .progress {
@@ -521,7 +701,7 @@
   .cast {
     display: grid;
     grid-auto-flow: column;
-    grid-auto-columns: 128px;
+    grid-auto-columns: 164px;
     gap: 16px;
     overflow-x: auto;
     padding-bottom: 8px;
@@ -548,8 +728,8 @@
   .avatar {
     display: grid;
     place-items: center;
-    width: 112px;
-    height: 112px;
+    width: 148px;
+    height: 148px;
     margin: 0 auto 10px;
     overflow: hidden;
     border-radius: 50%;
@@ -567,7 +747,7 @@
 
   .name {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .role {
@@ -579,40 +759,33 @@
 
   :global(html.phone) .backdrop {
     inset: 0 0 auto;
-    height: 60vh;
+    height: 72vh;
   }
 
-  :global(html.phone) .detail {
-    padding-top: 8px;
-  }
-
-  :global(html.phone) .head {
+  :global(html.phone) .hero {
     flex-direction: column;
     align-items: stretch;
-    gap: 18px;
+    gap: 16px;
+    min-height: 62vh;
+    padding-bottom: 20px;
   }
 
-  :global(html.phone) .art {
-    align-self: center;
-    width: 46%;
-  }
-
-  :global(html.phone) .art.wide {
-    width: 100%;
+  :global(html.phone) .hero-side {
+    flex: none;
   }
 
   :global(html.phone) h1 {
-    font-size: 26px;
+    font-size: 30px;
   }
 
   :global(html.phone) .meta {
-    gap: 8px 12px;
+    gap: 6px 12px;
     font-size: 13px;
   }
 
   :global(html.phone) .actions {
     flex-wrap: wrap;
-    margin: 18px 0;
+    margin-top: 18px;
   }
 
   :global(html.phone) .actions .btn.primary {
@@ -623,9 +796,13 @@
     font-size: 14px;
   }
 
-  :global(html.phone) .facts {
-    grid-template-columns: 96px 1fr;
-    font-size: 13px;
+  :global(html.phone) .panels {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  :global(html.phone) .credits > div {
+    grid-template-columns: 96px minmax(0, 1fr);
   }
 
   :global(html.phone) .episode {
@@ -641,20 +818,20 @@
   }
 
   :global(html.phone) .cast {
-    grid-auto-columns: 86px;
+    grid-auto-columns: 100px;
     gap: 12px;
   }
 
   :global(html.phone) .avatar {
-    width: 76px;
-    height: 76px;
+    width: 88px;
+    height: 88px;
     font-size: 26px;
   }
 
   /* Logo du titre sur la fiche. */
   h1 {
-    --logo-h: 140px;
-    --logo-w: min(480px, 100%);
+    --logo-h: 170px;
+    --logo-w: min(560px, 100%);
   }
 
   :global(html.phone) h1 {

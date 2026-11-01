@@ -276,12 +276,15 @@
       "video": "Video",
       "audio": "Audio",
       "subtitles": "Untertitel",
-      "none": "Keine"
+      "none": "Keine",
+      "genres": "Genres"
     },
     "seasons": "Staffeln",
     "episodes": "Folgen",
     "playTitle": "{{title}} abspielen",
-    "cast": "Besetzung"
+    "cast": "Besetzung",
+    "endsAt": "Endet um {{time}}",
+    "related": "Mehr davon"
   },
   "stats": {
     "title": "Meine Statistiken",

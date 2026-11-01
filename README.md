@@ -55,6 +55,9 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
       Accueil et bibliothèques avec un bandeau qui fait défiler cinq titres, puis un « Continuer à regarder »
       façon plateforme de streaming : grandes affiches, et celle survolée s'ouvre en grand avec sa scène, son
       épisode, sa progression et le bouton Reprendre ; un clic sur la carte ouvre la fiche. Puis de grands panneaux « À la une » et les rangées de Plex.
+      La fiche d'un film ou d'une série plonge dans son ambiance : son fond en plein écran (celui de la saison
+      pour une série), le logo, la note et l'heure de fin, le résumé à côté, puis deux panneaux — l'équipe d'un
+      côté, la vidéo, l'audio et les sous-titres de l'autre — la distribution et « Plus de ce genre ».
       Les titres s'affichent avec leur logo officiel, comme dans Jellyfin : celui du serveur, sinon celui du
       service en ligne de Plex ; sans logo nulle part, une typographie de cinéma choisie selon le genre.
     </td>

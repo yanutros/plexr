@@ -276,12 +276,15 @@
       "video": "Vídeo",
       "audio": "Audio",
       "subtitles": "Subtítulos",
-      "none": "Ninguno"
+      "none": "Ninguno",
+      "genres": "Géneros"
     },
     "seasons": "Temporadas",
     "episodes": "Episodios",
     "playTitle": "Reproducir {{title}}",
-    "cast": "Reparto"
+    "cast": "Reparto",
+    "endsAt": "Termina a las {{time}}",
+    "related": "Más como esto"
   },
   "stats": {
     "title": "Mis estadísticas",

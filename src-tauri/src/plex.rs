@@ -916,6 +916,20 @@ impl PlexServer {
         })
     }
 
+    /// « Plus de ce genre » : les titres que Plex associe à un film ou une série (films / séries associés).
+    pub async fn related(&self, rating_key: &str) -> Result<Vec<Item>> {
+        let c = self.container(&format!("/library/metadata/{rating_key}/related?count=24")).await?;
+        let mut seen = std::collections::HashSet::new();
+        let items: Vec<RawMetadata> = c
+            .hub
+            .into_iter()
+            .flat_map(|h| h.metadata)
+            .filter(|m| matches!(m.kind.as_str(), "movie" | "show") && m.rating_key != rating_key && seen.insert(m.rating_key.clone()))
+            .take(30)
+            .collect();
+        Ok(self.to_items(items))
+    }
+
     pub async fn children(&self, rating_key: &str) -> Result<Vec<Item>> {
         let c = self.container(&format!("/library/metadata/{rating_key}/children")).await?;
         Ok(self.to_items(c.metadata))

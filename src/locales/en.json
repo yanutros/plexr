@@ -276,12 +276,15 @@
       "video": "Video",
       "audio": "Audio",
       "subtitles": "Subtitles",
-      "none": "None"
+      "none": "None",
+      "genres": "Genres"
     },
     "seasons": "Seasons",
     "episodes": "Episodes",
     "playTitle": "Play {{title}}",
-    "cast": "Cast"
+    "cast": "Cast",
+    "endsAt": "Ends at {{time}}",
+    "related": "More like this"
   },
   "stats": {
     "title": "My stats",
