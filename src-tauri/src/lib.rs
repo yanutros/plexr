@@ -572,7 +572,7 @@ async fn play(
     subtitle_stream: Option<u64>,
     from_start: Option<bool>,
 ) -> CmdResult<NowPlaying> {
-    let server = state.plex()?;
+    let server = state.server()?;
     let mut info = server.play_info(&rating_key, audio_stream, subtitle_stream).await?;
     if from_start == Some(true) {
         info.offset_ms = 0;
@@ -746,7 +746,6 @@ async fn play_music(
 ) -> CmdResult<MusicQueue> {
     let server = state.server()?;
     let (tracks, index) = build_queue(&server, &rating_key, keys, start, shuffle).await?;
-    let server = server.plex()?;
     let mpv = player::find_mpv(state.cfg().mpv_path.as_deref())?;
     stop_player(&state);
 

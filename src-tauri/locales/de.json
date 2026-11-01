@@ -119,6 +119,16 @@
     "notYet": "Mit Jellyfin noch nicht verfügbar.",
     "unreachable": "Unter dieser Adresse ist kein Server erreichbar.",
     "notJellyfin": "Diese Adresse antwortet nicht wie ein Jellyfin-Server.",
-    "badCredentials": "Falscher Benutzername oder falsches Passwort."
+    "badCredentials": "Falscher Benutzername oder falsches Passwort.",
+    "hubs": {
+      "continue": "Weiterschauen",
+      "nextUp": "Als Nächstes",
+      "latest": "Kürzlich hinzugefügt",
+      "topRated": "Bestbewertet",
+      "rediscover": "Wiederentdecken",
+      "recentAlbums": "Kürzlich hinzugefügte Alben",
+      "recentlyPlayed": "Kürzlich gehört",
+      "playlists": "Wiedergabelisten"
+    }
   }
 }

@@ -119,6 +119,16 @@
     "notYet": "Nog niet beschikbaar met Jellyfin.",
     "unreachable": "Geen server bereikbaar op dit adres.",
     "notJellyfin": "Dit adres antwoordt niet als een Jellyfin-server.",
-    "badCredentials": "Onjuiste gebruikersnaam of wachtwoord."
+    "badCredentials": "Onjuiste gebruikersnaam of wachtwoord.",
+    "hubs": {
+      "continue": "Verder kijken",
+      "nextUp": "Hierna",
+      "latest": "Recent toegevoegd",
+      "topRated": "Best beoordeeld",
+      "rediscover": "Herontdekken",
+      "recentAlbums": "Recent toegevoegde albums",
+      "recentlyPlayed": "Recent beluisterd",
+      "playlists": "Afspeellijsten"
+    }
   }
 }

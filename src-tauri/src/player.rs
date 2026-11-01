@@ -5,7 +5,8 @@
 //! la lecture, si bien que la barre de contrôle HTML s'affiche par-dessus la vidéo.
 //! On relaie les propriétés de mpv à l'interface et on remonte la progression à Plex.
 
-use crate::plex::{PlayInfo, PlexServer};
+use crate::media::MediaServer;
+use crate::plex::PlayInfo;
 use anyhow::{bail, Context, Result};
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -243,7 +244,7 @@ pub enum Source {
 /// `player-stopped` porte `session_id`, pour ignorer une lecture déjà remplacée.
 pub fn launch(
     app: AppHandle,
-    server: PlexServer,
+    server: MediaServer,
     mpv: PathBuf,
     session_id: String,
     entries: Vec<Entry>,
@@ -342,7 +343,7 @@ pub fn launch(
 
 struct Session<'a> {
     app: &'a AppHandle,
-    server: &'a PlexServer,
+    server: &'a MediaServer,
     entries: &'a [Entry],
     parent: Option<isize>,
 }

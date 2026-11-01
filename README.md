@@ -351,8 +351,9 @@ machine), puis ajouté à la version avec `gh release upload`.
 
 1. Choisissez votre serveur de médias, **Plex** ou **Jellyfin**. Avec Plex, cliquez sur **Se connecter avec
    Plex** : votre navigateur s'ouvre, validez le code. Avec Jellyfin, saisissez l'adresse du serveur, votre
-   identifiant et votre mot de passe (le support de Jellyfin est en cours : pour l'instant, connexion et
-   bibliothèques seulement).
+   identifiant et votre mot de passe : accueil, bibliothèques (mixtes comprises), fiches, séries, recherche,
+   lecture (fichier d'origine ou flux converti), progression et musique fonctionnent comme avec Plex ; la note,
+   les pages d'acteurs, Seerr et Tracearr avec un compte Jellyfin arrivent ensuite.
 2. Choisissez votre serveur, présenté comme un profil avec la photo du compte Plex de son propriétaire : Plexr
    teste ses adresses et garde la plus rapide (locale, distante, puis relais), et la revérifie à chaque lancement.
    Si le routeur ou le DNS bloque les adresses locales `*.plex.direct` (protection contre le « DNS rebinding »),

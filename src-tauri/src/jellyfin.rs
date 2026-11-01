@@ -1,5 +1,5 @@
-//! Client Jellyfin. Étape 1 : connexion (identifiant et mot de passe) et bibliothèques ; le reste
-//! (accueil, fiches, lecture…) arrive à l'étape 2 et répond « pas encore disponible » d'ici là.
+//! Client Jellyfin : connexion (identifiant et mot de passe), bibliothèques, rangées, fiches, lecture
+//! (fichier d'origine ou flux converti), progression et musique, dans les types communs de `plex.rs`.
 
 use anyhow::{anyhow, bail, Result};
 use reqwest::{Client, RequestBuilder};
@@ -105,6 +105,8 @@ struct View {
     id: String,
     name: String,
     collection_type: Option<String>,
+    #[serde(rename = "Type")]
+    kind: Option<String>,
 }
 
 impl JellyfinServer {
@@ -121,13 +123,541 @@ impl JellyfinServer {
             .items
             .into_iter()
             .filter_map(|v| {
-                let kind = match v.collection_type.as_deref()? {
-                    "movies" => "movie",
-                    "tvshows" => "show",
-                    "music" => "artist",
+                let kind = match v.collection_type.as_deref() {
+                    Some("movies") => "movie",
+                    Some("tvshows") => "show",
+                    Some("music") => "artist",
+                    // Bibliothèque « mixte » (films et séries ensemble, comme des animés).
+                    None if v.kind.as_deref() == Some("CollectionFolder") => "show",
                     _ => return None,
                 };
                 Some(Section { key: v.id, title: v.name, kind: kind.into() })
+            })
+            .collect())
+    }
+}
+
+// ---------- Étape 2 : bibliothèques, fiches, lecture ----------
+
+use serde_json::Value;
+
+use crate::plex::{Adjacent, CastMember, Genre, Hub, Item, ItemDetail, Page, PlayInfo, QueueTrack, SubFile, Track, WebStream};
+
+/// Champs demandés avec chaque liste : résumé, genres, et ce qu'il faut pour les images.
+const FIELDS: &str = "Fields=Overview,Genres,ParentId,ChildCount,RecursiveItemCount&EnableImageTypes=Primary,Backdrop,Thumb,Logo";
+
+/// Durées Jellyfin (« ticks » de 100 ns) en millisecondes.
+fn ms(ticks: &Value) -> Option<u64> {
+    ticks.as_u64().map(|t| t / 10_000).filter(|&t| t > 0)
+}
+
+fn str_of(v: &Value) -> Option<String> {
+    v.as_str().filter(|s| !s.is_empty()).map(str::to_owned)
+}
+
+/// Type Jellyfin → type Plexr (celui de Plex).
+fn kind_of(t: &str) -> &'static str {
+    match t {
+        "Movie" => "movie",
+        "Series" => "show",
+        "Season" => "season",
+        "Episode" => "episode",
+        "MusicArtist" => "artist",
+        "MusicAlbum" => "album",
+        "Audio" => "track",
+        "Playlist" => "playlist",
+        "BoxSet" => "collection",
+        _ => "folder",
+    }
+}
+
+impl JellyfinServer {
+    fn send(&self, method: reqwest::Method, path: &str) -> RequestBuilder {
+        self.http
+            .request(method, format!("{}{}", self.base, path))
+            .header("Authorization", authorization(&self.client_id, Some(&self.token)))
+    }
+
+    async fn json(&self, path: &str) -> Result<Value> {
+        Ok(self.get(path).send().await?.error_for_status()?.json().await?)
+    }
+
+    async fn items(&self, path: &str) -> Result<Vec<Item>> {
+        let v = self.json(path).await?;
+        let list = if v.is_array() { v.as_array().cloned() } else { v["Items"].as_array().cloned() };
+        Ok(list.unwrap_or_default().iter().filter(|i| kind_of(i["Type"].as_str().unwrap_or("")) != "folder").map(|i| self.to_item(i)).collect())
+    }
+
+    fn uid(&self) -> &str {
+        &self.user_id
+    }
+
+    /// Image d'un élément (`kind` : Primary, Backdrop, Thumb, Logo), réduite par le serveur.
+    fn image(&self, id: &str, kind: &str, tag: &str, width: u32) -> String {
+        format!("{}/Items/{id}/Images/{kind}?maxWidth={width}&quality=90&tag={tag}", self.base)
+    }
+
+    fn to_item(&self, v: &Value) -> Item {
+        let id = v["Id"].as_str().unwrap_or_default().to_string();
+        let kind = kind_of(v["Type"].as_str().unwrap_or(""));
+        let tag = |k: &str| v["ImageTags"][k].as_str();
+        let own_primary = tag("Primary").map(|t| self.image(&id, "Primary", t, 400));
+        let poster = match kind {
+            "episode" => str_of(&v["SeriesId"])
+                .zip(v["SeriesPrimaryImageTag"].as_str())
+                .map(|(sid, t)| self.image(&sid, "Primary", t, 400))
+                .or(own_primary.clone()),
+            "track" => str_of(&v["AlbumId"])
+                .zip(v["AlbumPrimaryImageTag"].as_str())
+                .map(|(aid, t)| self.image(&aid, "Primary", t, 400))
+                .or(own_primary.clone()),
+            "season" => own_primary.clone().or_else(|| {
+                str_of(&v["SeriesId"]).zip(v["SeriesPrimaryImageTag"].as_str()).map(|(sid, t)| self.image(&sid, "Primary", t, 400))
+            }),
+            _ => own_primary.clone(),
+        };
+        let backdrop = v["BackdropImageTags"][0]
+            .as_str()
+            .map(|t| self.image(&id, "Backdrop", t, 1600))
+            .or_else(|| {
+                str_of(&v["ParentBackdropItemId"])
+                    .zip(v["ParentBackdropImageTags"][0].as_str())
+                    .map(|(pid, t)| self.image(&pid, "Backdrop", t, 1600))
+            });
+        // Logo du titre, ou de la série pour un épisode et une saison (Jellyfin les a presque toujours).
+        let logo = tag("Logo").map(|t| self.image(&id, "Logo", t, 800)).or_else(|| {
+            str_of(&v["ParentLogoItemId"]).zip(v["ParentLogoImageTag"].as_str()).map(|(pid, t)| self.image(&pid, "Logo", t, 800))
+        });
+        let thumb = match kind {
+            "episode" => own_primary.clone(),
+            _ => tag("Thumb").map(|t| self.image(&id, "Thumb", t, 640)).or_else(|| backdrop.clone()),
+        };
+        let user = &v["UserData"];
+        let artist = str_of(&v["AlbumArtist"]).or_else(|| v["Artists"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join(", ")));
+        let subtitle = match kind {
+            "episode" => Some(format!(
+                "{} · S{}E{}",
+                v["SeriesName"].as_str().unwrap_or_default(),
+                v["ParentIndexNumber"].as_u64().unwrap_or(0),
+                v["IndexNumber"].as_u64().unwrap_or(0)
+            )),
+            "season" => str_of(&v["SeriesName"]),
+            "album" | "track" => artist.clone(),
+            "playlist" | "collection" => v["ChildCount"].as_u64().or(v["RecursiveItemCount"].as_u64()).map(|n| {
+                let one = n == 1 || (n == 0 && crate::i18n::language() == "fr");
+                let key = if one { "plex.itemCount_one" } else { "plex.itemCount_other" };
+                crate::i18n::tr_with(key, &[("count", &n.to_string())])
+            }),
+            _ => None,
+        };
+        let (show_title, show_key) = match kind {
+            "episode" | "season" => (str_of(&v["SeriesName"]), str_of(&v["SeriesId"])),
+            "album" | "track" => (artist.clone(), str_of(&v["AlbumArtists"][0]["Id"]).or_else(|| str_of(&v["ArtistItems"][0]["Id"]))),
+            _ => (None, None),
+        };
+        Item {
+            rating_key: id,
+            kind: kind.into(),
+            title: v["Name"].as_str().unwrap_or_default().into(),
+            subtitle,
+            year: v["ProductionYear"].as_i64().map(|y| y as i32),
+            summary: str_of(&v["Overview"]),
+            poster,
+            logo,
+            logo_guid: None,
+            thumb,
+            backdrop,
+            index: v["IndexNumber"].as_u64().map(|n| n as u32),
+            parent_index: v["ParentIndexNumber"].as_u64().map(|n| n as u32),
+            show_title,
+            show_key,
+            album_title: if kind == "track" { str_of(&v["Album"]) } else { None },
+            album_key: if kind == "track" { str_of(&v["AlbumId"]) } else { None },
+            duration_ms: ms(&v["RunTimeTicks"]),
+            view_offset_ms: ms(&user["PlaybackPositionTicks"]),
+            watched: user["Played"].as_bool().unwrap_or(false),
+            unwatched_count: user["UnplayedItemCount"].as_u64().map(|n| n as u32).filter(|_| matches!(kind, "show" | "season")),
+            content_rating: str_of(&v["OfficialRating"]),
+            rating: v["CommunityRating"].as_f64().map(|r| r as f32),
+            user_rating: None,
+            genres: v["Genres"].as_array().map(|g| g.iter().filter_map(|x| x.as_str().map(str::to_owned)).collect()).unwrap_or_default(),
+            resolution: None,
+            playable: matches!(kind, "movie" | "episode" | "track"),
+        }
+    }
+
+    // ---------- Accueil et bibliothèques ----------
+
+    /// En cours (films et épisodes), puis les épisodes suivants des séries commencées.
+    pub async fn on_deck(&self) -> Result<Vec<Item>> {
+        let resume_path = format!("/Users/{}/Items/Resume?Limit=24&MediaTypes=Video&{FIELDS}", self.uid());
+        let next_path = format!("/Shows/NextUp?UserId={}&Limit=24&{FIELDS}", self.uid());
+        let (resume, next) = tokio::join!(self.items(&resume_path), self.items(&next_path));
+        let mut items = resume?;
+        let shows: Vec<String> = items.iter().filter_map(|i| i.show_key.clone()).collect();
+        items.extend(next.unwrap_or_default().into_iter().filter(|i| i.show_key.as_ref().is_none_or(|k| !shows.contains(k))));
+        Ok(items)
+    }
+
+    pub async fn recently_added(&self) -> Result<Vec<Item>> {
+        self.items(&format!("/Users/{}/Items/Latest?Limit=30&{FIELDS}", self.uid())).await
+    }
+
+    /// Contenu d'une bibliothèque. `kind` (types de Plex) : 8 artistes, 9 albums, 10 titres ; sinon
+    /// films et séries (une bibliothèque Jellyfin « mixte » mêle les deux).
+    pub async fn section_items(
+        &self,
+        key: &str,
+        start: u32,
+        size: u32,
+        kind: Option<u32>,
+        genre: Option<&str>,
+        sort: Option<&str>,
+    ) -> Result<Page> {
+        let types = match kind {
+            Some(8) => "MusicArtist",
+            Some(9) => "MusicAlbum",
+            Some(10) => "Audio",
+            _ => "Movie,Series",
+        };
+        let (field, order) = sort.and_then(|s| s.split_once(':')).unwrap_or((sort.unwrap_or("titleSort"), "asc"));
+        let (by, extra) = match field {
+            "addedAt" => ("DateCreated", ""),
+            "lastViewedAt" => ("DatePlayed", "&IsPlayed=true"),
+            "viewCount" => ("PlayCount", ""),
+            "originallyAvailableAt" | "year" => ("PremiereDate", ""),
+            "rating" | "audienceRating" => ("CommunityRating", ""),
+            "random" => ("Random", ""),
+            _ => ("SortName", ""),
+        };
+        let order = if order == "desc" { "Descending" } else { "Ascending" };
+        let genre = genre.map(|g| format!("&GenreIds={g}")).unwrap_or_default();
+        let v = self
+            .json(&format!(
+                "/Users/{}/Items?ParentId={key}&Recursive=true&IncludeItemTypes={types}&StartIndex={start}&Limit={size}&SortBy={by}&SortOrder={order}{extra}{genre}&{FIELDS}",
+                self.uid()
+            ))
+            .await?;
+        let items = v["Items"].as_array().cloned().unwrap_or_default().iter().map(|i| self.to_item(i)).collect();
+        Ok(Page { items, total: v["TotalRecordCount"].as_u64().unwrap_or(0) as u32 })
+    }
+
+    /// Rangées d'une bibliothèque, comme celles de Plex.
+    pub async fn section_hubs(&self, key: &str) -> Result<Vec<Hub>> {
+        let u = self.uid();
+        let music = self.json(&format!("/Users/{u}/Items/{key}")).await.ok().and_then(|v| str_of(&v["CollectionType"])).as_deref() == Some("music");
+        let tr = |k: &str| crate::i18n::tr(&format!("jellyfin.hubs.{k}"));
+        let rows: Vec<(String, &str, String)> = if music {
+            vec![
+                (tr("recentAlbums"), "jellyfin.recent", format!("/Users/{u}/Items/Latest?ParentId={key}&Limit=24&IncludeItemTypes=MusicAlbum&{FIELDS}")),
+                (tr("recentlyPlayed"), "jellyfin.played", format!("/Users/{u}/Items?ParentId={key}&Recursive=true&IncludeItemTypes=MusicAlbum&SortBy=DatePlayed&SortOrder=Descending&IsPlayed=true&Limit=24&{FIELDS}")),
+                (tr("playlists"), "plexr.playlists", format!("/Users/{u}/Items?IncludeItemTypes=Playlist&Recursive=true&MediaTypes=Audio&{FIELDS}")),
+            ]
+        } else {
+            vec![
+                (tr("continue"), "jellyfin.inprogress", format!("/Users/{u}/Items/Resume?ParentId={key}&Limit=24&{FIELDS}")),
+                (tr("nextUp"), "jellyfin.nextup", format!("/Shows/NextUp?UserId={u}&ParentId={key}&Limit=24&{FIELDS}")),
+                (tr("latest"), "jellyfin.recent", format!("/Users/{u}/Items/Latest?ParentId={key}&Limit=24&{FIELDS}")),
+                (tr("topRated"), "jellyfin.toprated", format!("/Users/{u}/Items?ParentId={key}&Recursive=true&IncludeItemTypes=Movie,Series&SortBy=CommunityRating&SortOrder=Descending&Limit=24&{FIELDS}")),
+                (tr("rediscover"), "jellyfin.rediscover", format!("/Users/{u}/Items?ParentId={key}&Recursive=true&IncludeItemTypes=Movie,Series&IsPlayed=true&SortBy=Random&Limit=24&{FIELDS}")),
+            ]
+        };
+        let lists = futures::future::join_all(rows.iter().map(|(_, _, path)| self.items(path))).await;
+        Ok(rows
+            .into_iter()
+            .zip(lists)
+            .filter_map(|((title, identifier, _), items)| {
+                let items = items.ok()?;
+                (!items.is_empty()).then(|| Hub { title, identifier: identifier.into(), items })
+            })
+            .collect())
+    }
+
+    /// Genres d'une bibliothèque, chacun avec quelques affiches de ses titres les mieux notés.
+    pub async fn genres(&self, key: &str) -> Result<Vec<Genre>> {
+        let v = self.json(&format!("/Genres?ParentId={key}&UserId={}&Fields=ItemCounts", self.uid())).await?;
+        let list = v["Items"].as_array().cloned().unwrap_or_default();
+        let out = futures::future::join_all(list.iter().map(|g| async move {
+            let id = g["Id"].as_str().unwrap_or_default().to_string();
+            let page = self.section_items(key, 0, 4, None, Some(&id), Some("rating:desc")).await.ok()?;
+            (page.total > 0).then(|| Genre {
+                id: id.clone(),
+                title: g["Name"].as_str().unwrap_or_default().into(),
+                count: page.total,
+                posters: page.items.iter().filter_map(|i| i.poster.clone()).collect(),
+                backdrop: page.items.iter().find_map(|i| i.backdrop.clone()),
+            })
+        }))
+        .await;
+        Ok(out.into_iter().flatten().collect())
+    }
+
+    pub async fn playlists(&self, _section: &str) -> Result<Vec<Item>> {
+        self.items(&format!("/Users/{}/Items?IncludeItemTypes=Playlist&Recursive=true&MediaTypes=Audio&{FIELDS}", self.uid())).await
+    }
+
+    pub async fn collections(&self, _key: &str) -> Result<Vec<Item>> {
+        self.items(&format!("/Users/{}/Items?IncludeItemTypes=BoxSet&Recursive=true&SortBy=SortName&{FIELDS}", self.uid())).await
+    }
+
+    pub async fn collection_items(&self, id: &str) -> Result<Vec<Item>> {
+        self.items(&format!("/Users/{}/Items?ParentId={id}&SortBy=PremiereDate,SortName&{FIELDS}", self.uid())).await
+    }
+
+    pub async fn related(&self, id: &str) -> Result<Vec<Item>> {
+        self.items(&format!("/Items/{id}/Similar?UserId={}&Limit=24&{FIELDS}", self.uid())).await
+    }
+
+    pub async fn search(&self, query: &str) -> Result<Vec<Item>> {
+        self.items(&format!(
+            "/Users/{}/Items?searchTerm={}&Recursive=true&IncludeItemTypes=Movie,Series,Episode,MusicArtist,MusicAlbum,Audio&Limit=40&{FIELDS}",
+            self.uid(),
+            urlencoding::encode(query)
+        ))
+        .await
+    }
+
+    /// Saisons d'une série, épisodes d'une saison, titres d'un album, albums d'un artiste.
+    pub async fn children(&self, id: &str) -> Result<Vec<Item>> {
+        let u = self.uid();
+        let v = self.json(&format!("/Users/{u}/Items/{id}")).await?;
+        let path = match v["Type"].as_str().unwrap_or("") {
+            "MusicArtist" => format!("/Users/{u}/Items?ArtistIds={id}&IncludeItemTypes=MusicAlbum&Recursive=true&SortBy=PremiereDate&SortOrder=Descending&{FIELDS}"),
+            _ => format!("/Users/{u}/Items?ParentId={id}&SortBy=ParentIndexNumber,IndexNumber,SortName&{FIELDS}"),
+        };
+        self.items(&path).await
+    }
+
+    /// Épisodes précédent et suivant.
+    pub async fn adjacent(&self, id: &str) -> Result<Adjacent> {
+        let u = self.uid();
+        let v = self.json(&format!("/Users/{u}/Items/{id}")).await?;
+        let Some(series) = str_of(&v["SeriesId"]) else { return Ok(Adjacent { prev: None, next: None }) };
+        let eps = self.json(&format!("/Shows/{series}/Episodes?UserId={u}&AdjacentTo={id}")).await?;
+        let ids: Vec<String> = eps["Items"].as_array().cloned().unwrap_or_default().iter().filter_map(|e| str_of(&e["Id"])).collect();
+        let pos = ids.iter().position(|x| x == id);
+        Ok(Adjacent {
+            prev: pos.and_then(|p| p.checked_sub(1)).and_then(|p| ids.get(p).cloned()),
+            next: pos.and_then(|p| ids.get(p + 1).cloned()),
+        })
+    }
+
+    // ---------- Fiche ----------
+
+    pub async fn metadata(&self, id: &str) -> Result<ItemDetail> {
+        let v = self.json(&format!("/Users/{}/Items/{id}", self.uid())).await?;
+        let item = self.to_item(&v);
+        let people = v["People"].as_array().cloned().unwrap_or_default();
+        let names = |t: &str| people.iter().filter(|p| p["Type"] == t).filter_map(|p| str_of(&p["Name"])).collect::<Vec<_>>();
+        let cast = people
+            .iter()
+            .filter(|p| p["Type"] == "Actor")
+            .take(30)
+            .map(|p| CastMember {
+                id: None,
+                name: p["Name"].as_str().unwrap_or_default().into(),
+                role: str_of(&p["Role"]),
+                photo: str_of(&p["Id"]).zip(p["PrimaryImageTag"].as_str()).map(|(pid, t)| self.image(&pid, "Primary", t, 300)),
+            })
+            .collect();
+        let streams = v["MediaSources"][0]["MediaStreams"].as_array().cloned().unwrap_or_default();
+        let video = streams.iter().find(|s| s["Type"] == "Video").map(|s| {
+            // D'après la largeur : un film au format large en 4K fait 3840 × 1600, pas « 1600p ».
+            let w = s["Width"].as_u64().unwrap_or(0);
+            let res = match w {
+                w if w >= 3200 => "4K".to_string(),
+                w if w >= 1800 => "1080p".to_string(),
+                w if w >= 1200 => "720p".to_string(),
+                w if w > 0 => "SD".to_string(),
+                _ => String::new(),
+            };
+            format!("{res} ({})", s["Codec"].as_str().unwrap_or("").to_uppercase()).trim().to_string()
+        });
+        let tracks = |t: &str| {
+            streams
+                .iter()
+                .filter(|s| s["Type"] == t)
+                .map(|s| Track {
+                    id: s["Index"].as_u64().unwrap_or(0),
+                    label: str_of(&s["DisplayTitle"]).unwrap_or_else(|| crate::i18n::tr_with("plex.track", &[("id", &s["Index"].to_string())])),
+                    selected: s["IsDefault"].as_bool().unwrap_or(false),
+                })
+                .collect::<Vec<_>>()
+        };
+        Ok(ItemDetail {
+            tagline: str_of(&v["Taglines"][0]),
+            original_title: str_of(&v["OriginalTitle"]).filter(|o| *o != item.title),
+            backdrop_hd: v["BackdropImageTags"][0].as_str().map(|t| self.image(&item.rating_key, "Backdrop", t, 2560)).or_else(|| item.backdrop.clone()),
+            studio: str_of(&v["Studios"][0]["Name"]),
+            release_date: str_of(&v["PremiereDate"]).map(|d| d.chars().take(10).collect()),
+            directors: names("Director"),
+            writers: names("Writer"),
+            cast,
+            video,
+            audio_tracks: tracks("Audio"),
+            subtitle_tracks: tracks("Subtitle"),
+            item,
+        })
+    }
+
+    // ---------- Lecture ----------
+
+    fn stream_url(&self, id: &str, source: &str) -> String {
+        format!("{}/Videos/{id}/stream?static=true&mediaSourceId={source}&api_key={}", self.base, self.token)
+    }
+
+    /// Lecture directe : le fichier d'origine et ses pistes (numérotées comme dans mpv).
+    pub async fn play_info(&self, id: &str, audio: Option<u64>, subtitle: Option<u64>) -> Result<PlayInfo> {
+        let v = self.json(&format!("/Users/{}/Items/{id}", self.uid())).await?;
+        let source = &v["MediaSources"][0];
+        let source_id = source["Id"].as_str().unwrap_or(id).to_string();
+        let streams = source["MediaStreams"].as_array().cloned().unwrap_or_default();
+        let audios: Vec<&Value> = streams.iter().filter(|s| s["Type"] == "Audio").collect();
+        let aid = match audio {
+            Some(i) => audios.iter().position(|s| s["Index"].as_u64() == Some(i)),
+            None => audios.iter().position(|s| s["IsDefault"].as_bool() == Some(true)),
+        }
+        .map(|i| i + 1);
+        let subs: Vec<&Value> = streams.iter().filter(|s| s["Type"] == "Subtitle").collect();
+        let embedded: Vec<&&Value> = subs.iter().filter(|s| !s["IsExternal"].as_bool().unwrap_or(false)).collect();
+        let external: Vec<&&Value> = subs.iter().filter(|s| s["IsExternal"].as_bool().unwrap_or(false)).collect();
+        let wanted = match subtitle {
+            Some(0) => None,
+            Some(i) => Some(i),
+            None => subs.iter().find(|s| s["IsDefault"].as_bool() == Some(true) || s["IsForced"].as_bool() == Some(true)).and_then(|s| s["Index"].as_u64()),
+        };
+        let sid = match wanted {
+            None => "no".to_string(),
+            Some(i) => embedded
+                .iter()
+                .position(|s| s["Index"].as_u64() == Some(i))
+                .map(|p| p + 1)
+                .or_else(|| external.iter().position(|s| s["Index"].as_u64() == Some(i)).map(|p| embedded.len() + p + 1))
+                .map_or_else(|| "auto".to_string(), |n| n.to_string()),
+        };
+        let sub_tracks: Vec<SubFile> = external
+            .iter()
+            .map(|s| {
+                let codec = s["Codec"].as_str().unwrap_or("srt").to_string();
+                SubFile {
+                    url: format!(
+                        "{}/Videos/{id}/{source_id}/Subtitles/{}/Stream.{codec}?api_key={}",
+                        self.base,
+                        s["Index"].as_u64().unwrap_or(0),
+                        self.token
+                    ),
+                    codec,
+                    language: str_of(&s["Language"]),
+                    title: str_of(&s["DisplayTitle"]),
+                }
+            })
+            .collect();
+        let (title, subtitle_line) = match (v["Type"].as_str(), str_of(&v["SeriesName"])) {
+            (Some("Episode"), Some(show)) => (
+                show,
+                Some(crate::plex::episode_line(
+                    v["ParentIndexNumber"].as_u64().unwrap_or(0) as u32,
+                    v["IndexNumber"].as_u64().unwrap_or(0) as u32,
+                    v["Name"].as_str().unwrap_or_default(),
+                )),
+            ),
+            _ => (v["Name"].as_str().unwrap_or_default().to_string(), v["ProductionYear"].as_i64().map(|y| y.to_string())),
+        };
+        Ok(PlayInfo {
+            url: self.stream_url(id, &source_id),
+            title,
+            subtitle: subtitle_line,
+            offset_ms: ms(&v["UserData"]["PlaybackPositionTicks"]).unwrap_or(0),
+            duration_ms: ms(&v["RunTimeTicks"]).unwrap_or(0),
+            aid,
+            sid,
+            sub_files: sub_tracks.iter().map(|s| s.url.clone()).collect(),
+            sub_tracks,
+        })
+    }
+
+    /// Flux converti par le serveur (HLS, H.264 / AAC, 1080p), quand l'appareil ne lit pas le fichier.
+    pub async fn web_stream(&self, id: &str, audio: Option<u64>, subtitle: Option<u64>, session: &str) -> Result<WebStream> {
+        let info = self.play_info(id, audio, subtitle).await?;
+        let v = self.json(&format!("/Users/{}/Items/{id}", self.uid())).await?;
+        let source_id = v["MediaSources"][0]["Id"].as_str().unwrap_or(id).to_string();
+        let mut url = format!(
+            "{}/Videos/{id}/master.m3u8?MediaSourceId={source_id}&PlaySessionId={session}&DeviceId={}&api_key={}\
+             &VideoCodec=h264&AudioCodec=aac&MaxStreamingBitrate=12000000&MaxWidth=1920&TranscodingMaxAudioChannels=2\
+             &SegmentContainer=ts&SubtitleMethod=Encode",
+            self.base, self.client_id, self.token
+        );
+        if let Some(a) = audio {
+            url.push_str(&format!("&AudioStreamIndex={a}"));
+        }
+        if let Some(s) = subtitle.filter(|&s| s > 0) {
+            url.push_str(&format!("&SubtitleStreamIndex={s}"));
+        }
+        Ok(WebStream {
+            session: session.to_owned(),
+            url,
+            title: info.title,
+            subtitle: info.subtitle,
+            offset_ms: info.offset_ms,
+            duration_ms: info.duration_ms,
+        })
+    }
+
+    pub async fn stop_transcode(&self, session: &str) -> Result<()> {
+        self.send(reqwest::Method::DELETE, &format!("/Videos/ActiveEncodings?DeviceId={}&PlaySessionId={session}", self.client_id))
+            .send()
+            .await?;
+        Ok(())
+    }
+
+    /// Progression envoyée au serveur (alimente « Reprendre » et « À suivre »).
+    pub async fn timeline(&self, id: &str, state: &str, time_ms: u64, _duration_ms: u64) -> Result<()> {
+        let path = if state == "stopped" { "/Sessions/Playing/Stopped" } else { "/Sessions/Playing/Progress" };
+        self.send(reqwest::Method::POST, path)
+            .json(&serde_json::json!({ "ItemId": id, "PositionTicks": time_ms * 10_000, "IsPaused": state == "paused", "CanSeek": true }))
+            .send()
+            .await?
+            .error_for_status()?;
+        Ok(())
+    }
+
+    pub async fn set_watched(&self, id: &str, watched: bool) -> Result<()> {
+        let method = if watched { reqwest::Method::POST } else { reqwest::Method::DELETE };
+        self.send(method, &format!("/Users/{}/PlayedItems/{id}", self.uid())).send().await?.error_for_status()?;
+        Ok(())
+    }
+
+    // ---------- Musique ----------
+
+    /// Titres d'un album, d'une playlist ou d'un artiste.
+    pub async fn tracks(&self, id: &str) -> Result<Vec<Item>> {
+        let u = self.uid();
+        let v = self.json(&format!("/Users/{u}/Items/{id}")).await?;
+        let path = match v["Type"].as_str().unwrap_or("") {
+            "Audio" => return Ok(vec![self.to_item(&v)]),
+            "MusicArtist" => format!("/Users/{u}/Items?ArtistIds={id}&IncludeItemTypes=Audio&Recursive=true&SortBy=Album,ParentIndexNumber,IndexNumber&{FIELDS}"),
+            "Playlist" => format!("/Playlists/{id}/Items?UserId={u}&{FIELDS}"),
+            _ => format!("/Users/{u}/Items?ParentId={id}&IncludeItemTypes=Audio&Recursive=true&SortBy=ParentIndexNumber,IndexNumber,SortName&{FIELDS}"),
+        };
+        self.items(&path).await
+    }
+
+    /// File de lecture musicale : les titres, chacun avec l'adresse de son fichier.
+    pub async fn queue(&self, id: &str) -> Result<Vec<QueueTrack>> {
+        Ok(self
+            .tracks(id)
+            .await?
+            .into_iter()
+            .map(|t| QueueTrack {
+                url: format!("{}/Audio/{}/stream?static=true&api_key={}", self.base, t.rating_key, self.token),
+                rating_key: t.rating_key,
+                title: t.title,
+                artist: t.show_title,
+                artist_key: t.show_key,
+                album: t.album_title,
+                album_key: t.album_key,
+                cover: t.poster,
+                duration_ms: t.duration_ms.unwrap_or(0),
             })
             .collect())
     }

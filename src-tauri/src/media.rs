@@ -18,14 +18,24 @@ fn not_yet<T>() -> Result<T> {
     Err(anyhow!(crate::i18n::tr("jellyfin.notYet")))
 }
 
-/// Une méthode par fonction commune : Plex la fait déjà ; Jellyfin, au fur et à mesure.
+/// Une méthode par fonction commune, faite par Plex et par Jellyfin (`both`), ou par Plex seulement
+/// pour l'instant (`plex_only`).
 macro_rules! common {
-    ($( fn $name:ident(&self $(, $arg:ident : $ty:ty)* ) -> $ret:ty; )*) => {
+    (both { $( fn $name:ident(&self $(, $arg:ident : $ty:ty)* ) -> $ret:ty; )* }
+     plex_only { $( fn $pname:ident(&self $(, $parg:ident : $pty:ty)* ) -> $pret:ty; )* }) => {
         impl MediaServer {
             $(
                 pub async fn $name(&self $(, $arg: $ty)*) -> Result<$ret> {
                     match self {
                         Self::Plex(p) => p.$name($($arg),*).await,
+                        Self::Jellyfin(j) => j.$name($($arg),*).await,
+                    }
+                }
+            )*
+            $(
+                pub async fn $pname(&self $(, $parg: $pty)*) -> Result<$pret> {
+                    match self {
+                        Self::Plex(p) => p.$pname($($parg),*).await,
                         Self::Jellyfin(_) => not_yet(),
                     }
                 }
@@ -35,29 +45,33 @@ macro_rules! common {
 }
 
 common! {
-    fn section_items(&self, key: &str, start: u32, size: u32, kind: Option<u32>, genre: Option<&str>, sort: Option<&str>) -> Page;
-    fn person_items(&self, id: u64) -> Vec<Item>;
-    fn on_deck(&self) -> Vec<Item>;
-    fn recently_added(&self) -> Vec<Item>;
-    fn genres(&self, key: &str) -> Vec<Genre>;
-    fn section_hubs(&self, key: &str) -> Vec<Hub>;
-    fn playlists(&self, section: &str) -> Vec<Item>;
-    fn adjacent(&self, rating_key: &str) -> Adjacent;
-    fn tracks(&self, rating_key: &str) -> Vec<Item>;
-    fn queue(&self, rating_key: &str) -> Vec<QueueTrack>;
-    fn metadata(&self, rating_key: &str) -> ItemDetail;
-    fn collections(&self, key: &str) -> Vec<Item>;
-    fn collection_items(&self, rating_key: &str) -> Vec<Item>;
-    fn related(&self, rating_key: &str) -> Vec<Item>;
-    fn children(&self, rating_key: &str) -> Vec<Item>;
-    fn search(&self, query: &str) -> Vec<Item>;
-    fn web_stream(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>, session: &str) -> WebStream;
-    fn stop_transcode(&self, session: &str) -> ();
-    fn play_info(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>) -> PlayInfo;
-    fn timeline(&self, rating_key: &str, state: &str, time_ms: u64, duration_ms: u64) -> ();
-    fn rate(&self, rating_key: &str, rating: Option<f32>) -> ();
-    fn remove_from_continue(&self, rating_key: &str) -> ();
-    fn set_watched(&self, rating_key: &str, watched: bool) -> ();
+    both {
+        fn section_items(&self, key: &str, start: u32, size: u32, kind: Option<u32>, genre: Option<&str>, sort: Option<&str>) -> Page;
+        fn on_deck(&self) -> Vec<Item>;
+        fn recently_added(&self) -> Vec<Item>;
+        fn genres(&self, key: &str) -> Vec<Genre>;
+        fn section_hubs(&self, key: &str) -> Vec<Hub>;
+        fn playlists(&self, section: &str) -> Vec<Item>;
+        fn adjacent(&self, rating_key: &str) -> Adjacent;
+        fn tracks(&self, rating_key: &str) -> Vec<Item>;
+        fn queue(&self, rating_key: &str) -> Vec<QueueTrack>;
+        fn metadata(&self, rating_key: &str) -> ItemDetail;
+        fn collections(&self, key: &str) -> Vec<Item>;
+        fn collection_items(&self, rating_key: &str) -> Vec<Item>;
+        fn related(&self, rating_key: &str) -> Vec<Item>;
+        fn children(&self, rating_key: &str) -> Vec<Item>;
+        fn search(&self, query: &str) -> Vec<Item>;
+        fn web_stream(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>, session: &str) -> WebStream;
+        fn stop_transcode(&self, session: &str) -> ();
+        fn play_info(&self, rating_key: &str, audio: Option<u64>, subtitle: Option<u64>) -> PlayInfo;
+        fn timeline(&self, rating_key: &str, state: &str, time_ms: u64, duration_ms: u64) -> ();
+        fn set_watched(&self, rating_key: &str, watched: bool) -> ();
+    }
+    plex_only {
+        fn person_items(&self, id: u64) -> Vec<Item>;
+        fn rate(&self, rating_key: &str, rating: Option<f32>) -> ();
+        fn remove_from_continue(&self, rating_key: &str) -> ();
+    }
 }
 
 impl MediaServer {

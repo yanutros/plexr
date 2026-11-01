@@ -105,7 +105,7 @@ fn generic_episode_title(title: &str) -> bool {
 }
 
 /// « S1 · E6 — Titre », ou « S1 · E6 » seul quand le titre n'apprend rien.
-fn episode_line(season: u32, episode: u32, title: &str) -> String {
+pub(crate) fn episode_line(season: u32, episode: u32, title: &str) -> String {
     let code = [("season", season.to_string()), ("episode", episode.to_string())];
     if generic_episode_title(title) {
         format!("S{season} · E{episode}")
