@@ -98,9 +98,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    /* `safe` : une liste plus haute que l'écran (téléphone) défile au lieu d'être coupée en haut. */
+    justify-content: safe center;
     gap: 8px;
-    min-height: 100%;
+    height: 100%;
+    overflow-y: auto;
     padding: 48px 24px;
     text-align: center;
   }

@@ -190,6 +190,8 @@ select:focus {
   display: grid;
   place-items: center;
   height: 100%;
+  /* La page entière ne défile pas (body) : un contenu plus haut que l'écran défile ici. */
+  overflow-y: auto;
 }
 
 .badge {
