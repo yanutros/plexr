@@ -20,6 +20,9 @@
   --radius: 8px;
   --radius-lg: 14px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* Barres système d'Android (fournies par MainActivity.kt) ou zones sûres du navigateur. */
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--inset-top, 0px));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--inset-bottom, 0px));
   color-scheme: dark;
 }
 
@@ -266,6 +269,47 @@ html.tv .btn:focus:not(:disabled) {
 /* Les jaquettes ont déjà leur propre liseré quand elles sont sélectionnées. */
 html.tv .img > :focus {
   outline: none;
+}
+
+/* Téléphone : marges et titres resserrés, grilles de trois affiches. */
+html.phone .page {
+  padding: 4px 16px 28px;
+}
+
+html.phone .row-title {
+  margin: 22px 0 10px;
+  font-size: 17px;
+}
+
+html.phone .row-title.page-title {
+  margin-top: 6px;
+  font-size: 26px;
+}
+
+html.phone .grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 10px;
+}
+
+/* Onglets des bibliothèques : une bande qui défile au doigt. */
+html.phone [role="tablist"] {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+html.phone [role="tablist"] > button {
+  flex: none;
+  white-space: nowrap;
+}
+
+html.phone ::-webkit-scrollbar {
+  display: none;
+}
+
+/* Téléphone : pas de « ⋮ » sur les affiches ; un appui long ouvre le même menu (comme Plex). */
+html.phone .more {
+  display: none;
 }
 
 /* Écrans tactiles : pas de survol, les boutons d'action restent visibles. */

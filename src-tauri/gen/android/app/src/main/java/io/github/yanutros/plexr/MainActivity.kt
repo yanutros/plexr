@@ -3,6 +3,7 @@ package io.github.yanutros.plexr
 import android.app.UiModeManager
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
@@ -13,12 +14,25 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import androidx.activity.enableEdgeToEdge
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.WindowInsetsCompat
 import java.io.File
 
 class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge()
     super.onCreate(savedInstanceState)
+  }
+
+  /**
+   * Tauri met la page en pause quand Plexr passe en arrière-plan, ce qui coupe la musique : tant
+   * qu'un morceau joue, la page est aussitôt relancée (la notification garde Plexr en vie).
+   */
+  override fun onPause() {
+    super.onPause()
+    if (MediaService.playing) MediaService.webView?.onResume()
   }
 
   // Le WebView annonce un écran tactile même sur téléviseur : l'interface demande donc à
@@ -33,9 +47,42 @@ class MainActivity : TauriActivity() {
     }
     // Sur téléviseur, la page reçoit les touches dès le premier appui sur la télécommande.
     if (tv) webView.post { webView.requestFocus() }
+    MediaService.webView = webView
     webView.addJavascriptInterface(object {
       @JavascriptInterface
       fun isTv(): Boolean = tv
+
+      /** Musique : état de la lecture pour la notification (JSON, voir MediaService). */
+      @JavascriptInterface
+      fun mediaUpdate(json: String) = MediaService.update(this@MainActivity, json)
+
+      @JavascriptInterface
+      fun mediaStop() = MediaService.stop()
+
+      /** Téléphone : vidéo en paysage et plein écran (barres système masquées), ou retour à la normale. */
+      @JavascriptInterface
+      fun setVideoMode(on: Boolean) {
+        runOnUiThread {
+          requestedOrientation = if (on) ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+          val controller = WindowCompat.getInsetsController(window, window.decorView)
+          if (on) {
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+          } else {
+            controller.show(WindowInsetsCompat.Type.systemBars())
+          }
+        }
+      }
+
+      /** Hauteur des barres d'état et de navigation (« haut,bas », en px CSS), que la page évite. */
+      @JavascriptInterface
+      fun insets(): String {
+        val insets = ViewCompat.getRootWindowInsets(webView)
+          ?.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+          ?: return "0,0"
+        val density = resources.displayMetrics.density
+        return "${(insets.top / density).toInt()},${(insets.bottom / density).toInt()}"
+      }
 
       /** Icône du lanceur aux couleurs du thème : active l'alias correspondant, désactive les autres. */
       @JavascriptInterface

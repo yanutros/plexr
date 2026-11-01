@@ -24,7 +24,15 @@ async function start() {
     enableSpatialNavigation(() => false);
     (await import("./lib/sidebar.svelte")).collapseForTv();
   }
-  mount(App, { target: document.getElementById("app")! });
+  // Téléphone : un onglet touché dans une bande qui défile (bibliothèques, musique, réglages)
+  // vient se centrer, pour que son nom et ses voisins restent lisibles.
+  if (device.phone) {
+    document.addEventListener("click", (e) => {
+      const tab = (e.target as HTMLElement).closest<HTMLElement>('[role="tablist"] > button, .settings .menu button');
+      tab?.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    });
+  }
+    mount(App, { target: document.getElementById("app")! });
   await afterMount?.();
 }
 

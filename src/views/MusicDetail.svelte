@@ -379,4 +379,30 @@
       height: 100%;
     }
   }
+
+  /* ---------- Téléphone : pochette au-dessus, boutons en pleine largeur ---------- */
+
+  :global(html.phone) .head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+
+  :global(html.phone) .cover {
+    align-self: center;
+    width: 62%;
+  }
+
+  :global(html.phone) h1 {
+    font-size: 26px;
+  }
+
+  :global(html.phone) .actions {
+    flex-wrap: wrap;
+  }
+
+  :global(html.phone) .actions > :global(.btn) {
+    flex: 1 1 auto;
+  }
 </style>

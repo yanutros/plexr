@@ -279,4 +279,40 @@
       transform: scaleX(0);
     }
   }
+
+  /* ---------- Téléphone : bandeau à la largeur de l'écran, sous l'en-tête opaque ---------- */
+
+  :global(html.phone) .hero {
+    height: min(58vh, 500px);
+  }
+
+  :global(html.phone) .hero.bleed {
+    margin-top: 0;
+  }
+
+  :global(html.phone) .hero-body {
+    right: 16px;
+    bottom: 44px;
+    left: 16px;
+    max-width: none;
+  }
+
+  :global(html.phone) h1 {
+    font-size: 28px;
+  }
+
+  :global(html.phone) .summary {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 13px;
+  }
+
+  :global(html.phone) .actions {
+    margin-top: 16px;
+  }
+
+  :global(html.phone) .dots {
+    right: 16px;
+    bottom: 18px;
+  }
 </style>

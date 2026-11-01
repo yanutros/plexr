@@ -611,5 +611,17 @@
     "tvMovie": "Fernsehfilm",
     "war": "Krieg",
     "warPolitics": "Krieg & Politik"
+  },
+  "phone": {
+    "tabs": {
+      "home": "Start",
+      "libraries": "Mediatheken",
+      "discover": "Entdecken",
+      "stats": "Statistik",
+      "settings": "Einstellungen"
+    },
+    "libraries": "Mediatheken",
+    "noLibraries": "Keine Mediatheken auf diesem Server.",
+    "search": "Suchen"
   }
 }

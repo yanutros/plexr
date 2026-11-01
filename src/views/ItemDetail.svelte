@@ -547,4 +547,80 @@
     color: var(--text-dim);
     font-size: 12px;
   }
+
+  /* ---------- Téléphone : tout s'empile, en pleine largeur ---------- */
+
+  :global(html.phone) .backdrop {
+    inset: 0 0 auto;
+    height: 60vh;
+  }
+
+  :global(html.phone) .detail {
+    padding-top: 8px;
+  }
+
+  :global(html.phone) .head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  :global(html.phone) .art {
+    align-self: center;
+    width: 46%;
+  }
+
+  :global(html.phone) .art.wide {
+    width: 100%;
+  }
+
+  :global(html.phone) h1 {
+    font-size: 26px;
+  }
+
+  :global(html.phone) .meta {
+    gap: 8px 12px;
+    font-size: 13px;
+  }
+
+  :global(html.phone) .actions {
+    flex-wrap: wrap;
+    margin: 18px 0;
+  }
+
+  :global(html.phone) .actions .btn.primary {
+    flex: 1 1 100%;
+  }
+
+  :global(html.phone) .summary {
+    font-size: 14px;
+  }
+
+  :global(html.phone) .facts {
+    grid-template-columns: 96px 1fr;
+    font-size: 13px;
+  }
+
+  :global(html.phone) .episode {
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 12px;
+    padding: 6px 0;
+  }
+
+  :global(html.phone) .ep-summary {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font-size: 13px;
+  }
+
+  :global(html.phone) .cast {
+    grid-auto-columns: 86px;
+    gap: 12px;
+  }
+
+  :global(html.phone) .avatar {
+    width: 76px;
+    height: 76px;
+    font-size: 26px;
+  }
 </style>

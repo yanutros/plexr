@@ -611,5 +611,17 @@
     "tvMovie": "Téléfilm",
     "war": "Guerre",
     "warPolitics": "Guerre & politique"
+  },
+  "phone": {
+    "tabs": {
+      "home": "Accueil",
+      "libraries": "Bibliothèques",
+      "discover": "Découvrir",
+      "stats": "Stats",
+      "settings": "Réglages"
+    },
+    "libraries": "Bibliothèques",
+    "noLibraries": "Aucune bibliothèque sur ce serveur.",
+    "search": "Rechercher"
   }
 }

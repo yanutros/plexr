@@ -8,7 +8,7 @@
   <img alt="Windows" src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white" />
   <img alt="Linux" src="https://img.shields.io/badge/Linux-RPM%20%7C%20DEB%20%7C%20AppImage-FCC624?logo=linux&logoColor=black" />
   <img alt="macOS" src="https://img.shields.io/badge/macOS-11%2B-000000?logo=apple&logoColor=white" />
-  <img alt="Android TV" src="https://img.shields.io/badge/Android%20TV%20%7C%20tablette-7%2B-3DDC84?logo=android&logoColor=white" />
+  <img alt="Android TV" src="https://img.shields.io/badge/Android%20%7C%20TV%20%7C%20tablette-7%2B-3DDC84?logo=android&logoColor=white" />
   <img alt="Rust" src="https://img.shields.io/badge/Rust-Tauri%202-DEA584?logo=rust&logoColor=white" />
   <img alt="Svelte" src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white" />
   <img alt="mpv" src="https://img.shields.io/badge/lecteur-mpv-691F69" />
@@ -33,8 +33,9 @@ Plexr est un client [Plex](https://www.plex.tv) pour PC, écrit en Rust avec [Ta
 et la musique sont lues par [mpv](https://mpv.io), directement dans la fenêtre de l'application, et l'interface est
 pensée comme celle d'une box TV : grands visuels, bandeaux qui défilent, rien de superflu.
 
-Il existe aussi en **application Android**, pour **Android TV / Google TV** et les **tablettes** : une interface
-dédiée à la télécommande, plus légère, pour rester fluide sur le matériel limité des téléviseurs.
+Il existe aussi en **application Android**, pour les **téléphones**, les **tablettes** et **Android TV / Google TV** :
+une interface tactile façon application mobile sur téléphone, et une interface dédiée à la télécommande, plus
+légère, pour rester fluide sur le matériel limité des téléviseurs.
 
 Il réunit aussi deux outils que l'on utilise souvent à côté de Plex : **Seerr** (Jellyseerr / Overseerr), pour
 demander un film ou une série absent de la bibliothèque, et **Tracearr**, pour suivre ses statistiques de
@@ -139,8 +140,9 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
     </td>
     <td valign="top">
       <h4>📱 Il tient dans la main</h4>
-      Sur tablette Android, l'interface complète de l'ordinateur, adaptée au toucher : menu replié par défaut,
-      boutons d'action toujours visibles, bouton Retour d'Android.
+      Sur téléphone, une interface mobile : onglets en bas, bandeau et « Continuer à regarder » à la taille de
+      l'écran, mini-lecteur façon Spotify et musique pilotable depuis la notification, même Plexr fermé.
+      Sur tablette, l'interface de l'ordinateur adaptée au toucher.
     </td>
   </tr>
 </table>
@@ -182,7 +184,7 @@ visionnage. Tout se fait avec son compte Plex : aucune clé, aucun mot de passe 
 ## 🧰 Ce qu'il faut
 
 <table>
-  <tr><td>💻 <b>Système</b></td><td>Windows 10 ou 11, Linux (Fedora, Debian, Ubuntu… en 64 bits), macOS 11 et plus, ou Android 7 et plus (Android TV, Google TV, tablettes ; processeurs ARM)</td></tr>
+  <tr><td>💻 <b>Système</b></td><td>Windows 10 ou 11, Linux (Fedora, Debian, Ubuntu… en 64 bits), macOS 11 et plus, ou Android 7 et plus (téléphones, tablettes, Android TV, Google TV ; processeurs ARM)</td></tr>
   <tr><td>🎞️ <b>Plex</b></td><td>un compte Plex et l'accès à un serveur Plex Media Server</td></tr>
   <tr><td>▶️ <b>mpv</b></td><td>sur ordinateur, le lecteur <a href="https://mpv.io">mpv</a> : installé automatiquement avec les paquets RPM et DEB, sinon voir ci-dessous (inutile sur Android)</td></tr>
   <tr><td>➕ <b>En option</b></td><td>une instance <a href="https://github.com/seerr-team/seerr">Seerr / Jellyseerr / Overseerr</a> pour les demandes, une instance <a href="https://github.com/connorgallopo/Tracearr">Tracearr</a> pour les statistiques</td></tr>
@@ -199,7 +201,7 @@ Les paquets de chaque version sont publiés dans les [Releases](../../releases) 
 | 🐧 **Debian / Ubuntu** | `Plexr_<version>_amd64.deb` | `sudo apt install ./Plexr_*.deb` (installe aussi mpv) |
 | 📦 **Autres Linux** | `Plexr_<version>_amd64.AppImage` | rendez-le exécutable (`chmod +x`), installez mpv avec votre gestionnaire de paquets |
 | 🍎 **macOS** | `Plexr_<version>_universal.dmg` | glissez Plexr dans Applications, puis `brew install mpv` |
-| 🤖 **Android TV / tablette** | `Plexr_<version>_android.apk` | voir ci-dessous |
+| 🤖 **Android (téléphone, tablette, TV)** | `Plexr_<version>_android.apk` | voir ci-dessous |
 
 Plexr s'ouvre ensuite comme n'importe quel logiciel (menu Démarrer, lanceur d'applications ou Launchpad).
 
@@ -212,17 +214,28 @@ Plexr s'ouvre ensuite comme n'importe quel logiciel (menu Démarrer, lanceur d'a
 > **macOS** : l'application n'est pas signée par Apple. Au premier lancement, faites un clic droit sur Plexr →
 > **Ouvrir**, puis confirmez.
 
-### 📺 Android TV et tablettes
+### 📱 Android : téléphones, tablettes et TV
 
-L'APK n'est pas sur le Play Store : il s'installe à la main (« sideload »).
+L'APK n'est pas sur le Play Store : il s'installe à la main (« sideload »), une seule fois — les versions
+suivantes s'installent depuis Plexr (voir *Mises à jour*).
 
-- **Tablette** : copiez l'APK sur l'appareil et ouvrez-le ; Android demande d'autoriser l'installation depuis
-  le gestionnaire de fichiers ou le navigateur.
+- **Téléphone et tablette** : copiez l'APK sur l'appareil et ouvrez-le ; Android demande d'autoriser
+  l'installation depuis le gestionnaire de fichiers ou le navigateur.
 - **Téléviseur** : le plus simple est l'application *Downloader* (ou un gestionnaire de fichiers avec une clé
   USB). Depuis un ordinateur, avec le débogage activé dans les options pour les développeurs de la TV :
   `adb connect <ip-de-la-tv>:5555` puis `adb install Plexr_<version>_android.apk`.
 
 Plexr apparaît ensuite parmi les applications, avec sa bannière sur l'écran d'accueil de la TV.
+
+**Sur téléphone**, l'interface prend la forme d'une application mobile : un en-tête compact sous la barre
+d'état, des onglets en bas (Accueil, Bibliothèques, Découvrir, Stats, Réglages), le bandeau et « Continuer à
+regarder » à la taille de l'écran, des fiches qui s'empilent. Un appui long sur une affiche ouvre son menu ; dans
+les bandes d'onglets, l'onglet touché se centre. Les vidéos passent en paysage et en plein écran.
+
+**Musique en arrière-plan** : sur téléphone comme sur tablette, la musique continue quand Plexr est quitté, avec
+une notification (pochette, titre, précédent / lecture / suivant, progression) qui la pilote aussi depuis l'écran
+de verrouillage et les boutons d'un casque Bluetooth. Fermer Plexr depuis les applications récentes l'arrête.
+Le mini-lecteur, façon Spotify, ouvre en plein écran la pochette, la progression et toutes les commandes.
 
 > [!NOTE]
 > **Lecture sur Android** : il n'y a pas de mpv. La vidéo est convertie à la volée par votre serveur Plex (flux
@@ -459,7 +472,8 @@ traduisez les valeurs sans toucher aux clés ni aux `{{variables}}`, puis décla
 | `src/lib/spatial.ts`, `src/lib/nav.svelte.ts` | navigation à la télécommande (flèches) et bouton Retour d'Android |
 | `src/components/TvRows.svelte`, `TvGrid.svelte`, `src/lib/tvcards.ts` | interface TV : rangées avec fiche en haut, grilles légères |
 | `src/lib/player.svelte.ts` | lecture : mpv sur ordinateur, lecteur HTML (HLS transcodé par Plex) sur Android |
-| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière), signature, détection du téléviseur (`MainActivity.kt`) |
+| `src-tauri/gen/android/` | projet Android : manifeste (Android TV, bannière, icônes par couleur), signature, détection du téléviseur et du téléphone, barres système, vidéo en paysage (`MainActivity.kt`), musique en arrière-plan et notification (`MediaService.kt`) |
+| `src/components/PhoneTabs.svelte`, `src/views/Libraries.svelte` | téléphone : barre d'onglets et liste des bibliothèques |
 | `src-tauri/tauri.conf.json`, `tauri.windows.conf.json` | configuration et paquets ; la fenêtre transparente n'est activée que sous Windows |
 | `.github/workflows/paquets.yml` | construction des paquets Windows, Linux et macOS (l'APK est construit à part) |
 

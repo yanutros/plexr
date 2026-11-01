@@ -365,4 +365,63 @@
     background: var(--accent);
     box-shadow: 0 0 12px var(--accent);
   }
+
+  /* ---------- Téléphone : cartes plus basses, la carte ouverte laisse voir la suivante ---------- */
+
+  :global(html.phone) section {
+    --h: 210px;
+    margin-top: 22px;
+  }
+
+  :global(html.phone) h2 {
+    font-size: 17px;
+  }
+
+  :global(html.phone) .arrows {
+    display: none;
+  }
+
+  :global(html.phone) .track {
+    gap: 10px;
+    padding: 10px 16px 14px;
+    margin: -10px -16px -6px;
+  }
+
+  :global(html.phone) .card.open {
+    width: min(calc(var(--h) * 16 / 9), calc(100vw - 32px - 56px));
+  }
+
+  :global(html.phone) .info {
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+  }
+
+  :global(html.phone) h3 {
+    font-size: 22px;
+  }
+
+  :global(html.phone) .sub {
+    font-size: 12px;
+  }
+
+  :global(html.phone) .actions {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  :global(html.phone) .resume {
+    height: 36px;
+    padding: 0 14px 0 12px;
+    font-size: 14px;
+  }
+
+  :global(html.phone) .ghost {
+    width: 36px;
+    height: 36px;
+  }
+
+  :global(html.phone) .left {
+    display: none;
+  }
 </style>

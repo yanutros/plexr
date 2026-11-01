@@ -6,6 +6,10 @@
   import { attachVideo, detachVideo, mpv, play, player, stop, trackLabel } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
   import { t } from "../lib/i18n";
+  import { device } from "../lib/device";
+
+  // Téléphone : la vidéo passe en paysage et en plein écran (barres système masquées), comme Plex.
+  const android = (window as { PlexrDevice?: { setVideoMode?(on: boolean): void } }).PlexrDevice;
 
   const appWindow = getCurrentWindow();
 
@@ -175,10 +179,12 @@
     poke();
     // À la télécommande, le focus part du bouton lecture.
     document.querySelector<HTMLElement>(".overlay .icon-btn.main")?.focus();
+    if (device.phone) android?.setVideoMode?.(true);
     fullscreen = await appWindow.isFullscreen().catch(() => false);
   });
 
   onDestroy(() => {
+    if (device.phone) android?.setVideoMode?.(false);
     clearTimeout(hideTimer);
     clearTimeout(clickTimer);
   });

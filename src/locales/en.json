@@ -611,5 +611,17 @@
     "tvMovie": "TV Movie",
     "war": "War",
     "warPolitics": "War & Politics"
+  },
+  "phone": {
+    "tabs": {
+      "home": "Home",
+      "libraries": "Libraries",
+      "discover": "Discover",
+      "stats": "Stats",
+      "settings": "Settings"
+    },
+    "libraries": "Libraries",
+    "noLibraries": "No libraries on this server.",
+    "search": "Search"
   }
 }

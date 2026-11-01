@@ -806,4 +806,26 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ---------- Téléphone : l'en-tête est opaque, le bandeau reste en place ---------- */
+
+  :global(html.phone) .hero {
+    margin-top: 0;
+    padding: 16px 16px 24px;
+  }
+
+  :global(html.phone) .now {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :global(html.phone) .bento {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: auto;
+  }
+
+  :global(html.phone) .bento > :global(*) {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: 160px;
+  }
 </style>

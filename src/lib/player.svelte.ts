@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { untrack } from "svelte";
 import type { QueueTrack } from "./api";
 import { t } from "./i18n";
 
@@ -51,6 +52,8 @@ export const player = $state({
   repeat: false,
   /** Vue « En cours de lecture » ouverte. */
   expanded: false,
+  /** Incrémenté à chaque saut dans le morceau (pour la notification Android). */
+  seeks: 0,
 });
 
 export const current = () => (player.video ? null : (player.queue[player.index] ?? null));
@@ -232,6 +235,7 @@ const web = (() => {
       ["playing", () => (player.buffering = false)],
       ["volumechange", () => ((player.volume = Math.round(el.volume * 100)), (player.muted = el.muted))],
       ["progress", () => el.buffered.length && (player.bufferedUntil = el.buffered.end(el.buffered.length - 1))],
+      ["seeked", () => player.seeks++],
       ["ended", ended],
     ];
     for (const [ev, fn] of on) el.addEventListener(ev, fn);
@@ -423,3 +427,44 @@ listen<string>("player-stopped", ({ payload }) => {
     player.expanded = false;
   }
 });
+
+// ---------- Android : musique dans la notification ----------
+
+/**
+ * Sur Android, la musique jouée dans la page s'affiche dans une notification (pochette, titre,
+ * précédent / lecture / suivant) qui la garde aussi en vie en arrière-plan : voir MediaService.kt.
+ * Ses commandes reviennent ici par `window.__plexrMedia`.
+ */
+const android = (globalThis as { PlexrDevice?: { mediaUpdate?(json: string): void; mediaStop?(): void } }).PlexrDevice;
+if (android?.mediaUpdate) {
+  $effect.root(() => {
+    $effect(() => {
+      void player.seeks;
+      const track = current();
+      if (!player.active || !player.web || !track) {
+        android.mediaStop?.();
+        return;
+      }
+      android.mediaUpdate!(
+        JSON.stringify({
+          title: track.title,
+          artist: track.artist ?? "",
+          album: track.album ?? "",
+          art: track.cover ?? "",
+          playing: !player.paused,
+          position: Math.round(untrack(() => player.position) * 1000),
+          duration: Math.round(player.duration * 1000),
+        }),
+      );
+    });
+  });
+
+  (globalThis as { __plexrMedia?: (action: string) => void }).__plexrMedia = (action) => {
+    if (action === "play" || action === "pause") {
+      if (player.paused === (action === "play")) mpv("cycle", "pause");
+    } else if (action === "next") next();
+    else if (action === "previous") previous();
+    else if (action === "stop") stop();
+    else if (action.startsWith("seek:")) mpv("seek", Number(action.slice(5)) / 1000, "absolute");
+  };
+}

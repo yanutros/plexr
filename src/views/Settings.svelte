@@ -864,4 +864,50 @@
     height: 20px;
     accent-color: var(--accent);
   }
+
+  /* ---------- Téléphone : rubriques en bande défilante, contenu en pleine largeur ---------- */
+
+  :global(html.phone) .settings {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  :global(html.phone) .menu {
+    position: static;
+    flex-direction: row;
+    gap: 6px;
+    margin: 0 -16px;
+    padding: 4px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  :global(html.phone) .menu button {
+    flex: none;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    white-space: nowrap;
+  }
+
+  :global(html.phone) .menu-group,
+  :global(html.phone) .locked {
+    display: none;
+  }
+
+  :global(html.phone) .adv-toggle {
+    flex: none;
+    margin: 0 4px;
+    white-space: nowrap;
+  }
+
+  :global(html.phone) .invite,
+  :global(html.phone) .phone-setup {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  :global(html.phone) .invite-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
 </style>

@@ -3,21 +3,34 @@ import { invoke } from "@tauri-apps/api/core";
 
 const TV_WIDTH = 1280;
 
-export const device = { os: "", mobile: false, tv: false, touch: false };
+export const device = { os: "", mobile: false, tv: false, touch: false, phone: false };
 
-/** Classes posées sur <html> : `mobile`, `tv`, `touch`. */
+type AndroidBridge = { isTv(): boolean; insets?(): string };
+
+/** Classes posées sur <html> : `mobile`, `tv`, `touch`, `phone`. */
 export async function detectDevice() {
   device.os = (await invoke<string | null>("platform").catch(() => null)) ?? "";
   device.mobile = device.os === "android" || device.os === "ios";
   // Android indique lui-même s'il tourne sur un téléviseur (voir MainActivity.kt) ; à défaut,
   // un appareil Android sans écran tactile en est un.
-  const androidTv = (window as { PlexrDevice?: { isTv(): boolean } }).PlexrDevice?.isTv();
+  const android = (window as { PlexrDevice?: AndroidBridge }).PlexrDevice;
+  const androidTv = android?.isTv();
   device.touch = !androidTv && (navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches);
   device.tv = device.os === "android" && (androidTv ?? !device.touch);
   // Un téléviseur Full HD n'offre que 960 × 540 px à la page (densité ×2) : on l'affiche
   // comme un écran de 1280 px de large, que le WebView réduit pour tenir dans l'image.
   if (device.tv) document.querySelector('meta[name="viewport"]')?.setAttribute("content", `width=${TV_WIDTH}`);
+  // Téléphone : petit écran tactile (le plus petit côté sous 600 px), avec une interface à part
+  // (onglets en bas, rangées d'affiches). `?device=phone` l'impose (essais dans un navigateur).
+  const forced = new URLSearchParams(location.search).get("device") === "phone";
+  device.phone = forced || (device.mobile && !device.tv && Math.min(screen.width, screen.height) < 600);
+  if (forced) device.touch = true;
   const root = document.documentElement;
+  // Barres d'état et de navigation d'Android, que l'interface ne doit pas recouvrir.
+  const [top, bottom] = (android?.insets?.() ?? "0,0").split(",").map(Number);
+  root.style.setProperty("--inset-top", `${top || 0}px`);
+  root.style.setProperty("--inset-bottom", `${bottom || 0}px`);
+  root.classList.toggle("phone", device.phone);
   root.classList.toggle("mobile", device.mobile);
   root.classList.toggle("tv", device.tv);
   root.classList.toggle("touch", device.touch);

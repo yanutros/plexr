@@ -491,4 +491,35 @@
       grid-template-columns: 1fr;
     }
   }
+
+  /* ---------- Téléphone : tout s'empile, en pleine largeur ---------- */
+
+  :global(html.phone) .head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  :global(html.phone) .poster {
+    align-self: center;
+    width: 46%;
+  }
+
+  :global(html.phone) h1 {
+    font-size: 26px;
+  }
+
+  :global(html.phone) .actions .btn {
+    flex: 1 1 auto;
+  }
+
+  :global(html.phone) .body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    margin-top: 24px;
+  }
+
+  :global(html.phone) .crew {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 </style>

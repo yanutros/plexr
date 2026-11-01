@@ -1,6 +1,7 @@
 <script lang="ts">
   import { formatClock } from "../lib/api";
-  import { current, mpv, player } from "../lib/player.svelte";
+  import { current, mpv, next, player, previous } from "../lib/player.svelte";
+  import { device } from "../lib/device";
   import Icon from "./Icon.svelte";
   import { t } from "../lib/i18n";
 
@@ -22,6 +23,40 @@
       </div>
       <h1>{track?.title ?? ""}</h1>
       <div class="sub">{[track?.artist, track?.album].filter(Boolean).join(" — ")}</div>
+
+      <!-- Téléphone : lecteur complet en plein écran (le mini-lecteur et les onglets sont dessous). -->
+      {#if device.phone}
+        <div class="controls">
+          <input
+            class="seek"
+            type="range"
+            min="0"
+            max={Math.max(1, player.duration)}
+            step="1"
+            value={player.position}
+            style:--p="{player.duration ? (player.position / player.duration) * 100 : 0}%"
+            onchange={(e) => mpv("seek", Number(e.currentTarget.value), "absolute")}
+            aria-label={t("common.c1.position")}
+          />
+          <div class="times">
+            <span>{formatClock(player.position)}</span>
+            <span>-{formatClock(Math.max(0, player.duration - player.position))}</span>
+          </div>
+          <div class="buttons">
+            <button class="ctl" class:on={player.repeat} onclick={() => mpv("set_property", "loop-playlist", player.repeat ? "no" : "inf")} aria-label={t("musicBar.repeatQueue")}>
+              <Icon name="repeat" size={20} />
+            </button>
+            <button class="ctl" onclick={previous} aria-label={t("common.c1.previous")}><Icon name="backward" size={30} filled /></button>
+            <button class="play" onclick={() => mpv("cycle", "pause")} aria-label={player.paused ? t("common.c1.playback") : t("common.c1.pause")}>
+              <Icon name={player.paused ? "play" : "pause"} size={30} filled />
+            </button>
+            <button class="ctl" onclick={next} aria-label={t("common.c1.next")}><Icon name="forward" size={30} filled /></button>
+            <button class="ctl" onclick={() => mpv("cycle", "mute")} aria-label={t("common.c1.mute")}>
+              <Icon name={player.muted ? "mute" : "volume"} size={20} />
+            </button>
+          </div>
+        </div>
+      {/if}
     </div>
 
     {#if upNext.length}
@@ -200,5 +235,128 @@
     .next {
       display: none;
     }
+  }
+
+  /* ---------- Téléphone : plein écran, pochette à la largeur, commandes dessous ---------- */
+
+  :global(html.phone) .now-playing {
+    inset: 0;
+    z-index: 60;
+    overflow-y: auto;
+  }
+
+  :global(html.phone) .close {
+    top: calc(var(--safe-top) + 8px);
+    left: 12px;
+  }
+
+  :global(html.phone) .body {
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 28px;
+    height: auto;
+    min-height: 100%;
+    padding: calc(var(--safe-top) + 68px) 24px calc(var(--safe-bottom) + 24px);
+  }
+
+  :global(html.phone) .main {
+    width: 100%;
+  }
+
+  :global(html.phone) .cover {
+    width: min(100%, 52vh);
+  }
+
+  :global(html.phone) h1 {
+    margin-top: 22px;
+    font-size: 22px;
+  }
+
+  :global(html.phone) .sub {
+    font-size: 14px;
+  }
+
+  :global(html.phone) .next {
+    width: 100%;
+    max-height: none;
+  }
+
+  .controls {
+    width: 100%;
+    margin-top: 22px;
+  }
+
+  /* Curseur dessiné à la main (le style d'Android le rend sinon épais et décalé). */
+  .seek {
+    display: block;
+    width: 100%;
+    height: 18px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .seek::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #fff var(--p), #ffffff40 var(--p));
+  }
+
+  .seek::-webkit-slider-thumb {
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .times {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    color: #fffa;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+  }
+
+  .ctl {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: #fff;
+  }
+
+  .ctl.on {
+    color: var(--accent);
+  }
+
+  .play {
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    color: #0d0e10;
   }
 </style>

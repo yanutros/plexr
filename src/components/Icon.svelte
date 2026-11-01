@@ -40,6 +40,7 @@
     queue: "M3 6h18M3 12h18M3 18h11M18 15v6M15 18h6",
     chevronDown: "M6 9l6 6 6-6",
     chevronUp: "M6 15l6-6 6 6",
+    library: "M5 4v16M10 4v16M15 4v16M18 4.5l3 15",
     external: "M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6",
     copy: "M9 9h11v11H9zM5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1",
     qr: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM18 18h3v3h-3zM18 14h3M14 18v3",

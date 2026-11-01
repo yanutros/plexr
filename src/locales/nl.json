@@ -611,5 +611,17 @@
     "tvMovie": "Tv-film",
     "war": "Oorlog",
     "warPolitics": "Oorlog & Politiek"
+  },
+  "phone": {
+    "tabs": {
+      "home": "Start",
+      "libraries": "Bibliotheken",
+      "discover": "Ontdekken",
+      "stats": "Statistieken",
+      "settings": "Instellingen"
+    },
+    "libraries": "Bibliotheken",
+    "noLibraries": "Geen bibliotheken op deze server.",
+    "search": "Zoeken"
   }
 }

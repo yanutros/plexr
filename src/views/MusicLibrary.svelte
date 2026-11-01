@@ -171,7 +171,7 @@
     {:else if !hubs.length}
       <p class="muted">{t("music.library.nothingToRecommend")}</p>
     {:else}
-      <FeaturePanels {panels} />
+      {#if !device.phone}<FeaturePanels {panels} />{/if}
       {#if playlistHub}
         <Row title={playlistHub.title} large>
           {#each playlistHub.items as item (item.ratingKey)}<PosterCard {item} />{/each}

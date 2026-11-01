@@ -611,5 +611,17 @@
     "tvMovie": "Telefilme",
     "war": "Bélico",
     "warPolitics": "Guerra y política"
+  },
+  "phone": {
+    "tabs": {
+      "home": "Inicio",
+      "libraries": "Bibliotecas",
+      "discover": "Descubrir",
+      "stats": "Estadísticas",
+      "settings": "Ajustes"
+    },
+    "libraries": "Bibliotecas",
+    "noLibraries": "No hay bibliotecas en este servidor.",
+    "search": "Buscar"
   }
 }

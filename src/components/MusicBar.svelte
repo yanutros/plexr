@@ -4,6 +4,7 @@
   import { current, mpv, next, player, previous, stop } from "../lib/player.svelte";
   import Icon from "./Icon.svelte";
   import { t } from "../lib/i18n";
+  import { device } from "../lib/device";
 
   let showQueue = $state(false);
   let bar = $state<HTMLElement>();
@@ -97,7 +98,9 @@
         {#if track?.cover}<img src={track.cover} alt="" />{:else}<Icon name="music" size={24} />{/if}
         <span class="expand"><Icon name={player.expanded ? "chevronDown" : "expand"} size={18} /></span>
       </button>
-      <div class="meta">
+      <!-- Téléphone : comme Spotify, toucher le titre ouvre le lecteur plein écran. -->
+      <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+      <div class="meta" onclick={() => device.phone && (player.expanded = true)}>
         <div class="title">{track?.title ?? t("common.c1.loading")}</div>
         <div class="sub">
           {#if track?.artist}<button class="link" onclick={openArtist}>{track.artist}</button>{/if}
@@ -669,5 +672,80 @@
     .bar {
       grid-template-columns: minmax(0, 1fr) minmax(280px, 1.4fr) auto;
     }
+  }
+
+  /* ---------- Téléphone : mini-lecteur (pochette, titre, précédent / lecture / suivant) ---------- */
+
+  :global(html.phone) .dock {
+    padding: 6px 8px;
+  }
+
+  :global(html.phone) .bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px;
+    height: 64px;
+    padding: 0 6px 0 8px;
+    border-radius: 14px;
+  }
+
+  :global(html.phone) .extras,
+  :global(html.phone) .ctl.small,
+  :global(html.phone) .expand,
+  :global(html.phone) .scrub .t,
+  :global(html.phone) .knob {
+    display: none;
+  }
+
+  :global(html.phone) .cover {
+    width: 46px;
+    height: 46px;
+    border-radius: 9px;
+  }
+
+  :global(html.phone) .play {
+    width: 42px;
+    height: 42px;
+  }
+
+  :global(html.phone) .transport {
+    gap: 2px;
+  }
+
+  /* Comme Spotify : la progression est un filet collé au bas de la carte, qui ne se touche pas
+     (on avance dans le morceau depuis le lecteur plein écran, en touchant la pochette). */
+  :global(html.phone) .scrub {
+    position: absolute;
+    right: 10px;
+    bottom: 0;
+    left: 10px;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* Le filet s'aligne sur toute la carte, pas sur le bloc des boutons. */
+  :global(html.phone) .mid {
+    position: static;
+  }
+
+  :global(html.phone) .seek {
+    height: 2px;
+  }
+
+  :global(html.phone) .line {
+    height: 2px;
+    border-radius: 1px;
+  }
+
+  /* Mini-lecteur : lecture et suivant seulement (précédent est dans le lecteur plein écran). */
+  :global(html.phone) .transport > .ctl:nth-child(2) {
+    display: none;
+  }
+
+  :global(html.phone) .meta {
+    min-width: 0;
+  }
+
+  :global(html.phone) .meta .link {
+    pointer-events: none;
   }
 </style>

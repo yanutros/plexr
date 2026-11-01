@@ -230,7 +230,8 @@
       {#each continueHubs as hub, i (i)}
         <ContinueRow title={hub.title} items={hub.items} />
       {/each}
-      {#if panels.length}
+      <!-- Téléphone : pas de panneaux « À la une », trop grands pour l'écran. -->
+      {#if panels.length && !device.phone}
         <h2 class="feature-title">{t("library.featured")}</h2>
         <FeaturePanels {panels} />
       {/if}

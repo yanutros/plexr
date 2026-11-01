@@ -10,6 +10,8 @@
   import MusicLibrary from "./views/MusicLibrary.svelte";
   import ItemDetail from "./views/ItemDetail.svelte";
   import Search from "./views/Search.svelte";
+  import Libraries from "./views/Libraries.svelte";
+  import PhoneTabs from "./components/PhoneTabs.svelte";
   import Discover from "./views/Discover.svelte";
   import SeerrDetail from "./views/SeerrDetail.svelte";
   import Settings from "./views/Settings.svelte";
@@ -66,7 +68,7 @@
 
   // Largeur de la barre latérale, reprise par les fonds plein écran des fiches.
   $effect(() => {
-    document.documentElement.style.setProperty("--sidebar-w", sidebar.collapsed ? "73px" : "237px");
+    document.documentElement.style.setProperty("--sidebar-w", device.phone ? "0px" : sidebar.collapsed ? "73px" : "237px");
   });
 
   // Chaque nouvelle vue repart du haut.
@@ -75,10 +77,13 @@
     content?.scrollTo({ top: 0 });
   });
 
-  // Sur téléviseur, la page de recherche s'ouvre sur le champ de saisie.
+  // Sur téléviseur et téléphone, la page de recherche s'ouvre sur le champ de saisie.
   function tvAutofocus(input: HTMLInputElement) {
-    if (device.tv && !query) input.focus();
+    if ((device.tv || device.phone) && !query) input.focus();
   }
+
+  // Téléphone : les rubriques des onglets n'ont pas de bouton Retour (le bouton d'Android suffit).
+  const TAB_VIEWS = ["home", "libraries", "discover", "stats", "settings"];
 
   function onSearchInput() {
     clearTimeout(searchTimer);
@@ -99,12 +104,31 @@
   <ServerPicker onDone={refresh} />
 {:else}
   <div class="app">
-  <div class="shell" class:behind={watching} class:collapsed={sidebar.collapsed}>
-    <Sidebar {sections} serverName={session.serverName} />
+  <div class="shell" class:behind={watching} class:collapsed={sidebar.collapsed} class:phone={device.phone}>
+    {#if !device.phone}<Sidebar {sections} serverName={session.serverName} />{/if}
 
     <main data-nav-zone>
+      {#if device.phone}
+        <!-- Téléphone : en-tête compact (logo et recherche), sous la barre d'état. -->
+        <header class="phone-header">
+          {#if !TAB_VIEWS.includes(nav.view.name) && nav.history.length}
+            <button class="icon-btn" onclick={back} aria-label={t("common.c1.back")}><Icon name="back" /></button>
+          {/if}
+          {#if nav.view.name === "search"}
+            <label class="search">
+              <Icon name="search" size={18} />
+              <input type="search" placeholder={t("app.searchPlaceholder")} bind:value={query} oninput={onSearchInput} use:tvAutofocus />
+            </label>
+          {:else}
+            <span class="brand"><span class="logo"><Icon name="play" size={14} filled /></span>Plexr</span>
+            <button class="icon-btn" onclick={() => go({ name: "search", query: "" })} aria-label={t("phone.search")}>
+              <Icon name="search" />
+            </button>
+          {/if}
+        </header>
+      {/if}
       <!-- Sur téléviseur, la recherche passe par le menu : la barre n'apparaît que sur sa page. -->
-      {#if !device.tv || nav.view.name === "search"}
+      {#if !device.phone && (!device.tv || nav.view.name === "search")}
       <header data-nav-low>
         <button class="btn round ghost" disabled={!nav.history.length} onclick={back} aria-label={t("common.c1.back")}>
           <Icon name="back" />
@@ -119,6 +143,8 @@
         {#key nav.view}
           {#if nav.view.name === "home"}
             <Home />
+          {:else if nav.view.name === "libraries"}
+            <Libraries {sections} />
           {:else if nav.view.name === "section" && nav.view.kind === "artist"}
             <MusicLibrary sectionKey={nav.view.key} title={nav.view.title} />
           {:else if nav.view.name === "section"}
@@ -141,6 +167,7 @@
     </main>
   </div>
   {#if listening}<MusicBar />{/if}
+  {#if device.phone && !watching}<PhoneTabs />{/if}
   </div>
 {/if}
 
@@ -188,7 +215,7 @@
   /* La barre musique, quand elle est affichée, prend sa hauteur sous l'application. */
   .app {
     display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(0, 1fr) auto auto;
     height: 100%;
   }
 
@@ -203,6 +230,66 @@
 
   .shell.collapsed {
     grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  /* Téléphone : pas de menu latéral (les onglets sont en bas). */
+  .shell.phone {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* En flux normal (l'en-tête de l'ordinateur, lui, flotte au-dessus du contenu). */
+  .phone-header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: calc(var(--safe-top) + 6px) 12px 6px 16px;
+    background: var(--bg);
+  }
+
+  .phone-header .search {
+    flex: 1;
+    width: auto;
+  }
+
+  .brand {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 9px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .brand .logo {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding-left: 2px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, var(--accent-light), var(--accent) 55%, var(--accent-dark));
+    color: var(--accent-text);
+  }
+
+  .icon-btn {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--text);
+  }
+
+  .shell.phone .content {
+    padding-top: 0;
   }
 
   /* Masqué mais conservé pendant la lecture, pour retrouver la page au retour. */

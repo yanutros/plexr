@@ -71,4 +71,9 @@
   .rows {
     padding-top: 0;
   }
+
+  :global(html.phone) .hero-skeleton {
+    height: 40vh;
+    margin-top: 0;
+  }
 </style>

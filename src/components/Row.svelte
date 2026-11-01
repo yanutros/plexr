@@ -99,4 +99,39 @@
     grid-auto-columns: clamp(180px, 15vw, 300px);
     gap: 22px;
   }
+
+  /* Téléphone : un peu plus de trois affiches par largeur, défilement au doigt, pas de flèches. */
+  :global(html.phone) section {
+    margin-top: 22px;
+  }
+
+  :global(html.phone) h2 {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  :global(html.phone) .arrows {
+    display: none;
+  }
+
+  :global(html.phone) .scroller {
+    grid-auto-columns: calc((100vw - 32px - 20px) / 3.15);
+    gap: 10px;
+    padding: 4px 16px 8px;
+    margin: -4px -16px -4px;
+    scroll-padding: 0 16px;
+    scroll-snap-type: x proximity;
+  }
+
+  :global(html.phone) .scroller > :global(*) {
+    scroll-snap-align: start;
+  }
+
+  :global(html.phone) .scroller.wide {
+    grid-auto-columns: calc((100vw - 32px - 10px) / 1.6);
+  }
+
+  :global(html.phone) .scroller.large {
+    grid-auto-columns: calc((100vw - 32px - 10px) / 2.3);
+  }
 </style>
